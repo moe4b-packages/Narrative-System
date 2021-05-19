@@ -1,7 +1,7 @@
 {
   "name": "com.moe-baker.narrative-system",
   "version": "1.0.0",
-  "displayName": "Moe Baker Packages",
+  "displayName": "Narrative System",
   "description": "A component based narrative system",
   "unity": "2017.1",
   "unityRelease": "0a0",
