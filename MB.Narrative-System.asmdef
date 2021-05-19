@@ -1,0 +1,17 @@
+{
+    "name": "MB-Narrative-System",
+    "rootNamespace": "MB.NarrativeSystem",
+    "references": [
+        "GUID:25bbaff0f61abea489d3a55b470819db",
+        "GUID:99b32c2e0088a234db4ca64b1a50e3f0"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

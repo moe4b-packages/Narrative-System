@@ -1,0 +1,18 @@
+{
+  "name": "com.moe-baker.narrative-system",
+  "version": "1.0.0",
+  "displayName": "Moe Baker Packages",
+  "description": "A component based narrative system",
+  "unity": "2017.1",
+  "unityRelease": "0a0",
+  "keywords": [],
+  "author": {
+    "name": "Moe baker",
+    "email": "moe4baker@gmail.com",
+    "url": "https://moe-baker.github.io"
+  },
+  "dependencies": {
+    "com.moe-baker.toolbox": "0.0.0",
+    "com.moe-baker.ui-system": "0.0.0"
+  }
+}
