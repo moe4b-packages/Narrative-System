@@ -21,7 +21,8 @@ using MB.NarrativeSystem;
 
 namespace MB.NarrativeSystem
 {
-    public abstract class Script
+    [Serializable]
+    public abstract partial class Script
     {
         public BranchesProperty Branches { get; protected set; }
         [Serializable]
@@ -108,6 +109,22 @@ namespace MB.NarrativeSystem
             }
         }
 
+        public bool Ready { get; protected set; }
+
+        public virtual void Prepare()
+        {
+            if (Ready)
+            {
+                Debug.LogWarning("Script already Ready");
+                return;
+            }
+
+            Branches = new BranchesProperty(this);
+            Nodes = new NodesProperty(Branches);
+
+            Ready = true;
+        }
+
         public abstract IEnumerable<Branch> Assemble();
 
         #region Writing Utility
@@ -117,6 +134,8 @@ namespace MB.NarrativeSystem
         #region Flow Logic
         public void Invoke(int progress = 0)
         {
+            if (Ready == false) Prepare();
+
             if (Nodes.Collection.TryGet(progress, out var node) == false)
                 throw new Exception($"Invalid Progress of {node} Loaded on '{this}'");
 
@@ -159,8 +178,7 @@ namespace MB.NarrativeSystem
 
         public Script()
         {
-            Branches = new BranchesProperty(this);
-            Nodes = new NodesProperty(Branches);
+            
         }
 
         //Static Utility
@@ -169,6 +187,10 @@ namespace MB.NarrativeSystem
 
         //Utility Types
 
+        /// <summary>
+        /// Varaible for holding any script, for a script to be selectable by this,
+        /// it must be in its own file with a name matching the script name
+        /// </summary>
         [Serializable]
         public class Asset : ISerializationCallbackReceiver
         {

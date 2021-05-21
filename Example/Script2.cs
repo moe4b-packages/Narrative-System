@@ -19,6 +19,7 @@ using Random = UnityEngine.Random;
 
 namespace MB.NarrativeSystem
 {
+    [Serializable]
     public class Script2 : Script
     {
         public override IEnumerable<Branch> Assemble()
@@ -33,50 +34,59 @@ namespace MB.NarrativeSystem
         {
             SpeakingCharacter = "Character 1";
 
-            yield return Say.Compose("Impossible!", SpeakingCharacter);
-            yield return Say.Compose("The crystal cannot be held by a mortal like you", SpeakingCharacter);
-            yield return Say.Compose("Even I could only glance at its majestic glow for the last 400 years", SpeakingCharacter);
+            yield return Say("Impossible!");
+            yield return Say("The crystal cannot be held by a mortal like you");
+            yield return Say("Even I could only glance at its majestic glow for the last 400 years");
 
-            yield return Say.Compose("Perhaps there is more to you than meets the eye", SpeakingCharacter);
+            yield return Say("Perhaps there is more to you than meets the eye");
 
-            yield return Say.Compose("Nevertheless, the crystal cannot be exploited by the means of humans", SpeakingCharacter);
-            yield return Say.Compose("I request that you return it to its righteous place, young hero", SpeakingCharacter).SetAutoSubmit();
-            
-            yield return Choice.Compose(ReturnTheCrystal, KeepTheCrystal);
+            yield return Say("Nevertheless, the crystal cannot be exploited by the means of humans");
+            yield return Say("I request that you return it to its righteous place, young hero").SetAutoSubmit();
+
+            yield return Choice(ReturnTheCrystal, KeepTheCrystal);
         }
 
         IEnumerable ReturnTheCrystal()
         {
-            yield return Say.Compose("It's good to see that its power hasn't currpoted " +
-                "you as it has currpoted the lives of men many ages ago", SpeakingCharacter);
+            yield return Say("It's good to see that its power hasn't corrupted " +
+                "you as it has currpoted the lives of men many ages ago");
 
-            yield return Say.Compose("Could it be ...", SpeakingCharacter);
-            yield return Say.Compose("You ...", SpeakingCharacter);
+            yield return Say("Could it be ...");
+            yield return Say("You ...");
 
-            yield return Say.Compose("At another time & place perhaps", SpeakingCharacter);
+            yield return Say("At another time & place perhaps");
 
-            yield return Say.Compose("Thank you for your help hero", SpeakingCharacter);
+            yield return Say("Thank you for your help hero");
+
+            yield return ContinueStory();
         }
 
         IEnumerable KeepTheCrystal()
         {
-            yield return Say.Compose("The crystal must've currpoted you", SpeakingCharacter);
-            yield return Say.Compose("As it has currpoted the lives of men many ages before", SpeakingCharacter);
+            yield return Say("The crystal must've corrupted you");
+            yield return Say("As it has corrupted the lives of men many ages before");
 
-            yield return Say.Compose("I cannot allow its power to be exploited by those weak of will", SpeakingCharacter);
+            yield return Say("I cannot allow its power to be exploited by those weak of heart");
 
-            yield return Say.Compose("Are you ready to die for it?", SpeakingCharacter).SetAutoSubmit();
+            yield return Say("Are you ready to die for it?").SetAutoSubmit();
 
-            yield return Choice.Compose(ReturnTheCrystal, FightTheGuardian);
+            yield return Choice(ReturnTheCrystal, FightTheGuardian);
         }
 
         IEnumerable FightTheGuardian()
         {
-            yield return Say.Compose("So it is then", SpeakingCharacter);
+            yield return Say("So be it");
 
-            yield return Say.Compose("I will not let a shura roam free", SpeakingCharacter);
+            yield return Say("I will not let a shura roam free");
 
-            yield return Say.Compose("Prepare to Die", SpeakingCharacter);
+            yield return Say("Prepare to Die");
+
+            yield return ContinueStory();
+        }
+
+        IEnumerable ContinueStory()
+        {
+            yield return InvokeScript<Script1>();
         }
     }
 }

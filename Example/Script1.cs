@@ -21,6 +21,7 @@ using MB.NarrativeSystem;
 
 namespace MB.NarrativeSystem
 {
+    [Serializable]
     public class Script1 : Script
     {
         public override IEnumerable<Branch> Assemble()
@@ -38,20 +39,20 @@ namespace MB.NarrativeSystem
         {
             SpeakingCharacter = "Character 1";
 
-            yield return SetFadeState.On;
-            yield return Delay.Compose(1);
-            yield return FadeOut.Compose();
+            yield return SetFadeState(true);
+            yield return Delay(1);
+            yield return FadeOut();
 
-            yield return Say.Compose("Hello user", SpeakingCharacter);
-            yield return Say.Compose("Hope you are doing well today", SpeakingCharacter);
-            yield return Say.Compose("Welcome to the narrative System", SpeakingCharacter);
+            yield return Say("Hello user");
+            yield return Say("Hope you are doing well today");
+            yield return Say("Welcome to the narrative System");
         }
 
         IEnumerable KnowAboutFeatures()
         {
-            yield return Say.Compose("Which feature would you like to know about?", SpeakingCharacter).SetAutoSubmit(true);
+            yield return Say("Which feature would you like to know about?").SetAutoSubmit(true);
 
-            yield return Choice.Compose()
+            yield return Choice()
                 .Add(Option1)
                 .Add(Option2)
                 .Add(Option3);
@@ -59,30 +60,30 @@ namespace MB.NarrativeSystem
 
         IEnumerable Option1()
         {
-            yield return Say.Compose("You chose option 1", SpeakingCharacter);
+            yield return Say("You chose option 1");
 
             yield return Restart();
         }
         IEnumerable Option2()
         {
-            yield return Say.Compose("You chose option 2", SpeakingCharacter);
+            yield return Say("You chose option 2");
 
             yield return Restart();
         }
         IEnumerable Option3()
         {
-            yield return Say.Compose("You chose option 3", SpeakingCharacter);
+            yield return Say("You chose option 3");
 
             yield return Restart();
         }
 
         IEnumerable Restart()
         {
-            yield return FadeIn.Compose();
+            yield return FadeIn();
 
-            yield return Say.Clear;
+            yield return Say();
 
-            yield return InvokeFlowchart.Compose(this);
+            yield return InvokeScript(this);
         }
     }
 }
