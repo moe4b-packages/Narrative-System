@@ -40,6 +40,8 @@ namespace MB.NarrativeSystem
             this.data = data;
             this.submit = submit;
 
+            Show();
+
             coroutine = StartCoroutine(Procedure());
         }
 
@@ -47,9 +49,11 @@ namespace MB.NarrativeSystem
         bool IsProcessing => coroutine != null;
         IEnumerator Procedure()
         {
-            for (int i = 0; i < data.Text.Length + 1; i++)
+            var text = FormatText(data);
+
+            for (int i = 0; i < text.Length + 1; i++)
             {
-                label.text = data.Text.Insert(i, "<color=#0000>") + "</color>";
+                label.text = text.Insert(i, "<color=#0000>") + "</color>";
 
                 yield return new WaitForSeconds(typeDelay);
             }
@@ -65,7 +69,7 @@ namespace MB.NarrativeSystem
                 coroutine = null;
             }
 
-            label.text = data.Text;
+            label.text = FormatText(data);
 
             if (data.AutoSubmit) Submit();
         }
@@ -83,6 +87,15 @@ namespace MB.NarrativeSystem
                 Finish();
             else
                 Submit();
+        }
+
+        //Static Utility
+        static string FormatText(ISayData data)
+        {
+            if (data.Character == null)
+                return data.Text;
+            else
+                return $"{data.Character}: {data.Text}";
         }
     }
 }

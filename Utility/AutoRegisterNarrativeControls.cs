@@ -17,6 +17,8 @@ using UnityEditorInternal;
 using Object = UnityEngine.Object;
 using Random = UnityEngine.Random;
 
+using MB.UISystem;
+
 namespace MB.NarrativeSystem
 {
 	public class AutoRegisterNarrativeControls : MonoBehaviour
@@ -27,11 +29,14 @@ namespace MB.NarrativeSystem
         [SerializeField]
         InterfaceComponentSelection<IChoiceDialog> choice;
 
+        [SerializeField]
+        UIFader fader;
+
         void Awake()
         {
             Narrative.Controls.Say = say.Interface;
-
             Narrative.Controls.Choice = choice.Interface;
+            Narrative.Controls.Fader = fader;
         }
     }
 }

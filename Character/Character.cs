@@ -25,5 +25,15 @@ namespace MB.NarrativeSystem
 		public string DisplayName => name;
 
 		public override string ToString() => DisplayName;
+
+		public static implicit operator Character(string name) => Find(name);
+
+		public static Character Find(string name)
+        {
+			if (CharactersCollection.TryFind(name, out var character) == false)
+				throw new Exception($"No Character Named {name} was Found");
+
+			return character;
+		}
     }
 }

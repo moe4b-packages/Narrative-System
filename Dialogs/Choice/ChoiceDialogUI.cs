@@ -56,11 +56,17 @@ namespace MB.NarrativeSystem
         {
             Hide();
 
+            var data = templates[index].Data;
+
             foreach (var item in templates) Destroy(item.gameObject);
 
+            Invoke(index, data);
+        }
+        void Invoke(int index, IChoiceData data)
+        {
             var callback = submit;
             submit = null;
-            callback?.Invoke(index, templates[index].Data);
+            callback?.Invoke(index, data);
         }
     }
 }
