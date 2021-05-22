@@ -32,12 +32,6 @@ namespace MB.NarrativeSystem
 
             public Dictionary<string, Branch> Dictionary { get; protected set; }
 
-            public bool TryGet(Branch.Delegate function, out Branch branch)
-            {
-                var id = Branch.FormatID(function);
-
-                return Dictionary.TryGetValue(id, out branch);
-            }
             public bool TryGet(string id, out Branch branch) => Dictionary.TryGetValue(id, out branch);
             public Branch this[string id] => Dictionary[id];
 
@@ -47,24 +41,22 @@ namespace MB.NarrativeSystem
             public Branch First => List.SafeIndexer(0);
             public Branch Last => List.SafeIndexer(List.Count - 1);
 
-            public Branch Construction => List[List.Count - 1];
+            public Branch Selection { get; protected set; }
+            public IEnumerator<Node> Numerator { get; protected set; }
 
-            public int NodeCapacity
+            internal void SetSelection(Branch target)
             {
-                get
-                {
-                    var value = 0;
+                Selection = target;
 
-                    for (int i = 0; i < List.Count; i++)
-                        value += List[i].Nodes.Count;
-
-                    return value;
-                }
+                if (Selection == null)
+                    Numerator = null;
+                else
+                    Numerator = Selection.GetEnumerator();
             }
 
-            internal void Prepare(Script script)
+            public BranchesProperty(Script script)
             {
-                var functions = script.ListBranches();
+                var functions = ListBranches(script);
 
                 List = new List<Branch>(functions.Count);
 
@@ -75,66 +67,9 @@ namespace MB.NarrativeSystem
                     var entry = new Branch(id, functions[i], script, i);
 
                     List.Add(entry);
-
-                    functions[i]();
                 }
 
                 Dictionary = List.ToDictionary(x => x.ID);
-            }
-
-            public BranchesProperty()
-            {
-
-            }
-        }
-
-        public NodesProperty Nodes { get; protected set; }
-        [Serializable]
-        public class NodesProperty
-        {
-            public Node[] Collection { get; protected set; }
-
-            public Node this[int index] => Collection[index];
-            public int Count => Collection.Length;
-
-            public Node First => Collection.Length == 0 ? null : Collection[0];
-            public Node Last => Collection.Length == 0 ? null : Collection[Collection.Length - 1];
-
-            internal void Prepare(BranchesProperty branches)
-            {
-                Collection = new Node[branches.NodeCapacity];
-
-                var index = 0;
-
-                for (int b = 0; b < branches.Count; b++)
-                {
-                    for (int n = 0; n < branches[b].Nodes.Count; n++)
-                    {
-                        Collection[index] = branches[b].Nodes[n];
-                        Collection[index].Set(branches[b], index);
-
-                        index += 1;
-                    }
-                }
-            }
-
-            public NodesProperty()
-            {
-                
-            }
-        }
-
-        public int Progress { get; internal set; }
-
-        public Node Selection
-        {
-            get => Nodes[Progress];
-            set
-            {
-                if (value == null)
-                    Progress = 0;
-                else
-                    Progress = value.Index;
             }
         }
 
@@ -148,11 +83,7 @@ namespace MB.NarrativeSystem
                 return;
             }
 
-            Branches = new BranchesProperty();
-            Branches.Prepare(this);
-
-            Nodes = new NodesProperty();
-            Nodes.Prepare(Branches);
+            Branches = new BranchesProperty(this);
 
             Ready = true;
         }
@@ -161,57 +92,59 @@ namespace MB.NarrativeSystem
         public Character SpeakingCharacter { get; protected set; }
         #endregion
 
-        internal virtual T Register<T>(T node)
-            where T : Node
-        {
-            Branches.Construction.Nodes.Register(node);
-
-            return node;
-        }
-
-        List<Branch.Delegate> ListBranches()
-        {
-            var flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy;
-
-            var methods = GetType().GetMethods(flags);
-
-            var selection = methods.Where(BranchAttribute.IsDefined).OrderBy(x => BranchAttribute.GetAttribute(x).Line);
-
-            var result = selection.Select(x => BranchAttribute.CreateDelegate(x, this)).ToList();
-
-            return result;
-        }
-
         #region Flow Logic
-        public void Invoke(int progress = 0)
+        public virtual void Play()
         {
             if (Ready == false) Prepare();
 
-            if (Nodes.Collection.TryGet(progress, out var node) == false)
-                throw new Exception($"Invalid Progress of {node} Loaded on '{this}'");
+            Clear();
 
-            Invoke(node);
+            if(Branches.Count == 0)
+            {
+                Debug.LogWarning($"{this} Has No Branches Defined");
+                return;
+            }
+
+            Invoke(Branches.First);
         }
 
-        public delegate void InvokeDelegate(Node node);
-        public event InvokeDelegate OnInvoke;
+        public virtual void Clear()
+        {
+
+        }
+
+        void Invoke(Branch branch)
+        {
+            Branches.SetSelection(branch);
+
+            Continue();
+        }
+
         void Invoke(Node node)
         {
-            Selection = node;
-            Selection.Invoke();
-
-            OnInvoke?.Invoke(node);
+            node.Set(Branches.Selection);
+            node.Invoke();
         }
 
         public void Continue()
         {
-            if (Selection.Next == null)
+            if (Branches.Numerator.MoveNext())
+                Invoke(Branches.Numerator.Current);
+            else if (Branches.Selection.Next == null)
                 End();
             else
-                Invoke(Selection.Next);
+                Continue(Branches.Selection.Next);
         }
-        public void Continue(Branch branch) => Continue(branch.Nodes.First);
-        public void Continue(Node node) => Invoke(node);
+        public void Continue(Branch.Delegate branch)
+        {
+            var id = Branch.FormatID(branch);
+
+            if (Branches.TryGet(id, out var instance) == false)
+                throw new Exception($"Couldn't Find Branch with ID {id} On {this}");
+
+            Continue(instance);
+        }
+        public void Continue(Branch branch) => Invoke(branch);
 
         public void Stop()
         {
@@ -221,7 +154,7 @@ namespace MB.NarrativeSystem
         public event Action OnEnd;
         protected void End()
         {
-            Selection = null;
+            Branches.SetSelection(null);
 
             OnEnd?.Invoke();
         }
@@ -235,6 +168,34 @@ namespace MB.NarrativeSystem
         //Static Utility
 
         public static T[] Arrange<T>(params T[] array) => array;
+
+        public static List<Branch.Delegate> ListBranches(Script script)
+        {
+            var type = script.GetType();
+
+            var tree = new Stack<Type>(MUtility.GetHierarchyTree(type));
+
+            var flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+
+            var list = new List<Branch.Delegate>();
+
+            foreach (var member in tree)
+            {
+                if (member == typeof(object)) continue;
+                if (member == typeof(Script)) continue;
+
+                var methods = member.GetMethods(flags);
+
+                var selection = methods
+                    .Where(BranchAttribute.IsDefined)
+                    .OrderBy(x => BranchAttribute.GetAttribute(x).Line)
+                    .Select(x => BranchAttribute.CreateDelegate(x, script));
+
+                list.AddRange(selection);
+            }
+
+            return list;
+        }
 
         //Utility Types
 

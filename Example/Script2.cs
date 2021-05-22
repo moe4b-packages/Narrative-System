@@ -23,72 +23,73 @@ namespace MB.NarrativeSystem
     public class Script2 : Script
     {
         [Branch]
-        void TalkAboutCrystal()
+        IEnumerable<Node> TalkAboutCrystal()
         {
+            yield return SetFadeState(true);
+            yield return FadeOut();
+
             SpeakingCharacter = "Character 1";
 
-            Say("Impossible!");
-            Say("The crystal cannot be held by a mortal like you");
-            Say("Even I could only glance at its majestic glow for the last 400 years");
+            yield return Say("Impossible!");
+            yield return Say("The crystal cannot be held by a mortal like you");
+            yield return Say("Even I could only glance at its majestic glow for the last 400 years");
 
-            Say("Perhaps there is more to you than meets the eye");
+            yield return Say("Perhaps there is more to you than meets the eye");
 
-            Say("Nevertheless, the crystal cannot be exploited by the means of humans");
-            Say("I request that you return it to its righteous place, young hero");
+            yield return Say("Nevertheless, the crystal cannot be exploited by the means of humans");
+            yield return Say("I request that you return it to its righteous place, young hero").SetAutoSubmit();
 
-            Choice(ReturnTheCrystal, KeepTheCrystal);
+            yield return Choice(ReturnTheCrystal, KeepTheCrystal);
         }
 
         [Branch]
-        void ReturnTheCrystal()
+        IEnumerable<Node> ReturnTheCrystal()
         {
-            Say("It's good to see that its power hasn't corrupted " +
+            yield return Say("It's good to see that its power hasn't corrupted " +
                 "you as it has currpoted the lives of men many ages ago");
 
-            Say("Could it be ...");
-            Say("You ...");
+            yield return Say("Could it be ...");
+            yield return Say("You ...");
 
-            Say("At another time & place perhaps");
+            yield return Say("At another time & place perhaps");
 
-            Say("Thank you for your help hero");
+            yield return Say("Thank you for your help hero");
 
-            GoTo(ContinueStory);
+            yield return GoTo(ContinueStory);
         }
 
         [Branch]
-        void KeepTheCrystal()
+        IEnumerable<Node> KeepTheCrystal()
         {
-            Say("The crystal must've corrupted you");
-            Say("As it has corrupted the lives of men many ages before");
+            yield return Say("The crystal must've corrupted you");
+            yield return Say("As it has corrupted the lives of men many ages before");
 
-            Say("I cannot allow its power to be exploited by those weak of heart");
+            yield return Say("I cannot allow its power to be exploited by those weak of heart");
 
-            Say("Are you ready to die for it?");
+            yield return Say("Are you ready to die for it?").SetAutoSubmit();
 
-            Choice(ReturnTheCrystal, FightTheGuardian);
+            yield return Choice(ReturnTheCrystal, FightTheGuardian);
         }
 
         [Branch]
-        void FightTheGuardian()
+        IEnumerable<Node> FightTheGuardian()
         {
-            Say("So be it");
+            yield return Say("So be it");
 
-            Say("I will not let a shura roam free");
+            yield return Say("I will not let a shura roam free");
 
-            Say("Prepare to Die");
+            yield return Say("Prepare to Die");
 
-            GoTo(ContinueStory);
+            yield return GoTo(ContinueStory);
         }
 
         [Branch]
-        void ContinueStory()
+        IEnumerable<Node> ContinueStory()
         {
-            FadeIn();
+            yield return FadeIn();
+            yield return Say();
 
-            Say();
-
-            GoTo(TalkAboutCrystal);
-            //InvokeScript<Script1>();
+            yield return InvokeScript<Script1>();
         }
     }
 }

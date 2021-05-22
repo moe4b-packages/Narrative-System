@@ -45,13 +45,6 @@ namespace MB.NarrativeSystem
 
     partial class Script
     {
-        protected DelayNode Delay(float duration = 1f)
-        {
-            var node = new DelayNode(duration);
-
-            Register(node);
-
-            return node;
-        }
+        protected DelayNode Delay(float duration = 1f) => new DelayNode(duration);
     }
 }

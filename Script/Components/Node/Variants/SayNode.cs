@@ -36,8 +36,6 @@ namespace MB.NarrativeSystem
         {
             base.Invoke();
 
-            if (Next is ChoiceNode) AutoSubmit = true;
-
             Narrative.Controls.Say.Show(this, Submit);
         }
 
@@ -55,13 +53,6 @@ namespace MB.NarrativeSystem
         protected SayNode Say() => Say(string.Empty, null).SetAutoSubmit(true);
 
         protected SayNode Say(string text) => Say(text, SpeakingCharacter);
-        protected SayNode Say(string text, Character character)
-        {
-            var node = new SayNode(text, character);
-
-            Register(node);
-
-            return node;
-        }
+        protected SayNode Say(string text, Character character) => new SayNode(text, character);
     }
 }

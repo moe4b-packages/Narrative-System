@@ -26,25 +26,23 @@ namespace MB.NarrativeSystem
         {
             public string Text { get; protected set; }
 
-            public string Branch { get; protected set; }
+            public Branch.Delegate Branch { get; protected set; }
 
-            public Entry(string text, string branch)
+            public Entry(string text, Branch.Delegate branch)
             {
                 this.Text = text;
                 this.Branch = branch;
             }
         }
 
-        public ChoiceNode Add(Branch.Delegate function)
+        public ChoiceNode Add(Branch.Delegate branch)
         {
-            var text = function.Method.Name.ToDisplayString();
+            var text = branch.Method.Name.ToDisplayString();
 
-            return Add(function, text);
+            return Add(branch, text);
         }
-        public ChoiceNode Add(Branch.Delegate function, string text)
+        public ChoiceNode Add(Branch.Delegate branch, string text)
         {
-            var branch = Branch.FormatID(function);
-
             var item = new Entry(text, branch);
 
             return Add(item);
@@ -100,12 +98,9 @@ namespace MB.NarrativeSystem
         {
             var entry = entries[index];
 
-            if (Script.Branches.TryGet(entry.Branch, out var branch) == false)
-                throw new Exception($"Branch {entry.Branch} Couldn't be found");
-
             OnSubmit?.Invoke(index, data);
 
-            Script.Continue(branch);
+            Script.Continue(entry.Branch);
         }
 
         public ChoiceNode()
@@ -116,14 +111,7 @@ namespace MB.NarrativeSystem
 
     partial class Script
     {
-        protected ChoiceNode Choice()
-        {
-            var node = new ChoiceNode();
-
-            Register(node);
-
-            return node;
-        }
+        protected ChoiceNode Choice() => new ChoiceNode();
         protected ChoiceNode Choice(params Branch.Delegate[] branches)
         {
             var node = Choice();

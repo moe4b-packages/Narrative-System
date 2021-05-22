@@ -27,7 +27,7 @@ namespace MB.NarrativeSystem
         {
             base.Invoke();
 
-            target.Invoke();
+            target.Play();
 
             if (target != Script) Script.Continue();
         }
@@ -40,19 +40,11 @@ namespace MB.NarrativeSystem
 
     partial class Script
     {
+        protected InvokeScriptNode InvokeScript(Script target) => new InvokeScriptNode(target);
         protected InvokeScriptNode InvokeScript<T>() where T : Script, new()
         {
             var story = new T();
-
             return InvokeScript(story);
-        }
-        protected InvokeScriptNode InvokeScript(Script target)
-        {
-            var node = new InvokeScriptNode(target);
-
-            Register(node);
-
-            return node;
         }
     }
 }

@@ -34,33 +34,33 @@ namespace MB.NarrativeSystem
 			public static UIFader Fader { get; set; }
 		}
 
-		public static Script Play(Script.Asset asset, int progress = 0)
+		public static Script Play(Script.Asset asset)
         {
-			return Play<Script>(asset, progress: progress);
+			return Play<Script>(asset);
         }
-		public static T Play<T>(Script.Asset asset, int progress = 0)
+		public static T Play<T>(Script.Asset asset)
 			where T : Script
         {
 			var script = asset.CreateInstance() as T;
 
-			Play(script, progress: progress);
+			Play(script);
 
 			return script;
         }
 
-		public static T Play<T>(int progress = 0)
+		public static T Play<T>()
 			where T : Script, new()
 		{
 			var script = new T();
 
-			Play(script, progress: progress);
+			Play(script);
 
 			return script;
 		}
 
-		public static void Play(Script script, int progress = 0)
+		public static void Play(Script script)
 		{
-			script.Invoke(progress);
+			script.Play();
 		}
 	}
 

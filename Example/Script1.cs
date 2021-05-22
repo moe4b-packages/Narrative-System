@@ -23,57 +23,57 @@ namespace MB.NarrativeSystem
     public class Script1 : Script
     {
         [Branch]
-        void Introduction()
+        IEnumerable<Node> Introduction()
         {
             SpeakingCharacter = "Character 1";
 
-            SetFadeState(true);
-            Delay(1);
-            FadeOut();
+            yield return SetFadeState(true);
+            yield return Delay(1);
+            yield return FadeOut();
 
-            Say("Hello user");
-            Say("Hope you are doing well today");
-            Say("Welcome to the narrative System");
+            yield return Say("Hello user");
+            yield return Say("Hope you are doing well today");
+            yield return Say("Welcome to the narrative System");
         }
 
         [Branch]
-        void KnowAboutFeatures()
+        IEnumerable<Node> KnowAboutFeatures()
         {
-            Say("Which feature would you like to know about?").SetAutoSubmit(true);
+            yield return Say("Which feature would you like to know about?").SetAutoSubmit();
 
-            Choice(Option1, Option2, Option3);
+            yield return Choice(Option1, Option2, Option3);
         }
 
         [Branch]
-        void Option1()
+        IEnumerable<Node> Option1()
         {
-            Say("You chose option 1");
+            yield return Say("You chose option 1");
 
-            GoTo(Restart);
+            yield return GoTo(ContinueStory);
         }
         [Branch]
-        void Option2()
+        IEnumerable<Node> Option2()
         {
-            Say("You chose option 2");
+            yield return Say("You chose option 2");
 
-            GoTo(Restart);
+            yield return GoTo(ContinueStory);
         }
         [Branch]
-        void Option3()
+        IEnumerable<Node> Option3()
         {
-            Say("You chose option 3");
+            yield return Say("You chose option 3");
 
-            GoTo(Restart);
+            yield return GoTo(ContinueStory);
         }
 
         [Branch]
-        void Restart()
+        IEnumerable<Node> ContinueStory()
         {
-            FadeIn();
+            yield return FadeIn();
 
-            Say();
+            yield return Say();
 
-            InvokeScript(this);
+            yield return InvokeScript<Script2>();
         }
     }
 }

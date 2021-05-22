@@ -21,35 +21,23 @@ namespace MB.NarrativeSystem
 {
 	public class GoToBranchNode : Node
 	{
-		Branch.Delegate function;
+		Branch.Delegate branch;
 
         public override void Invoke()
         {
 			base.Invoke();
-
-			var id = Branch.FormatID(function);
-
-			if (Script.Branches.TryGet(id, out var branch) == false)
-				throw new Exception($"Invalid Branch with ID {id}, Can not Go To");
 
 			Script.Continue(branch);
 		}
 
         public GoToBranchNode(Branch.Delegate function)
         {
-			this.function = function;
+			this.branch = function;
         }
 	}
 
 	partial class Script
 	{
-		protected GoToBranchNode GoTo(Branch.Delegate function)
-        {
-			var node = new GoToBranchNode(function);
-
-			Register(node);
-
-			return node;
-		}
+		protected GoToBranchNode GoTo(Branch.Delegate function) => new GoToBranchNode(function);
 	}
 }

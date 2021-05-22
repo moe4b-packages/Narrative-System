@@ -27,6 +27,7 @@ namespace MB.NarrativeSystem
         public string ID { get; protected set; }
 
         public Delegate Function { get; protected set; }
+        public delegate IEnumerable<Node> Delegate();
 
         public Script Script { get; protected set; }
         public int Index { get; protected set; }
@@ -52,36 +53,7 @@ namespace MB.NarrativeSystem
             }
         }
 
-        public NodesProperty Nodes { get; protected set; }
-        [Serializable]
-        public class NodesProperty
-        {
-            protected Branch Branch { get; set; }
-
-            public List<Node> List { get; protected set; }
-
-            public Node this[int index] => List[index];
-            public int Count => List.Count;
-
-            public Node First => List.SafeIndexer(0);
-            public Node Last => List.SafeIndexer(List.Count - 1);
-
-            internal void Register(Node node)
-            {
-                var index = List.Count;
-
-                List.Add(node);
-
-                node.Set(Branch, index);
-            }
-
-            public NodesProperty(Branch branch)
-            {
-                this.Branch = branch;
-
-                List = new List<Node>();
-            }
-        }
+        public IEnumerator<Node> GetEnumerator() => Function().GetEnumerator();
 
         public override string ToString() => $"{Script}->{ID}";
 
@@ -89,13 +61,10 @@ namespace MB.NarrativeSystem
         {
             this.ID = id;
             this.Function = function;
+
             this.Script = script;
             this.Index = index;
-
-            Nodes = new NodesProperty(this);
         }
-
-        public delegate void Delegate();
 
         //Static Utility
 
@@ -103,7 +72,7 @@ namespace MB.NarrativeSystem
     }
 
     [AttributeUsage(AttributeTargets.Method, Inherited = true, AllowMultiple = false)]
-    sealed class BranchAttribute : Attribute
+    public sealed class BranchAttribute : Attribute
     {
         public int Line { get; private set; }
 

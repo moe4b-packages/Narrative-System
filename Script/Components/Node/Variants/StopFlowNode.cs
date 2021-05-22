@@ -31,13 +31,6 @@ namespace MB.NarrativeSystem
 
     partial class Script
     {
-        protected StopFlowNode StopFlow()
-        {
-            var node = new StopFlowNode();
-
-            Register(node);
-
-            return node;
-        }
+        protected StopFlowNode StopFlow() => new StopFlowNode();
     }
 }
