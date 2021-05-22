@@ -50,5 +50,12 @@ namespace MB.NarrativeSystem
 
             return node;
         }
+
+        protected CallbackNode Callback(Action function)
+        {
+            void Surrogate(CallbackNode self) => function();
+
+            return Callback(Surrogate);
+        }
     }
 }

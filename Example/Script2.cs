@@ -87,7 +87,8 @@ namespace MB.NarrativeSystem
 
             Say();
 
-            InvokeScript<Script1>();
+            GoTo(TalkAboutCrystal);
+            //InvokeScript<Script1>();
         }
     }
 }

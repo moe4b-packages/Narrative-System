@@ -63,14 +63,39 @@ namespace MB.NarrativeSystem
             Narrative.Controls.Choice.Show(entries, Submit);
         }
 
-        public ChoiceNode Callback(SubmitDelegate function)
+        public delegate void SimpleSubmitDelegate(int index);
+        public ChoiceNode Callback(SimpleSubmitDelegate function)
+        {
+            OnSubmit += Surrogate;
+
+            void Surrogate(int index, IChoiceData data) => function?.Invoke(index);
+
+            return this;
+        }
+
+        public delegate void ComplexSubmitDelegate(int index, IChoiceData data);
+        public ChoiceNode Callback(ComplexSubmitDelegate function)
         {
             OnSubmit += function;
             return this;
         }
 
-        public delegate void SubmitDelegate(int index, IChoiceData data);
-        public event SubmitDelegate OnSubmit;
+        public ChoiceNode Callback<T>(Action<T> function, params T[] options)
+            where T : Enum
+        {
+            Callback(Surrogate);
+
+            void Surrogate(int index, IChoiceData data)
+            {
+                var value = options[index];
+
+                function(value);
+            }
+
+            return this;
+        }
+
+        public event ComplexSubmitDelegate OnSubmit;
         public void Submit(int index, IChoiceData data)
         {
             var entry = entries[index];
