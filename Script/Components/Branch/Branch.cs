@@ -17,13 +17,16 @@ using UnityEditorInternal;
 using Object = UnityEngine.Object;
 using Random = UnityEngine.Random;
 
-using MB.NarrativeSystem;
+using System.Runtime.CompilerServices;
+using System.Reflection;
 
 namespace MB.NarrativeSystem
 {
     public class Branch
     {
         public string ID { get; protected set; }
+
+        public Delegate Function { get; protected set; }
 
         public Script Script { get; protected set; }
         public int Index { get; protected set; }
@@ -53,6 +56,8 @@ namespace MB.NarrativeSystem
         [Serializable]
         public class NodesProperty
         {
+            protected Branch Branch { get; set; }
+
             public List<Node> List { get; protected set; }
 
             public Node this[int index] => List[index];
@@ -61,60 +66,60 @@ namespace MB.NarrativeSystem
             public Node First => List.SafeIndexer(0);
             public Node Last => List.SafeIndexer(List.Count - 1);
 
-            public NodesProperty(Branch branch, IEnumerable collection)
+            internal void Register(Node node)
             {
-                List = GetNodes(collection);
+                var index = List.Count;
 
-                for (int i = 0; i < List.Count; i++)
-                    List[i].Set(branch, i);
+                List.Add(node);
+
+                node.Set(Branch, index);
             }
 
-            static List<Node> GetNodes(IEnumerable collection)
+            public NodesProperty(Branch branch)
             {
-                var list = new List<Node>();
+                this.Branch = branch;
 
-                GetNodes(collection, ref list);
-
-                return list;
-            }
-            static void GetNodes(IEnumerable collection, ref List<Node> list)
-            {
-                foreach (var item in collection)
-                {
-                    if (item is Node node)
-                        list.Add(node);
-                    else if (item is IEnumerable other)
-                        GetNodes(other, ref list);
-                }
+                List = new List<Node>();
             }
         }
 
-        internal void Set(Script script, int index)
-        {
-            this.Script = script;
-            this.Index = index;
-        }
+        public override string ToString() => $"{Script}->{ID}";
 
-        public Branch(string id, IEnumerable nodes)
+        public Branch(string id, Delegate function, Script script, int index)
         {
             this.ID = id;
-            this.Nodes = new NodesProperty(this, nodes);
+            this.Function = function;
+            this.Script = script;
+            this.Index = index;
+
+            Nodes = new NodesProperty(this);
         }
 
-        public delegate IEnumerable Delegate();
+        public delegate void Delegate();
 
         //Static Utility
 
-        public static Branch From(Delegate function)
+        public static string FormatID(Delegate function) => function.Method.Name;
+    }
+
+    [AttributeUsage(AttributeTargets.Method, Inherited = true, AllowMultiple = false)]
+    sealed class BranchAttribute : Attribute
+    {
+        public int Line { get; private set; }
+
+        public BranchAttribute([CallerLineNumber] int line = 0)
         {
-            var name = FormatID(function);
-            var nodes = function();
-
-            var branch = new Branch(name, nodes);
-
-            return branch;
+            this.Line = line;
         }
 
-        public static string FormatID(Delegate function) => function.Method.Name;
+        public static bool IsDefined(MethodInfo info) => GetAttribute(info) != null;
+        public static BranchAttribute GetAttribute(MethodInfo info) => info.GetCustomAttribute<BranchAttribute>(true);
+
+        public static Branch.Delegate CreateDelegate(MethodInfo info, object target)
+        {
+            var type = typeof(Branch.Delegate);
+
+            return info.CreateDelegate(type, target) as Branch.Delegate;
+        }
     }
 }

@@ -21,13 +21,12 @@ namespace MB.NarrativeSystem
 {
     public class SayNode : Node, ISayData
     {
-        public Character Character { get; set; }
+        public string Text { get; protected set; }
 
-        public string Text { get; set; }
+        public Character Character { get; protected set; }
 
         public bool AutoSubmit { get; set; }
-        public SayNode SetAutoSubmit() => SetAutoSubmit(true);
-        public SayNode SetAutoSubmit(bool value)
+        public SayNode SetAutoSubmit(bool value = true)
         {
             AutoSubmit = value;
             return this;
@@ -37,25 +36,32 @@ namespace MB.NarrativeSystem
         {
             base.Invoke();
 
+            if (Next is ChoiceNode) AutoSubmit = true;
+
             Narrative.Controls.Say.Show(this, Submit);
         }
 
         void Submit() => Script.Continue();
+
+        public SayNode(string text, Character character)
+        {
+            this.Text = text;
+            this.Character = character;
+        }
     }
 
     partial class Script
     {
-        public SayNode Say() => Say("", null).SetAutoSubmit(true);
+        protected SayNode Say() => Say(string.Empty, null).SetAutoSubmit(true);
 
-        public SayNode Say(string text, Character character = null)
+        protected SayNode Say(string text) => Say(text, SpeakingCharacter);
+        protected SayNode Say(string text, Character character)
         {
-            if (character == null) character = SpeakingCharacter;
+            var node = new SayNode(text, character);
 
-            return new SayNode()
-            {
-                Text = text,
-                Character = character,
-            };
+            Register(node);
+
+            return node;
         }
     }
 }

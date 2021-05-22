@@ -21,7 +21,7 @@ namespace MB.NarrativeSystem
 {
     public class ChoiceNode : Node
     {
-        List<Entry> entires;
+        List<Entry> entries;
         public class Entry : IChoiceData
         {
             public string Text { get; protected set; }
@@ -46,7 +46,12 @@ namespace MB.NarrativeSystem
             var branch = Branch.FormatID(function);
 
             var item = new Entry(text, branch);
-            entires.Add(item);
+
+            return Add(item);
+        }
+        public ChoiceNode Add(Entry entry)
+        {
+            entries.Add(entry);
 
             return this;
         }
@@ -55,7 +60,7 @@ namespace MB.NarrativeSystem
         {
             base.Invoke();
 
-            Narrative.Controls.Choice.Show(entires, Submit);
+            Narrative.Controls.Choice.Show(entries, Submit);
         }
 
         public ChoiceNode Callback(SubmitDelegate function)
@@ -68,7 +73,7 @@ namespace MB.NarrativeSystem
         public event SubmitDelegate OnSubmit;
         public void Submit(int index, IChoiceData data)
         {
-            var entry = entires[index];
+            var entry = entries[index];
 
             if (Script.Branches.TryGet(entry.Branch, out var branch) == false)
                 throw new Exception($"Branch {entry.Branch} Couldn't be found");
@@ -78,37 +83,30 @@ namespace MB.NarrativeSystem
             Script.Continue(branch);
         }
 
-        public ChoiceNode() : this(new List<Entry>()) { }
-        public ChoiceNode(List<Entry> entires)
+        public ChoiceNode()
         {
-            this.entires = entires;
+            entries = new List<Entry>();
         }
     }
 
     partial class Script
     {
-        public ChoiceNode Choice()
+        protected ChoiceNode Choice()
         {
-            var choice = new ChoiceNode();
+            var node = new ChoiceNode();
 
-            return choice;
+            Register(node);
+
+            return node;
         }
-        public ChoiceNode Choice(params Branch.Delegate[] branches)
+        protected ChoiceNode Choice(params Branch.Delegate[] branches)
         {
-            var entries = new List<ChoiceNode.Entry>(branches.Length);
+            var node = Choice();
 
             for (int i = 0; i < branches.Length; i++)
-            {
-                var text = branches[i].Method.Name.ToDisplayString();
-                var branch = Branch.FormatID(branches[i]);
+                node.Add(branches[i]);
 
-                var item = new ChoiceNode.Entry(text, branch);
-                entries.Add(item);
-            }
-
-            var choice = new ChoiceNode(entries);
-
-            return choice;
+            return node;
         }
     }
 }

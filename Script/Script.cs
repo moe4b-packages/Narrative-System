@@ -17,7 +17,7 @@ using UnityEditorInternal;
 using Object = UnityEngine.Object;
 using Random = UnityEngine.Random;
 
-using MB.NarrativeSystem;
+using System.Reflection;
 
 namespace MB.NarrativeSystem
 {
@@ -32,6 +32,12 @@ namespace MB.NarrativeSystem
 
             public Dictionary<string, Branch> Dictionary { get; protected set; }
 
+            public bool TryGet(Branch.Delegate function, out Branch branch)
+            {
+                var id = Branch.FormatID(function);
+
+                return Dictionary.TryGetValue(id, out branch);
+            }
             public bool TryGet(string id, out Branch branch) => Dictionary.TryGetValue(id, out branch);
             public Branch this[string id] => Dictionary[id];
 
@@ -40,6 +46,8 @@ namespace MB.NarrativeSystem
 
             public Branch First => List.SafeIndexer(0);
             public Branch Last => List.SafeIndexer(List.Count - 1);
+
+            public Branch Construction => List[List.Count - 1];
 
             public int NodeCapacity
             {
@@ -54,13 +62,29 @@ namespace MB.NarrativeSystem
                 }
             }
 
-            public BranchesProperty(Script script)
+            internal void Prepare(Script script)
             {
-                List = script.Assemble().ToList();
-                Dictionary = List.ToDictionary(x => x.ID);
+                var functions = script.ListBranches();
 
-                for (int i = 0; i < List.Count; i++)
-                    List[i].Set(script, i);
+                List = new List<Branch>(functions.Count);
+
+                for (int i = 0; i < functions.Count; i++)
+                {
+                    var id = Branch.FormatID(functions[i]);
+
+                    var entry = new Branch(id, functions[i], script, i);
+
+                    List.Add(entry);
+
+                    functions[i]();
+                }
+
+                Dictionary = List.ToDictionary(x => x.ID);
+            }
+
+            public BranchesProperty()
+            {
+
             }
         }
 
@@ -76,7 +100,7 @@ namespace MB.NarrativeSystem
             public Node First => Collection.Length == 0 ? null : Collection[0];
             public Node Last => Collection.Length == 0 ? null : Collection[Collection.Length - 1];
 
-            public NodesProperty(BranchesProperty branches)
+            internal void Prepare(BranchesProperty branches)
             {
                 Collection = new Node[branches.NodeCapacity];
 
@@ -92,6 +116,11 @@ namespace MB.NarrativeSystem
                         index += 1;
                     }
                 }
+            }
+
+            public NodesProperty()
+            {
+                
             }
         }
 
@@ -119,17 +148,39 @@ namespace MB.NarrativeSystem
                 return;
             }
 
-            Branches = new BranchesProperty(this);
-            Nodes = new NodesProperty(Branches);
+            Branches = new BranchesProperty();
+            Branches.Prepare(this);
+
+            Nodes = new NodesProperty();
+            Nodes.Prepare(Branches);
 
             Ready = true;
         }
 
-        public abstract IEnumerable<Branch> Assemble();
-
         #region Writing Utility
         public Character SpeakingCharacter { get; protected set; }
         #endregion
+
+        internal virtual T Register<T>(T node)
+            where T : Node
+        {
+            Branches.Construction.Nodes.Register(node);
+
+            return node;
+        }
+
+        List<Branch.Delegate> ListBranches()
+        {
+            var flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy;
+
+            var methods = GetType().GetMethods(flags);
+
+            var selection = methods.Where(BranchAttribute.IsDefined).OrderBy(x => BranchAttribute.GetAttribute(x).Line);
+
+            var result = selection.Select(x => BranchAttribute.CreateDelegate(x, this)).ToList();
+
+            return result;
+        }
 
         #region Flow Logic
         public void Invoke(int progress = 0)

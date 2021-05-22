@@ -19,35 +19,32 @@ using Random = UnityEngine.Random;
 
 namespace MB.NarrativeSystem
 {
-    public class DelayNode : Node
-    {
-        float duration;
+	public class CallbackNode : Node
+	{
+        Delegate function;
+
+        public delegate void Delegate(CallbackNode self);
 
         public override void Invoke()
         {
             base.Invoke();
 
-            GlobalCoroutine.Start(Procedure);
-        }
-
-        IEnumerator Procedure()
-        {
-            yield return new WaitForSeconds(duration);
+            function.Invoke(this);
 
             Script.Continue();
         }
 
-        public DelayNode(float duration)
+        public CallbackNode(Delegate function)
         {
-            this.duration = duration;
+            this.function = function;
         }
-    }
+	}
 
-    partial class Script
+	partial class Script
     {
-        protected DelayNode Delay(float duration = 1f)
+        protected CallbackNode Callback(CallbackNode.Delegate function)
         {
-            var node = new DelayNode(duration);
+            var node = new CallbackNode(function);
 
             Register(node);
 

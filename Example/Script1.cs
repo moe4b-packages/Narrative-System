@@ -17,73 +17,63 @@ using UnityEditorInternal;
 using Object = UnityEngine.Object;
 using Random = UnityEngine.Random;
 
-using MB.NarrativeSystem;
-
 namespace MB.NarrativeSystem
 {
     [Serializable]
     public class Script1 : Script
     {
-        public override IEnumerable<Branch> Assemble()
-        {
-            yield return Branch.From(Introduction);
-
-            yield return Branch.From(KnowAboutFeatures);
-
-            yield return Branch.From(Option1);
-            yield return Branch.From(Option2);
-            yield return Branch.From(Option3);
-        }
-
-        IEnumerable Introduction()
+        [Branch]
+        void Introduction()
         {
             SpeakingCharacter = "Character 1";
 
-            yield return SetFadeState(true);
-            yield return Delay(1);
-            yield return FadeOut();
+            SetFadeState(true);
+            Delay(1);
+            FadeOut();
 
-            yield return Say("Hello user");
-            yield return Say("Hope you are doing well today");
-            yield return Say("Welcome to the narrative System");
+            Say("Hello user");
+            Say("Hope you are doing well today");
+            Say("Welcome to the narrative System");
         }
 
-        IEnumerable KnowAboutFeatures()
+        [Branch]
+        void KnowAboutFeatures()
         {
-            yield return Say("Which feature would you like to know about?").SetAutoSubmit(true);
+            Say("Which feature would you like to know about?").SetAutoSubmit(true);
 
-            yield return Choice()
-                .Add(Option1)
-                .Add(Option2)
-                .Add(Option3);
+            Choice(Option1, Option2, Option3);
         }
 
-        IEnumerable Option1()
+        [Branch]
+        void Option1()
         {
-            yield return Say("You chose option 1");
+            Say("You chose option 1");
 
-            yield return Restart();
+            GoTo(Restart);
         }
-        IEnumerable Option2()
+        [Branch]
+        void Option2()
         {
-            yield return Say("You chose option 2");
+            Say("You chose option 2");
 
-            yield return Restart();
+            GoTo(Restart);
         }
-        IEnumerable Option3()
+        [Branch]
+        void Option3()
         {
-            yield return Say("You chose option 3");
+            Say("You chose option 3");
 
-            yield return Restart();
+            GoTo(Restart);
         }
 
-        IEnumerable Restart()
+        [Branch]
+        void Restart()
         {
-            yield return FadeIn();
+            FadeIn();
 
-            yield return Say();
+            Say();
 
-            yield return InvokeScript(this);
+            InvokeScript(this);
         }
     }
 }

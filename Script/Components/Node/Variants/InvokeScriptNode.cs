@@ -40,11 +40,19 @@ namespace MB.NarrativeSystem
 
     partial class Script
     {
-        public InvokeScriptNode InvokeScript<T>() where T : Script, new()
+        protected InvokeScriptNode InvokeScript<T>() where T : Script, new()
         {
             var story = new T();
+
             return InvokeScript(story);
         }
-        public InvokeScriptNode InvokeScript(Script target) => new InvokeScriptNode(target);
+        protected InvokeScriptNode InvokeScript(Script target)
+        {
+            var node = new InvokeScriptNode(target);
+
+            Register(node);
+
+            return node;
+        }
     }
 }

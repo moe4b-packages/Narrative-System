@@ -19,25 +19,21 @@ using Random = UnityEngine.Random;
 
 namespace MB.NarrativeSystem
 {
-    public class StopFlowNode : Node
-    {
-        public override void Invoke()
-        {
-            base.Invoke();
+	public class AutoStartScript : MonoBehaviour
+	{
+		[SerializeField]
+		Script.Asset asset;
 
-            Script.Stop();
+        void Start()
+        {
+            var script = Narrative.Play(asset);
+
+            script.OnEnd += EndCallback;
         }
-    }
 
-    partial class Script
-    {
-        protected StopFlowNode StopFlow()
+        void EndCallback()
         {
-            var node = new StopFlowNode();
-
-            Register(node);
-
-            return node;
+            Debug.Log($"{asset} Ended");
         }
     }
 }
