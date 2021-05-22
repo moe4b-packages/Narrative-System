@@ -56,7 +56,7 @@ namespace MB.NarrativeSystem
 
             public BranchesProperty(Script script)
             {
-                var functions = ListBranches(script);
+                var functions = Branch.Composition.Read(script);
 
                 List = new List<Branch>(functions.Count);
 
@@ -165,40 +165,11 @@ namespace MB.NarrativeSystem
             
         }
 
-        //Static Utility
-
+        #region Static Utility
         public static T[] Arrange<T>(params T[] array) => array;
+        #endregion
 
-        public static List<Branch.Delegate> ListBranches(Script script)
-        {
-            var type = script.GetType();
-
-            var tree = new Stack<Type>(MUtility.GetHierarchyTree(type));
-
-            var flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
-
-            var list = new List<Branch.Delegate>();
-
-            foreach (var member in tree)
-            {
-                if (member == typeof(object)) continue;
-                if (member == typeof(Script)) continue;
-
-                var methods = member.GetMethods(flags);
-
-                var selection = methods
-                    .Where(BranchAttribute.IsDefined)
-                    .OrderBy(x => BranchAttribute.GetAttribute(x).Line)
-                    .Select(x => BranchAttribute.CreateDelegate(x, script));
-
-                list.AddRange(selection);
-            }
-
-            return list;
-        }
-
-        //Utility Types
-
+        #region Utility Types
         /// <summary>
         /// Varaible for holding any script, for a script to be selectable by this,
         /// it must be in its own file with a name matching the script name
@@ -354,5 +325,6 @@ namespace MB.NarrativeSystem
             }
 #endif
         }
+        #endregion
     }
 }

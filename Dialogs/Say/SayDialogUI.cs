@@ -30,7 +30,7 @@ namespace MB.NarrativeSystem
         public Text Label => label;
 
         [SerializeField]
-        float typeDelay = 0.1f;
+        float typeDelay = 0.01f;
 
         ISayData data;
         Action submit;
