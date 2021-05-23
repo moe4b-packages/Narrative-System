@@ -46,11 +46,14 @@ namespace MB.NarrativeSystem
 #if UNITY_EDITOR
         void Refresh()
         {
-            list = AssetQuery<ScriptableObject>.FindAll<Character>();
+            var targets = AssetQuery<ScriptableObject>.FindAll<Character>();
 
-            Dictionary = list.ToDictionary(x => x.name);
-
-            EditorUtility.SetDirty(this);
+            if (MUtility.CheckElementsInclusion(list, targets) == false)
+            {
+                list = targets;
+                Dictionary = list.ToDictionary(x => x.name);
+                EditorUtility.SetDirty(this);
+            }
         }
 
         public void PreProcessBuild() => Refresh();
