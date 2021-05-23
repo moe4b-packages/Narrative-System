@@ -26,6 +26,7 @@ namespace MB.NarrativeSystem
         IEnumerable<Node> TalkAboutCrystal()
         {
             yield return SetFadeState(true);
+            yield return Delay(1);
             yield return FadeOut();
 
             SpeakingCharacter = "Character 1";
@@ -45,13 +46,13 @@ namespace MB.NarrativeSystem
         [Branch]
         IEnumerable<Node> ReturnTheCrystal()
         {
-            yield return Say("It's good to see that its power hasn't corrupted " +
-                "you as it has currpoted the lives of men many ages ago");
+            yield return Say("It's good to see that its power hasn't corrupted you");
+            yield return Say("As it has currpoted the lives of men many ages ago");
 
             yield return Say("Could it be ...");
             yield return Say("You ...");
 
-            yield return Say("At another time & place perhaps");
+            yield return Say("At another time & place maybe");
 
             yield return Say("Thank you for your help hero");
 

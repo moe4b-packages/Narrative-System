@@ -34,6 +34,8 @@ namespace MB.NarrativeSystem
         {
 #if UNITY_EDITOR
             Refresh();
+
+            AssetCollection.OnRefresh += Refresh;
 #endif
 
             Dictionary = list.ToDictionary(x => x.name);
@@ -44,17 +46,14 @@ namespace MB.NarrativeSystem
 #if UNITY_EDITOR
         void Refresh()
         {
-            list = ScriptableObjectQuery.FindAll<Character>();
+            list = AssetQuery<ScriptableObject>.FindAll<Character>();
+
+            Dictionary = list.ToDictionary(x => x.name);
 
             EditorUtility.SetDirty(this);
         }
 
         public void PreProcessBuild() => Refresh();
 #endif
-
-        public CharactersCollection()
-        {
-            list = new List<Character>();
-        }
     }
 }

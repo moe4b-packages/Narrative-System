@@ -25,11 +25,11 @@ namespace MB.NarrativeSystem
         [Branch]
         IEnumerable<Node> Introduction()
         {
-            SpeakingCharacter = "Character 1";
-
             yield return SetFadeState(true);
             yield return Delay(1);
             yield return FadeOut();
+
+            SpeakingCharacter = "Character 1";
 
             yield return Say("Hello user");
             yield return Say("Hope you are doing well today");
