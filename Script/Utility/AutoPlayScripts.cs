@@ -19,21 +19,14 @@ using Random = UnityEngine.Random;
 
 namespace MB.NarrativeSystem
 {
-	public class AutoStartScript : MonoBehaviour
+	public class AutoPlayScripts : MonoBehaviour
 	{
-		[SerializeField]
-		Script.Asset asset;
+        [SerializeField]
+        Script.Asset[] asset;
 
         void Start()
         {
-            var script = Narrative.Play(asset);
-
-            script.OnEnd += EndCallback;
-        }
-
-        void EndCallback()
-        {
-            Debug.Log($"{asset} Ended");
+            var scripts = Narrative.Play(asset);
         }
     }
 }

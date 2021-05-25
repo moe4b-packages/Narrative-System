@@ -18,6 +18,7 @@ using Object = UnityEngine.Object;
 using Random = UnityEngine.Random;
 
 using MB.UISystem;
+using System.Reflection;
 
 namespace MB.NarrativeSystem
 {
@@ -34,28 +35,41 @@ namespace MB.NarrativeSystem
 			public static UIFader Fader { get; set; }
 		}
 
-		public static Script Play(Script.Asset asset)
-        {
-			return Play<Script>(asset);
-        }
-		public static T Play<T>(Script.Asset asset)
-			where T : Script
-        {
-			var script = asset.CreateInstance() as T;
-
-			Play(script);
-
-			return script;
-        }
-
 		public static T Play<T>()
 			where T : Script, new()
 		{
-			var script = new T();
+			var instance = new T();
 
-			Play(script);
+			Play(instance);
 
-			return script;
+			return instance;
+		}
+
+		public static Script[] Play(params Script.Asset[] assets)
+        {
+			var scripts = new Script[assets.Length];
+
+			for (int i = 0; i < assets.Length; i++)
+				scripts[i] = assets[i].CreateInstance();
+
+			Play(scripts);
+
+			return scripts;
+		}
+
+		public static void Play(params Script[] scripts)
+        {
+			Iterate(0);
+
+			void Iterate(int index)
+			{
+				if (scripts.ValidateCollectionBounds(index) == false) return;
+
+				scripts[index].OnEnd += Continue;
+				void Continue() => Iterate(index + 1);
+
+				Play(scripts[index]);
+			}
 		}
 
 		public static void Play(Script script)

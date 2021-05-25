@@ -19,7 +19,7 @@ using Random = UnityEngine.Random;
 
 namespace MB.NarrativeSystem
 {
-    public class InvokeScriptNode : Node
+    public class PlayScriptNode : Node
     {
         Script target;
 
@@ -27,12 +27,20 @@ namespace MB.NarrativeSystem
         {
             base.Invoke();
 
-            target.Play();
+            if (target == Script)
+                throw new Exception($"Cannot Play Script {target} from Within the Script");
 
-            if (target != Script) Script.Continue();
+            target.OnEnd += Continue;
+            Narrative.Play(target);
         }
 
-        public InvokeScriptNode(Script target)
+        void Continue()
+        {
+            target.OnEnd -= Continue;
+            Script.Continue();
+        }
+
+        public PlayScriptNode(Script target)
         {
             this.target = target;
         }
@@ -40,11 +48,11 @@ namespace MB.NarrativeSystem
 
     partial class Script
     {
-        protected InvokeScriptNode InvokeScript(Script target) => new InvokeScriptNode(target);
-        protected InvokeScriptNode InvokeScript<T>() where T : Script, new()
+        protected PlayScriptNode Play(Script target) => new PlayScriptNode(target);
+        protected PlayScriptNode Play<T>() where T : Script, new()
         {
             var story = new T();
-            return InvokeScript(story);
+            return Play(story);
         }
     }
 }

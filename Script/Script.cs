@@ -18,6 +18,7 @@ using Object = UnityEngine.Object;
 using Random = UnityEngine.Random;
 
 using System.Reflection;
+using UnityEngine.UIElements;
 
 namespace MB.NarrativeSystem
 {
@@ -93,7 +94,7 @@ namespace MB.NarrativeSystem
         #endregion
 
         #region Flow Logic
-        public virtual void Play()
+        protected internal virtual void Play()
         {
             if (Ready == false) Prepare();
 
@@ -108,7 +109,7 @@ namespace MB.NarrativeSystem
             Invoke(Branches.First);
         }
 
-        public virtual void Clear()
+        protected virtual void Clear()
         {
 
         }
@@ -177,17 +178,12 @@ namespace MB.NarrativeSystem
         [Serializable]
         public class Asset : ISerializationCallbackReceiver
         {
-            public static Type TargetType => typeof(Script);
-
             [SerializeField]
-            Object asset = default;
+            Object file = default;
             public Object File
             {
-                get => asset;
-                set
-                {
-                    asset = value;
-                }
+                get => file;
+                set => file = value;
             }
 
             [SerializeField]
@@ -223,13 +219,20 @@ namespace MB.NarrativeSystem
                 }
             }
 
-            public Script CreateInstance(params object[] args) => CreateInstance<Script>(args);
-            public T CreateInstance<T>(params object[] args) where T : Script => Activator.CreateInstance(Type, args) as T;
+            public Script CreateInstance(params object[] args)
+            {
+                return CreateInstance<Script>(args);
+            }
+            public T CreateInstance<T>(params object[] args)
+                where T : Script
+            {
+                return Activator.CreateInstance(Type, args) as T;
+            }
 
 #if UNITY_EDITOR
             public void Refresh()
             {
-                var script = asset as MonoScript;
+                var script = file as MonoScript;
 
                 if (script == null)
                 {
@@ -237,7 +240,7 @@ namespace MB.NarrativeSystem
                     return;
                 }
 
-                if (Validate(asset))
+                if (Validate(file))
                     Type = script.GetClass();
                 else
                     Type = null;
@@ -261,59 +264,55 @@ namespace MB.NarrativeSystem
 
                 var type = script.GetClass();
 
-                if (typeof(Script).IsAssignableFrom(type) == false)
+                if (type.IsAbstract)
                     return false;
 
                 if (type == typeof(Script))
+                    return false;
+
+                if (typeof(Script).IsAssignableFrom(type) == false)
                     return false;
 
                 return true;
             }
 
             [CustomPropertyDrawer(typeof(Asset))]
-            public class Drawer : PropertyDrawer
+            public class Drawer : PersistantPropertyDrawer
             {
-                SerializedProperty property;
+                SerializedProperty file;
 
-                SerializedProperty asset;
-
-                void Init(SerializedProperty reference)
+                protected override void Init()
                 {
-                    if (property?.propertyPath == reference?.propertyPath) return;
+                    base.Init();
 
-                    property = reference;
-
-                    asset = property.FindPropertyRelative(nameof(asset));
+                    file = property.FindPropertyRelative(nameof(file));
                 }
 
-                public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
+                protected override float CalculateHeight()
                 {
-                    Init(property);
-
                     var height = 0f;
 
                     height += EditorGUIUtility.singleLineHeight;
 
-                    if (asset.objectReferenceValue != null && Validate(asset.objectReferenceValue) == false)
+                    if (file.objectReferenceValue != null && Validate(file.objectReferenceValue) == false)
                         height += EditorGUIUtility.singleLineHeight;
 
                     return height;
                 }
 
-                public override void OnGUI(Rect rect, SerializedProperty property, GUIContent label)
+                protected override void Draw(Rect rect)
                 {
                     DrawField(ref rect, label);
 
-                    if (asset.objectReferenceValue != null && Validate(asset.objectReferenceValue) == false)
+                    if (file.objectReferenceValue != null && Validate(file.objectReferenceValue) == false)
                         DrawHelpBox(ref rect);
-
                 }
 
                 void DrawField(ref Rect rect, GUIContent label)
                 {
                     var area = MUtility.GUICoordinates.SliceLine(ref rect);
 
-                    EditorGUI.ObjectField(area, asset, typeof(MonoScript), label);
+                    EditorGUI.ObjectField(area, file, typeof(MonoScript), label);
                 }
 
                 void DrawHelpBox(ref Rect rect)

@@ -23,7 +23,7 @@ namespace MB.NarrativeSystem
     public class Script1 : Script
     {
         [Branch]
-        IEnumerable<Node> Introduction()
+        IEnumerator<Node> Introduction()
         {
             yield return SetFadeState(true);
             yield return Delay(1);
@@ -37,7 +37,7 @@ namespace MB.NarrativeSystem
         }
 
         [Branch]
-        IEnumerable<Node> KnowAboutFeatures()
+        IEnumerator<Node> KnowAboutFeatures()
         {
             yield return Say("Which feature would you like to know about?").SetAutoSubmit();
 
@@ -45,21 +45,21 @@ namespace MB.NarrativeSystem
         }
 
         [Branch]
-        IEnumerable<Node> Option1()
+        IEnumerator<Node> Option1()
         {
             yield return Say("You chose option 1");
 
             yield return GoTo(ContinueStory);
         }
         [Branch]
-        IEnumerable<Node> Option2()
+        IEnumerator<Node> Option2()
         {
             yield return Say("You chose option 2");
 
             yield return GoTo(ContinueStory);
         }
         [Branch]
-        IEnumerable<Node> Option3()
+        IEnumerator<Node> Option3()
         {
             yield return Say("You chose option 3");
 
@@ -67,13 +67,10 @@ namespace MB.NarrativeSystem
         }
 
         [Branch]
-        IEnumerable<Node> ContinueStory()
+        IEnumerator<Node> ContinueStory()
         {
             yield return FadeIn();
-
             yield return Say();
-
-            yield return InvokeScript<Script2>();
         }
     }
 }

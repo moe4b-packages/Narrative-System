@@ -23,7 +23,7 @@ namespace MB.NarrativeSystem
     public class Script2 : Script
     {
         [Branch]
-        IEnumerable<Node> TalkAboutCrystal()
+        IEnumerator<Node> TalkAboutCrystal()
         {
             yield return SetFadeState(true);
             yield return Delay(1);
@@ -44,7 +44,7 @@ namespace MB.NarrativeSystem
         }
 
         [Branch]
-        IEnumerable<Node> ReturnTheCrystal()
+        IEnumerator<Node> ReturnTheCrystal()
         {
             yield return Say("It's good to see that its power hasn't corrupted you");
             yield return Say("As it has currpoted the lives of men many ages ago");
@@ -60,7 +60,7 @@ namespace MB.NarrativeSystem
         }
 
         [Branch]
-        IEnumerable<Node> KeepTheCrystal()
+        IEnumerator<Node> KeepTheCrystal()
         {
             yield return Say("The crystal must've corrupted you");
             yield return Say("As it has corrupted the lives of men many ages before");
@@ -73,7 +73,7 @@ namespace MB.NarrativeSystem
         }
 
         [Branch]
-        IEnumerable<Node> FightTheGuardian()
+        IEnumerator<Node> FightTheGuardian()
         {
             yield return Say("So be it");
 
@@ -85,12 +85,28 @@ namespace MB.NarrativeSystem
         }
 
         [Branch]
-        IEnumerable<Node> ContinueStory()
+        IEnumerator<Node> ContinueStory()
         {
             yield return FadeIn();
             yield return Say();
 
-            yield return InvokeScript<Script1>();
+            yield return Play<Extension>();
+        }
+    }
+
+    public class Extension : Script2
+    {
+        [Branch]
+        IEnumerator<Node> Start()
+        {
+            yield return FadeOut();
+
+            yield return Say("Extension Started");
+
+            yield return Say("Extension Ended");
+
+            yield return FadeIn();
+            yield return Say();
         }
     }
 }

@@ -27,7 +27,7 @@ namespace MB.NarrativeSystem
         public string ID { get; protected set; }
 
         public Delegate Function { get; protected set; }
-        public delegate IEnumerable<Node> Delegate();
+        public delegate IEnumerator<Node> Delegate();
 
         public Script Script { get; protected set; }
         public int Index { get; protected set; }
@@ -53,7 +53,7 @@ namespace MB.NarrativeSystem
             }
         }
 
-        public IEnumerator<Node> GetEnumerator() => Function().GetEnumerator();
+        public IEnumerator<Node> GetEnumerator() => Function();
 
         public override string ToString() => $"{Script}->{ID}";
 
@@ -68,11 +68,12 @@ namespace MB.NarrativeSystem
 
         //Static Utility
 
-        public static string FormatID(Delegate function) => function.Method.Name;
+        public static string FormatID(Delegate function) => FormatID(function.Method);
+        public static string FormatID(MethodInfo method) => method.Name;
 
         public static class Composition
         {
-            public static Dictionary<Type, Collection> Dictionary { get; private set; }
+            public static Dictionary<Type, Hierarchy> Dictionary { get; private set; }
 
             public struct Data
             {
@@ -86,45 +87,40 @@ namespace MB.NarrativeSystem
                 }
             }
 
-            public class Collection : List<Data> { }
+            public class Hierarchy : List<Data> { }
 
             public static List<Delegate> Read(Script script)
             {
                 var type = script.GetType();
 
-                if (Dictionary.TryGetValue(type, out var collection) == false)
-                {
-                    collection = ComposeAll(type);
-                    Dictionary[type] = collection;
-                }
-
-                return collection.Select(CreateDelegate).ToList();
-
-                Delegate CreateDelegate(Data data) => BranchAttribute.CreateDelegate(data.Method, script);
-            }
-
-            static Collection ComposeAll(Type type)
-            {
                 var tree = ReadInheritanceTree(type);
 
-                var list = new Collection();
+                var list = new List<Delegate>();
 
-                foreach (var member in tree)
+                foreach (var item in tree)
                 {
-                    var data = Iterate(member);
+                    var hierarchy = Parse(item);
 
-                    list.AddRange(data);
+                    for (int i = 0; i < hierarchy.Count; i++)
+                    {
+                        var function = BranchAttribute.CreateDelegate(hierarchy[i].Method, script);
+
+                        list.Add(function);
+                    }
                 }
 
                 return list;
             }
 
-            static Collection Iterate(Type type)
+            public static Hierarchy Parse(Type type)
             {
+                if (Dictionary.TryGetValue(type, out var list))
+                    return list;
+
                 var flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
                 var methods = type.GetMethods(flags);
 
-                var list = new Collection();
+                list = new Hierarchy();
 
                 for (int i = 0; i < methods.Length; i++)
                 {
@@ -138,20 +134,14 @@ namespace MB.NarrativeSystem
 
                 list.Sort((right, left) => right.Attribute.Line - left.Attribute.Line);
 
-#if UNITY_EDITOR || DEBUG
-                var pathes = list.Select(x => x.Attribute.Path).Distinct();
-
-                if (pathes.Count() > 1)
-                    throw new Exception($"Multiple Branches Detected in Multiple Files of Partial Class for {type}, " +
-                        $"This is not Supported");
-#endif
+                Dictionary[type] = list;
 
                 return list;
             }
 
             static Composition()
             {
-                Dictionary = new Dictionary<Type, Collection>();
+                Dictionary = new Dictionary<Type, Hierarchy>();
             }
         }
 
