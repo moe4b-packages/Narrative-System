@@ -19,14 +19,15 @@ using Random = UnityEngine.Random;
 
 namespace MB.NarrativeSystem
 {
-	public class AutoPlayScripts : MonoBehaviour
+	public interface IChoiceData
 	{
-        [SerializeField]
-        Script.Asset[] assets;
+		public string Text { get; }
+	}
 
-        void Start()
-        {
-            Narrative.PlayAll(assets);
-        }
-    }
+	public delegate void ChoiceSubmitDelegate(int index, IChoiceData data);
+
+	public interface IChoiceDialog : IDialog
+	{
+		void Show<T>(IList<T> entries, ChoiceSubmitDelegate submit) where T : IChoiceData;
+	}
 }

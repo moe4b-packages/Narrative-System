@@ -17,16 +17,25 @@ using UnityEditorInternal;
 using Object = UnityEngine.Object;
 using Random = UnityEngine.Random;
 
+using MB.UISystem;
+
 namespace MB.NarrativeSystem
 {
-	public class AutoPlayScripts : MonoBehaviour
+	partial class Narrative
 	{
-        [SerializeField]
-        Script.Asset[] assets;
+		public static class Controls
+		{
+			public static ISayDialog Say { get; set; }
 
-        void Start()
-        {
-            Narrative.PlayAll(assets);
-        }
-    }
+			public static IChoiceDialog Choice { get; set; }
+
+			public static UIFader Fader { get; set; }
+		}
+	}
+
+	public interface IDialog
+	{
+		void Show();
+		void Hide();
+	}
 }

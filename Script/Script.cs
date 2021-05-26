@@ -177,6 +177,8 @@ namespace MB.NarrativeSystem
             {
                 public static Dictionary<Type, string> Dictionary { get; private set; }
 
+                public const string Seperator = " -> ";
+
                 public static string Retrieve(Script script)
                 {
                     var type = script.GetType();
@@ -188,16 +190,14 @@ namespace MB.NarrativeSystem
                     if (Dictionary.TryGetValue(type, out var name))
                         return name;
 
-                    var parts = type.FullName.Split('.').Select(MUtility.PrettifyName);
-
-                    name = parts.Aggregate(FormatParts);
+                    name = Path.Retrieve(type).Aggregate(FormatParts);
 
                     Dictionary[type] = name;
 
                     return name;
                 }
 
-                static string FormatParts(string x, string y) => $"{x} -> {y}";
+                static string FormatParts(string x, string y) => $"{x}{Seperator}{y}";
 
                 static Name()
                 {
@@ -220,7 +220,10 @@ namespace MB.NarrativeSystem
                     if (Dictionary.TryGetValue(type, out var parts))
                         return parts;
 
-                    parts = type.FullName.Split('.', '+').Select(MUtility.PrettifyName).ToArray();
+                    parts = type.FullName.Split('.', '+');
+
+                    for (int i = 0; i < parts.Length; i++)
+                        parts[i] = MUtility.PrettifyName(parts[i]);
 
                     Dictionary[type] = parts;
 
@@ -397,6 +400,26 @@ namespace MB.NarrativeSystem
                 }
             }
 #endif
+        }
+
+        public struct Surrogate
+        {
+            public Script Script { get; private set; }
+
+            public Surrogate(Script script)
+            {
+                this.Script = script;
+            }
+
+            public static implicit operator Script(Surrogate surrogate) => surrogate.Script;
+
+            public static implicit operator Surrogate(Script script) => new Surrogate(script);
+            public static implicit operator Surrogate(Asset script)
+            {
+                var instance = script.CreateInstance();
+
+                return new Surrogate(instance);
+            }
         }
         #endregion
     }
