@@ -23,6 +23,16 @@ namespace MB.NarrativeSystem
     {
         Script target;
 
+        bool wait = true;
+
+        public PlayScriptNode DoWait() => SetWait(true);
+        public PlayScriptNode DontWait() => SetWait(false);
+        public PlayScriptNode SetWait(bool value)
+        {
+            wait = value;
+            return this;
+        }
+
         public override void Invoke()
         {
             base.Invoke();
@@ -30,13 +40,18 @@ namespace MB.NarrativeSystem
             if (target == Script)
                 throw new Exception($"Cannot Play Script {target} from Within the Script");
 
-            target.OnEnd += Continue;
+            if (wait)
+                target.OnEnd += TargetEndCallback;
+
             Narrative.Play(target);
+
+            if (wait == false)
+                Script.Continue();
         }
 
-        void Continue()
+        void TargetEndCallback()
         {
-            target.OnEnd -= Continue;
+            target.OnEnd -= TargetEndCallback;
             Script.Continue();
         }
 
@@ -51,8 +66,8 @@ namespace MB.NarrativeSystem
         protected PlayScriptNode Play(Script target) => new PlayScriptNode(target);
         protected PlayScriptNode Play<T>() where T : Script, new()
         {
-            var story = new T();
-            return Play(story);
+            var script = new T();
+            return Play(script);
         }
     }
 }

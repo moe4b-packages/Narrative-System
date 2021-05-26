@@ -60,7 +60,7 @@ namespace MB.NarrativeSystem
 			{
 				text = $"{text}" +
 					$"{Environment.NewLine}" +
-					$"On {script}";
+					$"On {Script.Format.Name.Retrieve(script)}";
 
 				return new ScriptValidationException(text);
 			}
@@ -78,9 +78,13 @@ namespace MB.NarrativeSystem
 
 			ScriptValidationException FormatException(string text)
 			{
+				var name = Branch.Format.Name(method);
+
+				var path = Branch.Format.FullName(Script.Format.Name.Retrieve(script), name);
+
 				text = $"{text}" +
 					$"{Environment.NewLine}" +
-					$"On {script}-{Branch.FormatID(method)}";
+					$"On {path}";
 
 				return new ScriptValidationException(text);
 			}

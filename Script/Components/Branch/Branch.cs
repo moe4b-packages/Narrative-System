@@ -25,6 +25,7 @@ namespace MB.NarrativeSystem
     public class Branch
     {
         public string ID { get; protected set; }
+        public string Name { get; protected set; }
 
         public Delegate Function { get; protected set; }
         public delegate IEnumerator<Node> Delegate();
@@ -55,12 +56,14 @@ namespace MB.NarrativeSystem
 
         public IEnumerator<Node> GetEnumerator() => Function();
 
-        public override string ToString() => $"{Script}->{ID}";
+        public override string ToString() => Format.FullName(Script.Name, Name);
 
-        public Branch(string id, Delegate function, Script script, int index)
+        public Branch(Delegate function, Script script, int index)
         {
-            this.ID = id;
             this.Function = function;
+
+            ID = Format.ID(function);
+            Name = Format.Name(function);
 
             this.Script = script;
             this.Index = index;
@@ -68,8 +71,21 @@ namespace MB.NarrativeSystem
 
         //Static Utility
 
-        public static string FormatID(Delegate function) => FormatID(function.Method);
-        public static string FormatID(MethodInfo method) => method.Name;
+        public static class Format
+        {
+            public static string ID(Delegate function) => ID(function.Method);
+            public static string ID(MethodInfo method) => method.Name;
+
+            public static string Name(Delegate function) => Name(function.Method);
+            public static string Name(MethodInfo method)
+            {
+                var id = ID(method);
+
+                return MUtility.PrettifyName(id);
+            }
+
+            public static string FullName(string script, string branch) => $"{script} :: {branch}";
+        }
 
         public static class Composition
         {

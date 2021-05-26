@@ -19,25 +19,37 @@ using Random = UnityEngine.Random;
 
 namespace MB.NarrativeSystem
 {
-    public class WaitCoroutineNode : Node
+    public class StartCoroutineNode : Node
     {
         IEnumerator numerator;
+
+        bool wait = true;
+
+        public StartCoroutineNode DoWait() => SetWait(true);
+        public StartCoroutineNode DontWait() => SetWait(false);
+        public StartCoroutineNode SetWait(bool value)
+        {
+            wait = value;
+            return this;
+        }
 
         public override void Invoke()
         {
             base.Invoke();
 
             GlobalCoroutine.Start(Procedure);
+
+            if (wait == false) Script.Continue();
         }
 
         IEnumerator Procedure()
         {
             yield return numerator;
 
-            Script.Continue();
+            if (wait) Script.Continue();
         }
 
-        public WaitCoroutineNode(IEnumerator numerator)
+        public StartCoroutineNode(IEnumerator numerator)
         {
             this.numerator = numerator;
         }
@@ -45,12 +57,15 @@ namespace MB.NarrativeSystem
 
     partial class Script
     {
-        protected WaitCoroutineNode WaitCoroutine(IEnumerator numerator) => new WaitCoroutineNode(numerator);
-        protected WaitCoroutineNode WaitCoroutine(Func<IEnumerator> function)
+        protected StartCoroutineNode StartCoroutine(Func<IEnumerator> function)
         {
             var numerator = function();
 
-            return WaitCoroutine(numerator);
+            return StartCoroutine(numerator);
+        }
+        protected StartCoroutineNode StartCoroutine(IEnumerator numerator)
+        {
+            return new StartCoroutineNode(numerator);
         }
     }
 }

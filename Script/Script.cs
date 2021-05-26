@@ -25,6 +25,8 @@ namespace MB.NarrativeSystem
     [Serializable]
     public abstract partial class Script
     {
+        public string Name { get; protected set; }
+
         public BranchesProperty Branches { get; protected set; }
         [Serializable]
         public class BranchesProperty
@@ -63,9 +65,7 @@ namespace MB.NarrativeSystem
 
                 for (int i = 0; i < functions.Count; i++)
                 {
-                    var id = Branch.FormatID(functions[i]);
-
-                    var entry = new Branch(id, functions[i], script, i);
+                    var entry = new Branch(functions[i], script, i);
 
                     List.Add(entry);
                 }
@@ -138,7 +138,7 @@ namespace MB.NarrativeSystem
         }
         public void Continue(Branch.Delegate branch)
         {
-            var id = Branch.FormatID(branch);
+            var id = Branch.Format.ID(branch);
 
             if (Branches.TryGet(id, out var instance) == false)
                 throw new Exception($"Couldn't Find Branch with ID {id} On {this}");
@@ -161,13 +161,78 @@ namespace MB.NarrativeSystem
         }
         #endregion
 
+        public override string ToString() => Name;
+
         public Script()
         {
-            
+            Name = Format.Name.Retrieve(this);
         }
 
         #region Static Utility
         public static T[] Arrange<T>(params T[] array) => array;
+
+        public static class Format
+        {
+            public static class Name
+            {
+                public static Dictionary<Type, string> Dictionary { get; private set; }
+
+                public static string Retrieve(Script script)
+                {
+                    var type = script.GetType();
+
+                    return Retrieve(type);
+                }
+                public static string Retrieve(Type type)
+                {
+                    if (Dictionary.TryGetValue(type, out var name))
+                        return name;
+
+                    var parts = type.FullName.Split('.').Select(MUtility.PrettifyName);
+
+                    name = parts.Aggregate(FormatParts);
+
+                    Dictionary[type] = name;
+
+                    return name;
+                }
+
+                static string FormatParts(string x, string y) => $"{x} -> {y}";
+
+                static Name()
+                {
+                    Dictionary = new Dictionary<Type, string>();
+                }
+            }
+
+            public static class Path
+            {
+                public static Dictionary<Type, string[]> Dictionary { get; private set; }
+
+                public static string[] Retrieve(Script script)
+                {
+                    var type = script.GetType();
+
+                    return Retrieve(type);
+                }
+                public static string[] Retrieve(Type type)
+                {
+                    if (Dictionary.TryGetValue(type, out var parts))
+                        return parts;
+
+                    parts = type.FullName.Split('.', '+').Select(MUtility.PrettifyName).ToArray();
+
+                    Dictionary[type] = parts;
+
+                    return parts;
+                }
+
+                static Path()
+                {
+                    Dictionary = new Dictionary<Type, string[]>();
+                }
+            }
+        }
         #endregion
 
         #region Utility Types
@@ -255,7 +320,13 @@ namespace MB.NarrativeSystem
             }
             public void OnAfterDeserialize() { }
 
-            public override string ToString() => Type.ToString();
+            public override string ToString()
+            {
+                if (Type == null)
+                    return "null";
+
+                return Format.Name.Retrieve(Type);
+            }
 
 #if UNITY_EDITOR
             public static bool Validate(Object asset)
@@ -263,6 +334,9 @@ namespace MB.NarrativeSystem
                 var script = asset as MonoScript;
 
                 var type = script.GetClass();
+
+                if (type == null)
+                    return false;
 
                 if (type.IsAbstract)
                     return false;
