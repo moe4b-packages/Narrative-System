@@ -34,7 +34,7 @@ namespace MB.NarrativeSystem
 
 		#region Play
 		public static Script[] PlayAll(params Script.Asset[] assets)
-        {
+		{
 			var scripts = Array.ConvertAll(assets, x => x.CreateInstance());
 
 			PlayAll(scripts);
@@ -42,7 +42,7 @@ namespace MB.NarrativeSystem
 			return scripts;
 		}
 		public static void PlayAll(params Script[] scripts)
-        {
+		{
 			Iterate(0);
 
 			void Iterate(int index)

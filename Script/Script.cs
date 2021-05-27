@@ -19,6 +19,7 @@ using Random = UnityEngine.Random;
 
 using System.Reflection;
 using UnityEngine.UIElements;
+using System.Text;
 
 namespace MB.NarrativeSystem
 {
@@ -100,7 +101,7 @@ namespace MB.NarrativeSystem
 
             Clear();
 
-            if(Branches.Count == 0)
+            if (Branches.Count == 0)
             {
                 Debug.LogWarning($"{this} Has No Branches Defined");
                 return;
@@ -177,7 +178,7 @@ namespace MB.NarrativeSystem
             {
                 public static Dictionary<Type, string> Dictionary { get; private set; }
 
-                public const string Seperator = " -> ";
+                public const string Seperator = "/";
 
                 public static string Retrieve(Script script)
                 {
@@ -207,32 +208,74 @@ namespace MB.NarrativeSystem
 
             public static class Path
             {
-                public static Dictionary<Type, string[]> Dictionary { get; private set; }
+                public static Dictionary<Type, Collection> Dictionary { get; private set; }
 
-                public static string[] Retrieve(Script script)
+                public class Collection : List<string> { }
+
+                public static Collection Retrieve(Script script)
                 {
                     var type = script.GetType();
 
                     return Retrieve(type);
                 }
-                public static string[] Retrieve(Type type)
+                public static Collection Retrieve(Type type)
                 {
-                    if (Dictionary.TryGetValue(type, out var parts))
-                        return parts;
+                    if (Dictionary.TryGetValue(type, out var collection))
+                        return collection;
 
-                    parts = type.FullName.Split('.', '+');
+                    collection = new Collection();
+                    Dictionary[type] = collection;
 
-                    for (int i = 0; i < parts.Length; i++)
-                        parts[i] = MUtility.PrettifyName(parts[i]);
+                    ProcessNamespace(type, collection);
+                    ProcessTitle(type, collection);
 
-                    Dictionary[type] = parts;
+                    for (int i = 0; i < collection.Count; i++)
+                        collection[i] = MUtility.PrettifyName(collection[i]);
 
-                    return parts;
+                    return collection;
+                }
+
+                static void ProcessNamespace(Type type, Collection collection)
+                {
+                    var range = type.Namespace.Split('.');
+
+                    collection.AddRange(range);
+                }
+
+                static void ProcessTitle(Type type, Collection collection)
+                {
+                    var range = IterateNesting(type).Reverse().Select(FormatName);
+
+                    collection.AddRange(range);
+
+                    static IEnumerable<Type> IterateNesting(Type type)
+                    {
+                        while (true)
+                        {
+                            yield return type;
+
+                            type = type.DeclaringType;
+
+                            if (type == null) break;
+                        }
+                    }
+
+                    static string FormatName(Type type)
+                    {
+                        var name = type.Name;
+
+                        var index = name.IndexOf('`');
+
+                        if (index >= 0)
+                            name = name.Substring(0, index);
+
+                        return name;
+                    }
                 }
 
                 static Path()
                 {
-                    Dictionary = new Dictionary<Type, string[]>();
+                    Dictionary = new Dictionary<Type, Collection>();
                 }
             }
         }
@@ -265,7 +308,7 @@ namespace MB.NarrativeSystem
             {
                 get
                 {
-                    if(cached == false)
+                    if (cached == false)
                     {
                         if (string.IsNullOrEmpty(ID))
                             throw new Exception($"Invalid Script Asset Selection, Cannot Parse Type");

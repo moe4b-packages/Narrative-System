@@ -38,6 +38,8 @@ namespace MB.NarrativeSystem
 
 			public static class IO
 			{
+				public static string Directory { get; private set; }
+
 				public static string Load(string file)
 				{
 					var target = FormatPath(file);
@@ -65,9 +67,12 @@ namespace MB.NarrativeSystem
 				{
 					file += ".json";
 
-					var directory = Application.isEditor ? "Assets/" : Application.persistentDataPath;
+					return System.IO.Path.Combine(Directory, file);
+				}
 
-					return System.IO.Path.Combine(directory, file);
+				static IO()
+				{
+					Directory = Application.isEditor ? Application.dataPath : Application.persistentDataPath;
 				}
 			}
 
@@ -108,18 +113,29 @@ namespace MB.NarrativeSystem
 			{
 				public const string ID = nameof(Global);
 
-				public static readonly string[] Path = new string[] { ID };
+				static string RetrievePath(string path) => $"{ID}{JObjectComposer.Path.Seperator}{path}";
 
-				public static bool TryRead<T>(string id, out T value) => Composer.TryRead(Path, id, out value);
+				public static bool TryRead<T>(string id, out T value) => Composer.TryRead(RetrievePath(id), out value);
 
-				public static T Read<T>(string id) => Composer.Read<T>(Path, id);
+				public static T Read<T>(string id) => Composer.Read<T>(RetrievePath(id));
 
-				public static bool Contains(string id) => Composer.Contains(Path, id);
+				public static bool Contains(string id) => Composer.Contains(RetrievePath(id));
 
-				public static bool Remove(string id) => Composer.Remove(Path, id);
-				public static bool RemoveAll() => Composer.Remove(Path);
+				public static bool Remove(string id) => Composer.Remove(RetrievePath(id));
+				public static bool RemoveAll() => Composer.Remove(ID);
 
-				public static void Set<T>(string id, T value) => Composer.Set(Path, id, value);
+				public static void Set<T>(string id, T value) => Composer.Set(RetrievePath(id), value);
+
+				internal static void SetDefaults()
+				{
+					var token = Composer.Read<JToken>(ID);
+
+					if (token == null)
+					{
+						token = new JObject();
+						Composer.Set(ID, token);
+					}
+				}
 			}
 
 			public static class Scripts
@@ -132,9 +148,9 @@ namespace MB.NarrativeSystem
 				}
 				public static bool TryRead<T>(Type script, string id, out T value)
 				{
-					var path = RetrieveScriptPath(script);
+					var path = RetrieveScriptPath(script, id);
 
-					return Composer.TryRead(path, id, out value);
+					return Composer.TryRead(path, out value);
 				}
 
 				public static T Read<T>(Script script, string id)
@@ -145,9 +161,9 @@ namespace MB.NarrativeSystem
 				}
 				public static T Read<T>(Type script, string id)
 				{
-					var path = RetrieveScriptPath(script);
+					var path = RetrieveScriptPath(script, id);
 
-					return Composer.Read<T>(path, id);
+					return Composer.Read<T>(path);
 				}
 
 				public static bool Contains(Script script, string id)
@@ -158,9 +174,9 @@ namespace MB.NarrativeSystem
 				}
 				public static bool Contains(Type script, string id)
 				{
-					var path = RetrieveScriptPath(script);
+					var path = RetrieveScriptPath(script, id);
 
-					return Composer.Contains(path, id);
+					return Composer.Contains(path);
 				}
 
 				public static bool Contains(Script script)
@@ -184,9 +200,9 @@ namespace MB.NarrativeSystem
 				}
 				public static bool Remove(Type type, string id)
 				{
-					var path = Script.Format.Path.Retrieve(type);
+					var path = RetrieveScriptPath(type, id);
 
-					return Composer.Remove(path, id);
+					return Composer.Remove(path);
 				}
 
 				public static bool RemoveAll(Script script)
@@ -197,7 +213,7 @@ namespace MB.NarrativeSystem
 				}
 				public static bool RemoveAll(Type type)
 				{
-					var path = Script.Format.Path.Retrieve(type);
+					var path = RetrieveScriptPath(type);
 
 					return Composer.Remove(path);
 				}
@@ -210,10 +226,13 @@ namespace MB.NarrativeSystem
 				}
 				public static void Set<T>(Type script, string id, T value)
 				{
-					var path = RetrieveScriptPath(script);
+					var path = RetrieveScriptPath(script, id);
 
-					Composer.Set(path, id, value);
+					Composer.Set(path, value);
 				}
+
+				static string RetrieveScriptPath(Type type) => Script.Format.Name.Retrieve(type);
+				static string RetrieveScriptPath(Type type, string id) => RetrieveScriptPath(type) + JObjectComposer.Path.Seperator + id;
 			}
 			public static class Script<TScript>
 				where TScript : Script
@@ -262,7 +281,7 @@ namespace MB.NarrativeSystem
 
 			static void SetDefaults()
 			{
-				Composer.Set(Global.ID, new object());
+				Global.SetDefaults();
 			}
 
 			static void Load()
@@ -309,10 +328,6 @@ namespace MB.NarrativeSystem
 			{
 				Composer = new JObjectComposer();
 			}
-
-			//Pure Utility
-
-			static string[] RetrieveScriptPath(Type type) => Script.Format.Path.Retrieve(type);
 		}
 	}
 }
