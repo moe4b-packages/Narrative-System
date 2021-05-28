@@ -45,12 +45,17 @@ namespace MB.NarrativeSystem
                 {
                     if (Narrative.Progress.Scripts.Contains(Script, List[i].Name) == false) continue;
 
-                    List[i].Value = Narrative.Progress.Scripts.Read(Script, List[i].Type, List[i].Name);
+                    var value = Narrative.Progress.Scripts.Read(Script, List[i].Type, List[i].Name);
+
+                    List[i].Value = value;
+                    List[i].Default = value;
                 }
             }
 
             public void Save()
             {
+                Narrative.Progress.LockSave();
+
                 for (int i = 0; i < List.Length; i++)
                 {
                     var value = List[i].Value;
@@ -59,6 +64,8 @@ namespace MB.NarrativeSystem
 
                     Narrative.Progress.Scripts.Set(Script, List[i].Name, value);
                 }
+
+                Narrative.Progress.UnlockSave();
             }
 
             public VariablesProeprty(Script script)
@@ -196,13 +203,13 @@ namespace MB.NarrativeSystem
         }
         public void Continue(Branch branch) => Invoke(branch);
 
-        public void Stop()
+        public virtual void Stop()
         {
             End();
         }
 
         public event Action OnEnd;
-        protected void End()
+        protected virtual void End()
         {
             Variables.Save();
             Branches.SetSelection(null);

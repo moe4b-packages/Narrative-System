@@ -23,9 +23,6 @@ namespace MB.NarrativeSystem
     public class TempleConversation : Script
     {
         [Variable]
-        public int Counter { get; protected set; }
-
-        [Variable]
         public EncounterChoice Encounter { get; protected set; }
         [Flags]
         public enum EncounterChoice
@@ -38,8 +35,6 @@ namespace MB.NarrativeSystem
         [Branch]
         IEnumerator<Node> TalkAboutCrystal()
         {
-            Counter++;
-
             Debug.Log($"Encounter Choice: {Encounter}");
 
             yield return SetFadeState(true);

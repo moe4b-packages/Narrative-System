@@ -40,6 +40,7 @@ namespace MB.NarrativeSystem
 			internal static void Configure()
 			{
 				Narrative.Progress.OnLoad += Load;
+				Narrative.Progress.OnQuit += Save;
 
 				var type = typeof(Story);
 				Register(type);
@@ -81,11 +82,14 @@ namespace MB.NarrativeSystem
 
 					var value = Narrative.Progress.Global.Read(List[i].Type, List[i].Path);
 
-					List[i].Set(value);
+					List[i].Value = value;
+					List[i].Default = value;
 				}
 			}
 			public static void Save()
 			{
+				Narrative.Progress.LockSave();
+
 				for (int i = 0; i < List.Count; i++)
 				{
 					var value = List[i].Value;
@@ -94,6 +98,8 @@ namespace MB.NarrativeSystem
 
 					Narrative.Progress.Global.Set(List[i].Path, value);
 				}
+
+				Narrative.Progress.UnlockSave();
 			}
 
 			static Variables()
@@ -130,13 +136,6 @@ namespace MB.NarrativeSystem
 		public static void Configure()
 		{
 			Variables.Configure();
-
-            Application.quitting += QuitCallback;
-		}
-
-		static void QuitCallback()
-		{
-			Variables.Save();
 		}
 
 		static Story()

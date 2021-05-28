@@ -36,6 +36,25 @@ namespace MB.NarrativeSystem
 
 			public static bool IsDirty { get; private set; }
 
+            #region Save Lock
+            public static bool SaveLock { get; private set; }
+
+			public static void LockSave()
+			{
+				if (SaveLock)
+					Debug.LogWarning("Narrative Progress Save Lock Already On, Did you Forget to Unlock it");
+
+				SaveLock = true;
+			}
+
+			public static void UnlockSave()
+			{
+				SaveLock = false;
+
+				if (IsDirty) Save();
+			}
+			#endregion
+
 			public static class IO
 			{
 				public static string Directory { get; private set; }
@@ -279,11 +298,6 @@ namespace MB.NarrativeSystem
 				OnLoad?.Invoke();
 			}
 
-			static void SetDefaults()
-			{
-				Global.SetDefaults();
-			}
-
 			static void Load()
 			{
 				var json = IO.Load(Slot);
@@ -291,6 +305,11 @@ namespace MB.NarrativeSystem
 				Composer.Load(json);
 
 				SetDefaults();
+			}
+
+			static void SetDefaults()
+			{
+				Global.SetDefaults();
 			}
 
 			public static void Reset()
@@ -319,8 +338,11 @@ namespace MB.NarrativeSystem
 					IsDirty = true;
 			}
 
+			public static event Action OnQuit;
 			static void QuitCallback()
 			{
+				OnQuit?.Invoke();
+
 				if (AutoSave.OnExit) if (IsDirty) Save();
 			}
 
