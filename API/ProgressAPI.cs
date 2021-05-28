@@ -115,16 +115,15 @@ namespace MB.NarrativeSystem
 
 				static string RetrievePath(string path) => $"{ID}{JObjectComposer.Path.Seperator}{path}";
 
-				public static bool TryRead<T>(string id, out T value) => Composer.TryRead(RetrievePath(id), out value);
-
 				public static T Read<T>(string id) => Composer.Read<T>(RetrievePath(id));
+				public static object Read(Type data, string id) => Composer.Read(data, RetrievePath(id));
 
 				public static bool Contains(string id) => Composer.Contains(RetrievePath(id));
 
 				public static bool Remove(string id) => Composer.Remove(RetrievePath(id));
 				public static bool RemoveAll() => Composer.Remove(ID);
 
-				public static void Set<T>(string id, T value) => Composer.Set(RetrievePath(id), value);
+				public static void Set(string id, object value) => Composer.Set(RetrievePath(id), value);
 
 				internal static void SetDefaults()
 				{
@@ -140,19 +139,6 @@ namespace MB.NarrativeSystem
 
 			public static class Scripts
 			{
-				public static bool TryRead<T>(Script script, string id, out T value)
-				{
-					var type = script.GetType();
-
-					return TryRead(type, id, out value);
-				}
-				public static bool TryRead<T>(Type script, string id, out T value)
-				{
-					var path = RetrieveScriptPath(script, id);
-
-					return Composer.TryRead(path, out value);
-				}
-
 				public static T Read<T>(Script script, string id)
 				{
 					var type = script.GetType();
@@ -164,6 +150,19 @@ namespace MB.NarrativeSystem
 					var path = RetrieveScriptPath(script, id);
 
 					return Composer.Read<T>(path);
+				}
+
+				public static object Read(Script script, Type data, string id)
+				{
+					var type = script.GetType();
+
+					return Read(type, data, id);
+				}
+				public static object Read(Type script, Type data, string id)
+				{
+					var path = RetrieveScriptPath(script, id);
+
+					return Composer.Read(data, path);
 				}
 
 				public static bool Contains(Script script, string id)
@@ -218,13 +217,13 @@ namespace MB.NarrativeSystem
 					return Composer.Remove(path);
 				}
 
-				public static void Set<T>(Script script, string id, T value)
+				public static void Set(Script script, string id, object value)
 				{
 					var type = script.GetType();
 
 					Set(type, id, value);
 				}
-				public static void Set<T>(Type script, string id, T value)
+				public static void Set(Type script, string id, object value)
 				{
 					var path = RetrieveScriptPath(script, id);
 
@@ -239,8 +238,6 @@ namespace MB.NarrativeSystem
 			{
 				public static Type Type => typeof(TScript);
 
-				public static bool TryRead<T>(string id, out T value) => Scripts.TryRead<T>(Type, id, out value);
-
 				public static T Read<T>(string id) => Scripts.Read<T>(Type, id);
 
 				public static bool Contains(string id) => Scripts.Contains(Type, id);
@@ -249,7 +246,7 @@ namespace MB.NarrativeSystem
 				public static bool Remove(string id) => Scripts.Remove(Type, id);
 				public static bool RemoveAll() => Scripts.RemoveAll(Type);
 
-				public static void Set<T>(string id, T value) => Scripts.Set(Type, id, value);
+				public static void Set(string id, object value) => Scripts.Set(Type, id, value);
 			}
 
 			public static void Configure(params JsonConverter[] converters)
@@ -272,11 +269,14 @@ namespace MB.NarrativeSystem
 				Application.quitting += QuitCallback;
 			}
 
+			public static event Action OnLoad;
 			public static void Load(string slot)
 			{
 				Slot = slot;
 
 				Load();
+
+				OnLoad?.Invoke();
 			}
 
 			static void SetDefaults()

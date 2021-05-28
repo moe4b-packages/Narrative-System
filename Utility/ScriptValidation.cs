@@ -46,7 +46,7 @@ namespace MB.NarrativeSystem
 
 		static void ValidateBranches(Type script)
 		{
-			var data = Branch.Composition.Parse(script);
+			var data = Script.Composer.Data.BranchesData.ParseSelf(script);
 
 			var pathes = data.Select(x => x.Attribute.Path).Distinct().Count();
 
@@ -66,7 +66,7 @@ namespace MB.NarrativeSystem
 			}
 		}
 
-		static void ValidateBranch(Type script, Branch.Composition.Data data)
+		static void ValidateBranch(Type script, Script.Composer.Data.BranchesData.Data data)
 		{
 			var method = data.Method;
 

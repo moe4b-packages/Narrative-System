@@ -28,11 +28,58 @@ namespace MB.NarrativeSystem
     {
         public string Name { get; protected set; }
 
+        public Composer.Data Composition { get; protected set; }
+
+        public VariablesProeprty Variables { get; protected set; }
+        [Serializable]
+        public class VariablesProeprty
+        {
+            public Script Script { get; protected set; }
+            public Composer.Data.VariablesData Composition => Script.Composition.Variables;
+
+            public Variable[] List { get; protected set; }
+
+            public void Load()
+            {
+                for (int i = 0; i < List.Length; i++)
+                {
+                    if (Narrative.Progress.Scripts.Contains(Script, List[i].Name) == false) continue;
+
+                    List[i].Value = Narrative.Progress.Scripts.Read(Script, List[i].Type, List[i].Name);
+                }
+            }
+
+            public void Save()
+            {
+                for (int i = 0; i < List.Length; i++)
+                {
+                    var value = List[i].Value;
+
+                    if (Equals(value, List[i].Default)) continue;
+
+                    Narrative.Progress.Scripts.Set(Script, List[i].Name, value);
+                }
+            }
+
+            public VariablesProeprty(Script script)
+            {
+                this.Script = script;
+
+                List = new Variable[Composition.Count];
+
+                for (int i = 0; i < List.Length; i++)
+                    List[i] = new Variable(Composition[i].Attribute, Composition[i].Property, script);
+            }
+        }
+
         public BranchesProperty Branches { get; protected set; }
         [Serializable]
         public class BranchesProperty
         {
-            public List<Branch> List { get; protected set; }
+            public Script Script { get; protected set; }
+            public Composer.Data.BranchesData Composition => Script.Composition.Branches;
+
+            public Branch[] List { get; protected set; }
 
             public Dictionary<string, Branch> Dictionary { get; protected set; }
 
@@ -40,10 +87,10 @@ namespace MB.NarrativeSystem
             public Branch this[string id] => Dictionary[id];
 
             public Branch this[int index] => List[index];
-            public int Count => List.Count;
+            public int Count => List.Length;
 
-            public Branch First => List.SafeIndexer(0);
-            public Branch Last => List.SafeIndexer(List.Count - 1);
+            public Branch First => List.First();
+            public Branch Last => List.Last();
 
             public Branch Selection { get; protected set; }
             public IEnumerator<Node> Numerator { get; protected set; }
@@ -60,16 +107,14 @@ namespace MB.NarrativeSystem
 
             public BranchesProperty(Script script)
             {
-                var functions = Branch.Composition.Read(script);
+                this.Script = script;
 
-                List = new List<Branch>(functions.Count);
+                var functions = Composition.CreateFunctions(script);
 
-                for (int i = 0; i < functions.Count; i++)
-                {
-                    var entry = new Branch(functions[i], script, i);
+                List = new Branch[functions.Length];
 
-                    List.Add(entry);
-                }
+                for (int i = 0; i < functions.Length; i++)
+                    List[i] = new Branch(functions[i], script, i);
 
                 Dictionary = List.ToDictionary(x => x.ID);
             }
@@ -85,6 +130,9 @@ namespace MB.NarrativeSystem
                 return;
             }
 
+            Composition = Composer.Retrieve(this);
+
+            Variables = new VariablesProeprty(this);
             Branches = new BranchesProperty(this);
 
             Ready = true;
@@ -99,7 +147,7 @@ namespace MB.NarrativeSystem
         {
             if (Ready == false) Prepare();
 
-            Clear();
+            Reset();
 
             if (Branches.Count == 0)
             {
@@ -110,9 +158,9 @@ namespace MB.NarrativeSystem
             Invoke(Branches.First);
         }
 
-        protected virtual void Clear()
+        protected virtual void Reset()
         {
-
+            Variables.Load();
         }
 
         void Invoke(Branch branch)
@@ -156,6 +204,7 @@ namespace MB.NarrativeSystem
         public event Action OnEnd;
         protected void End()
         {
+            Variables.Save();
             Branches.SetSelection(null);
 
             OnEnd?.Invoke();
@@ -171,6 +220,176 @@ namespace MB.NarrativeSystem
 
         #region Static Utility
         public static T[] Arrange<T>(params T[] array) => array;
+
+        public static class Composer
+        {
+            public static Dictionary<Type, Data> Dictionary { get; private set; }
+
+            public class Data
+            {
+                public VariablesData Variables { get; protected set; }
+                public class VariablesData
+                {
+                    public const BindingFlags Flags = BindingFlags.FlattenHierarchy | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+
+                    public List<Data> List { get; protected set; }
+                    public class Data
+                    {
+                        public VariableAttribute Attribute { get; protected set; }
+
+                        public PropertyInfo Property { get; protected set; }
+
+                        public Data(VariableAttribute attribute, PropertyInfo property)
+                        {
+                            this.Attribute = attribute;
+                            this.Property = property;
+                        }
+                    }
+
+                    public int Count => List.Count;
+                    public Data this[int index] => List[index];
+
+                    public VariablesData(Type type)
+                    {
+                        var properties = type.GetProperties(Flags);
+
+                        List = new List<Data>();
+
+                        for (int i = 0; i < properties.Length; i++)
+                        {
+                            var attribute = properties[i].GetCustomAttribute<VariableAttribute>(true);
+                            if (attribute == null) continue;
+
+                            var data = new Data(attribute, properties[i]);
+
+                            List.Add(data);
+                        }
+                    }
+                }
+
+                public BranchesData Branches { get; protected set; }
+                public class BranchesData
+                {
+                    public const BindingFlags Flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+
+                    public List<Data> List { get; protected set; }
+                    public class Data
+                    {
+                        public BranchAttribute Attribute { get; protected set; }
+
+                        public MethodInfo Method { get; protected set; }
+
+                        public Branch.Delegate CreateFunction(Script target) => Method.CreateDelegate<Branch.Delegate>(target);
+
+                        public Data(BranchAttribute attribute, MethodInfo method)
+                        {
+                            this.Attribute = attribute;
+                            this.Method = method;
+                        }
+                    }
+
+                    public int Count => List.Count;
+                    public Data this[int index] => List[index];
+
+                    public Branch.Delegate[] CreateFunctions(Script target)
+                    {
+                        var functions = new Branch.Delegate[List.Count];
+
+                        for (int i = 0; i < List.Count; i++)
+                            functions[i] = List[i].CreateFunction(target);
+
+                        return functions;
+                    }
+
+                    public BranchesData(Type type)
+                    {
+                        List = ParseAll(type);
+                    }
+
+                    public static List<Data> ParseAll(Type type)
+                    {
+                        var tree = ReadInheritanceTree(type);
+
+                        var list = new List<Data>();
+
+                        foreach (var item in tree)
+                        {
+                            var range = ParseSelf(item);
+                            list.AddRange(range);
+                        }
+
+                        return list;
+                    }
+
+                    public static List<Data> ParseSelf(Type type)
+                    {
+                        var methods = type.GetMethods(Flags);
+
+                        var list = new List<Data>();
+
+                        for (int i = 0; i < methods.Length; i++)
+                        {
+                            if (BranchAttribute.TryGet(methods[i], out var attribute) == false)
+                                continue;
+
+                            var data = new Data(attribute, methods[i]);
+
+                            list.Add(data);
+                        }
+
+                        list.Sort((right, left) => right.Attribute.Line - left.Attribute.Line);
+
+                        return list;
+                    }
+                }
+
+                public Data(Type type)
+                {
+                    Variables = new VariablesData(type);
+                    Branches = new BranchesData(type);
+                }
+            }
+
+            public static Data Retrieve(Script script)
+            {
+                var type = script.GetType();
+
+                return Retrieve(type);
+            }
+            public static Data Retrieve(Type type)
+            {
+                if (Dictionary.TryGetValue(type, out var composition))
+                    return composition;
+
+                composition = new Data(type);
+                Dictionary[type] = composition;
+
+                return composition;
+            }
+
+            static Stack<Type> ReadInheritanceTree(Type type)
+            {
+                var stack = new Stack<Type>();
+
+                while (true)
+                {
+                    if (type == typeof(Script)) break;
+
+                    stack.Push(type);
+
+                    type = type.BaseType;
+
+                    if (type == null) break;
+                }
+
+                return stack;
+            }
+
+            static Composer()
+            {
+                Dictionary = new Dictionary<Type, Data>();
+            }
+        }
 
         public static class Format
         {

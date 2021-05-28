@@ -22,11 +22,11 @@ namespace MB.NarrativeSystem
     [Serializable]
     public class TempleConversation : Script
     {
-        public static EncounterChoice Encounter
-        {
-            get => Narrative.Progress.Script<TempleConversation>.Read<EncounterChoice>("Encounter");
-            set => Narrative.Progress.Script<TempleConversation>.Set("Encounter", value);
-        }
+        [Variable]
+        public int Counter { get; protected set; }
+
+        [Variable]
+        public EncounterChoice Encounter { get; protected set; }
         [Flags]
         public enum EncounterChoice
         {
@@ -38,6 +38,8 @@ namespace MB.NarrativeSystem
         [Branch]
         IEnumerator<Node> TalkAboutCrystal()
         {
+            Counter++;
+
             Debug.Log($"Encounter Choice: {Encounter}");
 
             yield return SetFadeState(true);
@@ -109,7 +111,7 @@ namespace MB.NarrativeSystem
             yield return FadeIn();
             yield return Say();
 
-            yield return GoTo(TalkAboutCrystal);
+            yield return Play<TempleConversation>().DontWait();
         }
     }
 }
