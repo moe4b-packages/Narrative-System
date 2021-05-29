@@ -31,10 +31,19 @@ namespace MB.NarrativeSystem
             {
 				public string Path { get; protected set; }
 
-				public Variable(VariableAttribute attribute, MemberInfo member, string path) : base(attribute, member, null)
+				public Variable(VariableAttribute attribute, MemberInfo member) : base(attribute, member, null)
 				{
-					this.Path = path + JObjectComposer.Path.Seperator + Name;
+					Path = MUtility.IterateNest(member.DeclaringType, Iterate)
+						.Reverse()
+						.Skip(1)
+						.Select(Select)
+						.Join(JObjectComposer.Path.Seperator);
+
+					Path = JObjectComposer.Path.Compose(Path, Name);
 				}
+
+				static Type Iterate(Type type) => type.DeclaringType;
+				static string Select(Type type) => type.Name;
 			}
 
 			internal static void Configure()
@@ -47,8 +56,6 @@ namespace MB.NarrativeSystem
 			}
 			internal static void Register(Type type)
 			{
-				var path = GetNestPath(type);
-
 				var members = new List<MemberInfo>();
 				members.AddRange(type.GetFields(Flags));
 				members.AddRange(type.GetProperties(Flags));
@@ -56,16 +63,13 @@ namespace MB.NarrativeSystem
 				for (int i = 0; i < members.Count; i++)
 				{
 					var attribute = members[i].GetCustomAttribute<VariableAttribute>(true);
-
 					if (attribute == null) continue;
 
-					var data = new Variable(attribute, members[i], path);
-
+					var data = new Variable(attribute, members[i]);
 					List.Add(data);
 				}
 
 				var nested = type.GetNestedTypes(Flags);
-
 				for (int i = 0; i < nested.Length; i++)
 				{
 					if (nested[i].IsClass == false) continue;
@@ -106,31 +110,6 @@ namespace MB.NarrativeSystem
 			{
 				List = new List<Variable>();
 			}
-
-			//Pure Utility
-
-			internal static string GetNestPath(Type type)
-			{
-				var text = Iterate(type).Reverse().Select(Select).Aggregate(Aggregate);
-
-				return text;
-
-				static IEnumerable<Type> Iterate(Type type)
-				{
-					while (true)
-					{
-						yield return type;
-
-						type = type.DeclaringType;
-
-						if (type == null) break;
-					}
-				}
-
-				static string Select(Type type) => MUtility.PrettifyName(type.Name);
-
-				static string Aggregate(string x, string y) => $"{x}{JObjectComposer.Path.Seperator}{y}";
-			}
 		}
 
 		public static void Configure()
@@ -140,7 +119,7 @@ namespace MB.NarrativeSystem
 
 		static Story()
 		{
-			
+
 		}
 	}
 

@@ -132,17 +132,17 @@ namespace MB.NarrativeSystem
 			{
 				public const string ID = nameof(Global);
 
-				static string RetrievePath(string path) => $"{ID}{JObjectComposer.Path.Seperator}{path}";
+				static string FormatPath(string path) => JObjectComposer.Path.Compose(ID, path);
 
-				public static T Read<T>(string id) => Composer.Read<T>(RetrievePath(id));
-				public static object Read(Type data, string id) => Composer.Read(data, RetrievePath(id));
+				public static T Read<T>(string id) => Composer.Read<T>(FormatPath(id));
+				public static object Read(Type data, string id) => Composer.Read(data, FormatPath(id));
 
-				public static bool Contains(string id) => Composer.Contains(RetrievePath(id));
+				public static bool Contains(string id) => Composer.Contains(FormatPath(id));
 
-				public static bool Remove(string id) => Composer.Remove(RetrievePath(id));
+				public static bool Remove(string id) => Composer.Remove(FormatPath(id));
 				public static bool RemoveAll() => Composer.Remove(ID);
 
-				public static void Set(string id, object value) => Composer.Set(RetrievePath(id), value);
+				public static void Set(string id, object value) => Composer.Set(FormatPath(id), value);
 
 				internal static void SetDefaults()
 				{
@@ -166,7 +166,7 @@ namespace MB.NarrativeSystem
 				}
 				public static T Read<T>(Type script, string id)
 				{
-					var path = RetrieveScriptPath(script, id);
+					var path = FormatScriptPath(script, id);
 
 					return Composer.Read<T>(path);
 				}
@@ -179,7 +179,7 @@ namespace MB.NarrativeSystem
 				}
 				public static object Read(Type script, Type data, string id)
 				{
-					var path = RetrieveScriptPath(script, id);
+					var path = FormatScriptPath(script, id);
 
 					return Composer.Read(data, path);
 				}
@@ -192,7 +192,7 @@ namespace MB.NarrativeSystem
 				}
 				public static bool Contains(Type script, string id)
 				{
-					var path = RetrieveScriptPath(script, id);
+					var path = FormatScriptPath(script, id);
 
 					return Composer.Contains(path);
 				}
@@ -205,7 +205,7 @@ namespace MB.NarrativeSystem
 				}
 				public static bool Contains(Type script)
 				{
-					var path = RetrieveScriptPath(script);
+					var path = FormatScriptPath(script);
 
 					return Composer.Contains(path);
 				}
@@ -218,7 +218,7 @@ namespace MB.NarrativeSystem
 				}
 				public static bool Remove(Type type, string id)
 				{
-					var path = RetrieveScriptPath(type, id);
+					var path = FormatScriptPath(type, id);
 
 					return Composer.Remove(path);
 				}
@@ -231,7 +231,7 @@ namespace MB.NarrativeSystem
 				}
 				public static bool RemoveAll(Type type)
 				{
-					var path = RetrieveScriptPath(type);
+					var path = FormatScriptPath(type);
 
 					return Composer.Remove(path);
 				}
@@ -244,13 +244,13 @@ namespace MB.NarrativeSystem
 				}
 				public static void Set(Type script, string id, object value)
 				{
-					var path = RetrieveScriptPath(script, id);
+					var path = FormatScriptPath(script, id);
 
 					Composer.Set(path, value);
 				}
 
-				static string RetrieveScriptPath(Type type) => Script.Format.Name.Retrieve(type);
-				static string RetrieveScriptPath(Type type, string id) => RetrieveScriptPath(type) + JObjectComposer.Path.Seperator + id;
+				static string FormatScriptPath(Type type) => Script.Format.Name.Retrieve(type);
+				static string FormatScriptPath(Type type, string id) => JObjectComposer.Path.Compose(FormatScriptPath(type), id);
 			}
 			public static class Script<TScript>
 				where TScript : Script
