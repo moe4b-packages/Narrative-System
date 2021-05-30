@@ -226,7 +226,7 @@ namespace MB.NarrativeSystem
         }
 
         #region Static Utility
-        public static T[] Arrange<T>(params T[] array) => array;
+        protected static T[] Arrange<T>(params T[] array) => array;
 
         public static class Composer
         {

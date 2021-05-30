@@ -17,13 +17,15 @@ using UnityEditorInternal;
 using Object = UnityEngine.Object;
 using Random = UnityEngine.Random;
 
+using static MB.RichTextMarker;
+
 namespace MB.NarrativeSystem
 {
     [Serializable]
     public class TempleConversation : Script
     {
         [Variable]
-        public EncounterChoice Encounter { get; protected set; }
+        public static EncounterChoice Encounter { get; set; }
         [Flags]
         public enum EncounterChoice
         {
@@ -41,15 +43,17 @@ namespace MB.NarrativeSystem
             yield return Delay(1);
             yield return FadeOut();
 
+            yield return Say($"Hello There {Style("Player", bold: true, color: Color.green)}");
+
             SpeakingCharacter = "Character 1";
 
             yield return Say("Impossible!");
-            yield return Say("The crystal cannot be held by a mortal like you");
-            yield return Say("Even I could only glance at its majestic glow for the last 400 years");
+            yield return Say("<b>The crystal</b> cannot be held by a mortal like you");
+            yield return Say("Even I could only glance at its majestic glow for the last <b>400 years</b>");
 
             yield return Say("Perhaps there is more to you than meets the eye");
 
-            yield return Say("Nevertheless, the crystal cannot be exploited by the means of humans");
+            yield return Say("Nevertheless, <b>the crystal</b> cannot be exploited by the means of humans");
             yield return Say("I request that you return it to its righteous place, young hero").SetAutoSubmit();
 
             yield return Choice(ReturnTheCrystal, KeepTheCrystal);
@@ -76,7 +80,7 @@ namespace MB.NarrativeSystem
         [Branch]
         IEnumerator<Node> KeepTheCrystal()
         {
-            yield return Say("The crystal must've corrupted you");
+            yield return Say("<b>The crystal</b> must've corrupted you");
             yield return Say("As it has corrupted the lives of men many ages before");
 
             yield return Say("I cannot allow its power to be exploited by those weak of heart");

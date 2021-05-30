@@ -20,20 +20,37 @@ using Random = UnityEngine.Random;
 using MB.UISystem;
 
 using UnityEngine.EventSystems;
+using System.Text;
+
+using TMPro;
 
 namespace MB.NarrativeSystem
 {
     public class SayDialogUI : UIPanel, ISayDialog, IPointerClickHandler
     {
         [SerializeField]
-        Text label = default;
-        public Text Label => label;
+        TextMeshProUGUI label = default;
+        public TextMeshProUGUI Label => label;
+
+        public string Text
+        {
+            get => label.text;
+            set => label.text = value;
+        }
+
+        public int MaxVisibleCharacters
+        {
+            get => label.maxVisibleCharacters;
+            set => label.maxVisibleCharacters = value;
+        }
 
         [SerializeField]
         float typeDelay = 0.01f;
 
         ISayData data;
         Action submit;
+
+        bool IsProcessing => coroutine != null;
 
         public void Show(ISayData data, Action submit)
         {
@@ -46,14 +63,13 @@ namespace MB.NarrativeSystem
         }
 
         Coroutine coroutine;
-        bool IsProcessing => coroutine != null;
         IEnumerator Procedure()
         {
-            var text = FormatText(data);
+            Text = FormatText(data);
 
-            for (int i = 0; i < text.Length + 1; i++)
+            for (int i = 0; i < Text.Length; i++)
             {
-                label.text = text.Insert(i, "<color=#0000>") + "</color>";
+                MaxVisibleCharacters = i;
 
                 yield return new WaitForSeconds(typeDelay);
             }
@@ -69,7 +85,8 @@ namespace MB.NarrativeSystem
                 coroutine = null;
             }
 
-            label.text = FormatText(data);
+            MaxVisibleCharacters = 99999;
+            Text = FormatText(data);
 
             if (data.AutoSubmit) Submit();
         }

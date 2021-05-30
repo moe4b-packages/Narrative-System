@@ -33,6 +33,7 @@ namespace MB.NarrativeSystem
 			public static JObjectComposer Composer { get; private set; }
 
 			public static string Slot { get; private set; }
+			public static bool IsLoaded => Composer.IsLoaded;
 
 			public static bool IsDirty { get; private set; }
 
@@ -249,8 +250,8 @@ namespace MB.NarrativeSystem
 					Composer.Set(path, value);
 				}
 
-				static string FormatScriptPath(Type type) => Script.Format.Name.Retrieve(type);
-				static string FormatScriptPath(Type type, string id) => JObjectComposer.Path.Compose(FormatScriptPath(type), id);
+				public static string FormatScriptPath(Type type) => Script.Format.Name.Retrieve(type);
+				public static string FormatScriptPath(Type type, string id) => JObjectComposer.Path.Compose(FormatScriptPath(type), id);
 			}
 			public static class Script<TScript>
 				where TScript : Script
