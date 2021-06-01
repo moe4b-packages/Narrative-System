@@ -38,4 +38,25 @@ namespace MB.NarrativeSystem
             OnInvoke?.Invoke();
         }
     }
+
+    public class NodeWaitProperty<T>
+    {
+        public T Reference { get; protected set; }
+
+        public bool Value { get; protected set; }
+
+        public T Do() => Set(true);
+        public T Dont() => Set(false);
+        public T Set(bool value)
+        {
+            Value = value;
+            return Reference;
+        }
+
+        public NodeWaitProperty(T reference)
+        {
+            this.Reference = reference;
+            Value = true;
+        }
+    }
 }

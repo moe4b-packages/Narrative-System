@@ -73,4 +73,33 @@ namespace MB.NarrativeSystem
 		}
 		#endregion
 	}
+
+	public interface ILocalizationTarget
+	{
+		IEnumerable<string> RetrieveLocalization();
+	}
+
+	public interface IDynamicResourceTarget
+	{
+		IEnumerable<DynamicResourceData> RetrieveAddressables();
+	}
+
+	public struct DynamicResourceData
+    {
+		public string ID { get; private set; }
+		public Type Type { get; private set; }
+
+		public DynamicResourceData(string id, Type type)
+		{
+			this.ID = id;
+			this.Type = type;
+		}
+
+		public static DynamicResourceData Create<T>(string id)
+        {
+			var type = typeof(T);
+
+			return new DynamicResourceData(id, type);
+        }
+	}
 }

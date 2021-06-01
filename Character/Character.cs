@@ -20,11 +20,18 @@ using Random = UnityEngine.Random;
 namespace MB.NarrativeSystem
 {
 	[CreateAssetMenu(menuName = Narrative.Path + "Character")]
-	public class Character : ScriptableObject
+	public class Character : ScriptableObject, ILocalizationTarget
 	{
 		public string DisplayName => name;
 
+		public IEnumerable<string> RetrieveLocalization()
+		{
+			yield return name;
+		}
+
 		public override string ToString() => DisplayName;
+
+		//Static Utility
 
 		public static implicit operator Character(string name) => Find(name);
 
@@ -35,5 +42,5 @@ namespace MB.NarrativeSystem
 
 			return character;
 		}
-    }
+	}
 }

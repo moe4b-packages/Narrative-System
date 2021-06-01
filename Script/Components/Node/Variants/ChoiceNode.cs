@@ -21,7 +21,7 @@ namespace MB.NarrativeSystem
 {
     public class ChoiceNode : Node
     {
-        List<Entry> entries;
+        public List<Entry> Entries { get; protected set; }
         public class Entry : IChoiceData
         {
             public string Text { get; protected set; }
@@ -49,7 +49,7 @@ namespace MB.NarrativeSystem
         }
         public ChoiceNode Add(Entry entry)
         {
-            entries.Add(entry);
+            Entries.Add(entry);
 
             return this;
         }
@@ -58,7 +58,7 @@ namespace MB.NarrativeSystem
         {
             base.Invoke();
 
-            Narrative.Controls.Choice.Show(entries, Submit);
+            Narrative.Controls.Choice.Show(Entries, Submit);
         }
 
         public delegate void SimpleSubmitDelegate(int index);
@@ -96,7 +96,7 @@ namespace MB.NarrativeSystem
         public event ComplexSubmitDelegate OnSubmit;
         public void Submit(int index, IChoiceData data)
         {
-            var entry = entries[index];
+            var entry = Entries[index];
 
             OnSubmit?.Invoke(index, data);
 
@@ -105,7 +105,7 @@ namespace MB.NarrativeSystem
 
         public ChoiceNode()
         {
-            entries = new List<Entry>();
+            Entries = new List<Entry>();
         }
     }
 

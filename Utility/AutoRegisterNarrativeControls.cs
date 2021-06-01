@@ -32,11 +32,15 @@ namespace MB.NarrativeSystem
         [SerializeField]
         UIFader fader;
 
+        [SerializeField]
+        AudioSource audioSource;
+
         void Awake()
         {
             Narrative.Controls.Say = say.Interface;
             Narrative.Controls.Choice = choice.Interface;
             Narrative.Controls.Fader = fader;
+            Narrative.Controls.AudioSource = audioSource;
         }
     }
 }

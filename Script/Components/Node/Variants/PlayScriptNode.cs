@@ -21,55 +21,49 @@ namespace MB.NarrativeSystem
 {
     public class PlayScriptNode : Node
     {
-        Script target;
+        public Script Target { get; protected set; }
 
-        bool wait = true;
-
-        public PlayScriptNode DoWait() => SetWait(true);
-        public PlayScriptNode DontWait() => SetWait(false);
-        public PlayScriptNode SetWait(bool value)
-        {
-            wait = value;
-            return this;
-        }
+        public NodeWaitProperty<PlayScriptNode> Wait { get; protected set; }
 
         public override void Invoke()
         {
             base.Invoke();
 
-            if (target == Script)
-                throw new Exception($"Cannot Play Script {target} from Within the Script");
+            if (Target == Script)
+                throw new Exception($"Cannot Play Script {Target} from Within the Script");
 
             Script.Variables.Save();
 
-            if (wait)
-                target.OnEnd += TargetEndCallback;
+            if (Wait.Value)
+                Target.OnEnd += TargetEndCallback;
 
-            Narrative.Play(target);
+            Narrative.Play(Target);
 
-            if (wait == false)
+            if (Wait.Value == false)
                 Script.Continue();
         }
 
         void TargetEndCallback()
         {
-            target.OnEnd -= TargetEndCallback;
+            Target.OnEnd -= TargetEndCallback;
             Script.Continue();
         }
 
         public PlayScriptNode(Script target)
         {
-            this.target = target;
+            this.Target = target;
+
+            Wait = new NodeWaitProperty<PlayScriptNode>(this);
         }
     }
 
     partial class Script
     {
-        protected PlayScriptNode Play(Script target) => new PlayScriptNode(target);
-        protected PlayScriptNode Play<T>() where T : Script, new()
+        protected PlayScriptNode PlayScript(Script target) => new PlayScriptNode(target);
+        protected PlayScriptNode PlayScript<T>() where T : Script, new()
         {
             var script = new T();
-            return Play(script);
+            return PlayScript(script);
         }
     }
 }

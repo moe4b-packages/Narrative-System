@@ -21,17 +21,9 @@ namespace MB.NarrativeSystem
 {
     public class StartCoroutineNode : Node
     {
-        IEnumerator numerator;
+        public IEnumerator Numerator { get; protected set; }
 
-        bool wait = true;
-
-        public StartCoroutineNode DoWait() => SetWait(true);
-        public StartCoroutineNode DontWait() => SetWait(false);
-        public StartCoroutineNode SetWait(bool value)
-        {
-            wait = value;
-            return this;
-        }
+        public NodeWaitProperty<StartCoroutineNode> Wait { get; protected set; }
 
         public override void Invoke()
         {
@@ -39,19 +31,21 @@ namespace MB.NarrativeSystem
 
             GlobalCoroutine.Start(Procedure);
 
-            if (wait == false) Script.Continue();
+            if (Wait.Value == false) Script.Continue();
         }
 
         IEnumerator Procedure()
         {
-            yield return numerator;
+            yield return Numerator;
 
-            if (wait) Script.Continue();
+            if (Wait.Value) Script.Continue();
         }
 
         public StartCoroutineNode(IEnumerator numerator)
         {
-            this.numerator = numerator;
+            this.Numerator = numerator;
+
+            Wait = new NodeWaitProperty<StartCoroutineNode>(this);
         }
     }
 

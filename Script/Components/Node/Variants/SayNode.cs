@@ -19,7 +19,7 @@ using Random = UnityEngine.Random;
 
 namespace MB.NarrativeSystem
 {
-    public class SayNode : Node, ISayData
+    public class SayNode : Node, ISayData, ILocalizationTarget
     {
         public string Text { get; protected set; }
 
@@ -40,6 +40,11 @@ namespace MB.NarrativeSystem
         }
 
         void Submit() => Script.Continue();
+
+        public IEnumerable<string> RetrieveLocalization()
+        {
+            yield return Text;
+        }
 
         public SayNode(string text, Character character)
         {

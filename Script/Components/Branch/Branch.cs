@@ -22,7 +22,7 @@ using System.Reflection;
 
 namespace MB.NarrativeSystem
 {
-    public class Branch
+    public class Branch : ILocalizationTarget
     {
         public string ID { get; protected set; }
         public string Name { get; protected set; }
@@ -55,6 +55,11 @@ namespace MB.NarrativeSystem
         }
 
         public IEnumerator<Node> GetEnumerator() => Function();
+
+        public IEnumerable<string> RetrieveLocalization()
+        {
+            yield return Name;
+        }
 
         public override string ToString() => Format.FullName(Script.Name, Name);
 

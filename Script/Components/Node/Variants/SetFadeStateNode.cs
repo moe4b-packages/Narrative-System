@@ -21,20 +21,20 @@ namespace MB.NarrativeSystem
 {
     public class SetFadeStateNode : Node
     {
-        bool isOn { get; set; }
+        public bool IsOn { get; set; }
 
         public override void Invoke()
         {
             base.Invoke();
 
-            Narrative.Controls.Fader.SetState(isOn);
+            Narrative.Controls.Fader.SetState(IsOn);
 
             Script.Continue();
         }
 
         public SetFadeStateNode(bool isOn)
         {
-            this.isOn = isOn;
+            this.IsOn = isOn;
         }
     }
 

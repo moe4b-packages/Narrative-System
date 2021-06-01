@@ -39,11 +39,13 @@ namespace MB.NarrativeSystem
         {
             Debug.Log($"Encounter Choice: {Encounter}");
 
+            yield return PlayAudio("SFX/Unsheath Sword");
+
             yield return SetFadeState(true);
             yield return Delay(1);
             yield return FadeOut();
 
-            yield return Say($"Hello There {Style("Player", bold: true, color: Color.green)}");
+            yield return PlayAudio("SFX/Unsheath Sword");
 
             SpeakingCharacter = "Character 1";
 
@@ -110,7 +112,7 @@ namespace MB.NarrativeSystem
             yield return FadeIn();
             yield return Say();
 
-            yield return Play<TempleConversation>().DontWait();
+            yield return PlayScript<TempleConversation>().Wait.Dont();
         }
     }
 }

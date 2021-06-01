@@ -21,19 +21,19 @@ namespace MB.NarrativeSystem
 {
 	public class GoToBranchNode : Node
 	{
-		Branch.Delegate branch;
+		public Branch.Delegate Function { get; protected set; }
 
-        public override void Invoke()
-        {
+		public override void Invoke()
+		{
 			base.Invoke();
 
-			Script.Continue(branch);
+			Script.Continue(Function);
 		}
 
-        public GoToBranchNode(Branch.Delegate function)
-        {
-			this.branch = function;
-        }
+		public GoToBranchNode(Branch.Delegate function)
+		{
+			this.Function = function;
+		}
 	}
 
 	partial class Script

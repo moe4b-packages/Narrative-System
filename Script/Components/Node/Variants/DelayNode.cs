@@ -21,7 +21,7 @@ namespace MB.NarrativeSystem
 {
     public class DelayNode : Node
     {
-        float duration;
+        public float Duration { get; protected set; }
 
         public override void Invoke()
         {
@@ -32,14 +32,14 @@ namespace MB.NarrativeSystem
 
         IEnumerator Procedure()
         {
-            yield return new WaitForSeconds(duration);
+            yield return new WaitForSeconds(Duration);
 
             Script.Continue();
         }
 
         public DelayNode(float duration)
         {
-            this.duration = duration;
+            this.Duration = duration;
         }
     }
 

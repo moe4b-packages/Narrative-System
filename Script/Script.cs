@@ -631,10 +631,10 @@ namespace MB.NarrativeSystem
                 {
                     base.Init();
 
-                    file = property.FindPropertyRelative(nameof(file));
+                    file = Property.FindPropertyRelative(nameof(file));
                 }
 
-                protected override float CalculateHeight()
+                public override float CalculateHeight()
                 {
                     var height = 0f;
 
@@ -646,9 +646,9 @@ namespace MB.NarrativeSystem
                     return height;
                 }
 
-                protected override void Draw(Rect rect)
+                public override void Draw(Rect rect)
                 {
-                    DrawField(ref rect, label);
+                    DrawField(ref rect, Label);
 
                     if (file.objectReferenceValue != null && Validate(file.objectReferenceValue) == false)
                         DrawHelpBox(ref rect);

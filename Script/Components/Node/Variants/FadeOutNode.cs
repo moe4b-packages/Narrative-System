@@ -21,7 +21,7 @@ namespace MB.NarrativeSystem
 {
     public class FadeOutNode : Node
     {
-        float? duration;
+        public float? Duration { get; protected set; }
 
         public override void Invoke()
         {
@@ -32,14 +32,14 @@ namespace MB.NarrativeSystem
 
         IEnumerator Procedure()
         {
-            yield return Narrative.Controls.Fader.Hide(duration: duration);
+            yield return Narrative.Controls.Fader.Hide(duration: Duration);
 
             Script.Continue();
         }
 
         public FadeOutNode(float? duration)
         {
-            this.duration = duration;
+            this.Duration = duration;
         }
     }
 

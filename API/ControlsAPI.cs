@@ -30,6 +30,8 @@ namespace MB.NarrativeSystem
 			public static IChoiceDialog Choice { get; set; }
 
 			public static UIFader Fader { get; set; }
+
+			public static AudioSource AudioSource { get; set; }
 		}
 	}
 
