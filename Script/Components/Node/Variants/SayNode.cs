@@ -23,6 +23,14 @@ namespace MB.NarrativeSystem
     {
         public string Text { get; protected set; }
 
+        public IEnumerable<string> TextForLocalization
+        {
+            get
+            {
+                yield return Text;
+            }
+        }
+
         public Character Character { get; protected set; }
 
         public bool AutoSubmit { get; set; }
@@ -40,11 +48,6 @@ namespace MB.NarrativeSystem
         }
 
         void Submit() => Script.Continue();
-
-        public IEnumerable<string> RetrieveLocalization()
-        {
-            yield return Text;
-        }
 
         public SayNode(string text, Character character)
         {

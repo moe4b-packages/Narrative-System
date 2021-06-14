@@ -19,11 +19,30 @@ using Random = UnityEngine.Random;
 
 namespace MB.NarrativeSystem
 {
-    public class PlayScriptNode : Node
+    public class PlayScriptNode : Node, INestedScriptTarget, IWaitNode<PlayScriptNode>
     {
         public Script Target { get; protected set; }
 
-        public NodeWaitProperty<PlayScriptNode> Wait { get; protected set; }
+        public IEnumerable<Script> NestedScripts
+        {
+            get
+            {
+                yield return Target;
+            }
+        }
+
+        #region Wait
+        public bool Wait { get; protected set; } = true;
+
+        public PlayScriptNode SetWait(bool value)
+        {
+            Wait = value;
+            return this;
+        }
+
+        public PlayScriptNode Await() => SetWait(true);
+        public PlayScriptNode Continue() => SetWait(false);
+        #endregion
 
         public override void Invoke()
         {
@@ -34,12 +53,12 @@ namespace MB.NarrativeSystem
 
             Script.Variables.Save();
 
-            if (Wait.Value)
+            if (Wait)
                 Target.OnEnd += TargetEndCallback;
 
             Narrative.Play(Target);
 
-            if (Wait.Value == false)
+            if (Wait == false)
                 Script.Continue();
         }
 
@@ -52,8 +71,6 @@ namespace MB.NarrativeSystem
         public PlayScriptNode(Script target)
         {
             this.Target = target;
-
-            Wait = new NodeWaitProperty<PlayScriptNode>(this);
         }
     }
 

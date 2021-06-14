@@ -24,9 +24,12 @@ namespace MB.NarrativeSystem
 	{
 		public string DisplayName => name;
 
-		public IEnumerable<string> RetrieveLocalization()
+		public IEnumerable<string> TextForLocalization
 		{
-			yield return name;
+			get
+			{
+				yield return name;
+			}
 		}
 
 		public override string ToString() => DisplayName;

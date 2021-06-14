@@ -22,9 +22,17 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 
 namespace MB.NarrativeSystem
 {
-    public class PlayAudioNode : Node, IDynamicResourceTarget
+    public class PlayAudioNode : Node, IDynamicResourceTarget, IWaitNode<PlayAudioNode>
     {
         public string ID { get; protected set; }
+
+        public IEnumerable<string> DynamicResources
+        {
+            get
+            {
+                yield return ID;
+            }
+        }
 
         public float Volume { get; protected set; }
         public PlayAudioNode SetVolume(float value)
@@ -33,7 +41,18 @@ namespace MB.NarrativeSystem
             return this;
         }
 
-        public NodeWaitProperty<PlayAudioNode> Wait { get; protected set; }
+        #region Wait
+        public bool Wait { get; protected set; } = true;
+
+        public PlayAudioNode SetWait(bool value)
+        {
+            Wait = value;
+            return this;
+        }
+
+        public PlayAudioNode Await() => SetWait(true);
+        public PlayAudioNode Continue() => SetWait(false);
+        #endregion
 
         public override void Invoke()
         {
@@ -50,24 +69,17 @@ namespace MB.NarrativeSystem
 
             Narrative.Controls.AudioSource.PlayOneShot(clip, Volume);
 
-            if (Wait.Value) yield return new WaitForSeconds(clip.length);
+            if (Wait) yield return new WaitForSeconds(clip.length);
 
             Addressables.Release(clip);
 
             Script.Continue();
         }
 
-        public IEnumerable<DynamicResourceData> RetrieveAddressables()
-        {
-            yield return DynamicResourceData.Create<AudioClip>(ID);
-        }
-
         public PlayAudioNode(string id)
         {
             this.ID = id;
             Volume = 1f;
-
-            Wait = new NodeWaitProperty<PlayAudioNode>(this);
         }
     }
 

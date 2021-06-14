@@ -76,30 +76,50 @@ namespace MB.NarrativeSystem
 
 	public interface ILocalizationTarget
 	{
-		IEnumerable<string> RetrieveLocalization();
+		IEnumerable<string> TextForLocalization { get; }
 	}
 
 	public interface IDynamicResourceTarget
 	{
-		IEnumerable<DynamicResourceData> RetrieveAddressables();
+		IEnumerable<string> DynamicResources { get; }
 	}
 
-	public struct DynamicResourceData
+	public interface INestedScriptTarget
+	{
+		IEnumerable<Script> NestedScripts { get; }
+	}
+
+	partial class Narrative
     {
-		public string ID { get; private set; }
-		public Type Type { get; private set; }
-
-		public DynamicResourceData(string id, Type type)
-		{
-			this.ID = id;
-			this.Type = type;
-		}
-
-		public static DynamicResourceData Create<T>(string id)
+		public static List<Node> GetNodes<T>()
         {
 			var type = typeof(T);
-
-			return new DynamicResourceData(id, type);
+			return GetNodes(type);
         }
+		public static List<Node> GetNodes(Type type)
+        {
+			var script = Activator.CreateInstance(type) as Script;
+			return GetNodes(script);
+        }
+		public static List<Node> GetNodes(Script script)
+		{
+			var list = new List<Node>();
+
+			var composition = Script.Composer.Retrieve(script);
+
+			foreach (var branch in composition.Branches.List)
+			{
+				var numerator = branch.CreateFunction(script).Invoke();
+
+				while (numerator.MoveNext())
+				{
+					var node = numerator.Current;
+
+					list.Add(node);
+				}
+			}
+
+			return list;
+		}
 	}
 }

@@ -129,6 +129,9 @@ namespace MB.NarrativeSystem
 
         public bool Ready { get; protected set; }
 
+        protected bool IsPlaying => Application.isPlaying;
+        protected bool IsComposing => !IsPlaying;
+
         public virtual void Prepare()
         {
             if (Ready)

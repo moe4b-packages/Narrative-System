@@ -112,7 +112,7 @@ namespace MB.NarrativeSystem
             yield return FadeIn();
             yield return Say();
 
-            yield return PlayScript<TempleConversation>().Wait.Dont();
+            yield return PlayScript<TempleConversation>().Continue();
         }
     }
 }

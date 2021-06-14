@@ -27,8 +27,17 @@ namespace MB.NarrativeSystem
         public string ID { get; protected set; }
         public string Name { get; protected set; }
 
+        public IEnumerable<string> TextForLocalization
+        {
+            get
+            {
+                yield return Name;
+            }
+        }
+
         public Delegate Function { get; protected set; }
         public delegate IEnumerator<Node> Delegate();
+        public IEnumerator<Node> GetEnumerator() => Function();
 
         public Script Script { get; protected set; }
         public int Index { get; protected set; }
@@ -52,13 +61,6 @@ namespace MB.NarrativeSystem
 
                 return value;
             }
-        }
-
-        public IEnumerator<Node> GetEnumerator() => Function();
-
-        public IEnumerable<string> RetrieveLocalization()
-        {
-            yield return Name;
         }
 
         public override string ToString() => Format.FullName(Script.Name, Name);
