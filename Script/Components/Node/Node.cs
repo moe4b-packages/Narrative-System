@@ -43,8 +43,23 @@ namespace MB.NarrativeSystem
     {
         bool Wait { get; }
 
+        /// <summary>
+        /// Determine if this Node will Wait to Complete or not Before Movin to the Next Node
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
         TSelf SetWait(bool value);
+
+        /// <summary>
+        /// Wait for this Node to Complete before Moving to the Next Node
+        /// </summary>
+        /// <returns></returns>
         TSelf Await();
+
+        /// <summary>
+        /// Continue to the Next Node Without Waiting for this Node to Complete
+        /// </summary>
+        /// <returns></returns>
         TSelf Continue();
     }
 }
