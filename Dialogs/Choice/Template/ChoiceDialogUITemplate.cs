@@ -19,12 +19,14 @@ using Random = UnityEngine.Random;
 
 using MB.UISystem;
 
+using TMPro;
+
 namespace MB.NarrativeSystem
 {
 	public class ChoiceDialogUITemplate : UITemplate<ChoiceDialogUITemplate, IChoiceData>
 	{
 		[SerializeField]
-		Text label = default;
+		TMP_Text label = default;
 
         [SerializeField]
         Button button = default;
