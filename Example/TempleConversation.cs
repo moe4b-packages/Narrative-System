@@ -39,12 +39,11 @@ namespace MB.NarrativeSystem
         {
             Debug.Log($"Encounter Choice: {Encounter}");
 
-            yield return PlayAudio("SFX/Unsheath Sword");
-
             yield return SetFadeState(true);
             yield return Delay(1);
             yield return FadeOut();
 
+            yield return PlayAudio("SFX/Unsheath Sword");
             yield return PlayAudio("SFX/Unsheath Sword");
 
             SpeakingCharacter = "Character 1";

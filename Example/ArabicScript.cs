@@ -76,7 +76,7 @@ namespace MB.NarrativeSystem
 
             yield return Say("شكرا لمساعدتك يا أيها البطل");
 
-            yield return GoTo(ContinueStory);
+            yield return GoTo(استمر_بالقصه);
         }
 
         [Branch]
@@ -103,11 +103,11 @@ namespace MB.NarrativeSystem
 
             yield return Say("استعد للموت");
 
-            yield return GoTo(ContinueStory);
+            yield return GoTo(استمر_بالقصه);
         }
 
         [Branch]
-        IEnumerator<Node> ContinueStory()
+        IEnumerator<Node> استمر_بالقصه()
         {
             yield return FadeIn();
             yield return Say();
