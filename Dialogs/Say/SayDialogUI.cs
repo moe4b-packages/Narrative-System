@@ -98,6 +98,11 @@ namespace MB.NarrativeSystem
             callback?.Invoke();
         }
 
+        public void Clear()
+        {
+            label.text = string.Empty;
+        }
+
         public void OnPointerClick(PointerEventData eventData)
         {
             if (IsProcessing)

@@ -36,8 +36,6 @@ namespace MB.NarrativeSystem
 
 		//Static Utility
 
-		public static implicit operator Character(string name) => Find(name);
-
 		public static Character Find(string name)
         {
 			if (CharactersCollection.TryFind(name, out var character) == false)

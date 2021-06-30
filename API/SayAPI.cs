@@ -31,5 +31,7 @@ namespace MB.NarrativeSystem
 	public interface ISayDialog : IDialog
 	{
 		void Show(ISayData data, Action submit);
-	}
+
+        void Clear();
+    }
 }

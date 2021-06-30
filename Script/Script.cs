@@ -149,7 +149,20 @@ namespace MB.NarrativeSystem
         }
 
         #region Writing Utility
-        public Character SpeakingCharacter { get; protected set; }
+        public Character Speaker { get; private set; }
+
+        public void SetSpeaker(string name)
+        {
+            var character = Character.Find(name);
+
+            SetSpeaker(character);
+        }
+        public void SetSpeaker(Character character)
+        {
+            Speaker = character;
+        }
+
+        public static Character FindCharacter(string name) => Character.Find(name);
         #endregion
 
         #region Flow Logic

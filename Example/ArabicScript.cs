@@ -110,7 +110,7 @@ namespace MB.NarrativeSystem
         IEnumerator<Node> استمر_بالقصه()
         {
             yield return FadeIn();
-            yield return Say();
+            yield return ClearDialog();
 
             yield return PlayScript<TempleConversation>().Continue();
         }

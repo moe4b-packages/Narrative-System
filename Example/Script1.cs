@@ -29,7 +29,7 @@ namespace MB.NarrativeSystem
             yield return Delay(1);
             yield return FadeOut();
 
-            SpeakingCharacter = "Character 1";
+            SetSpeaker("Character 1");
 
             yield return Say("Hello user");
             yield return Say("Hope you are doing well today");
@@ -70,7 +70,7 @@ namespace MB.NarrativeSystem
         IEnumerator<Node> ContinueStory()
         {
             yield return FadeIn();
-            yield return Say();
+            yield return ClearDialog();
         }
     }
 }

@@ -46,7 +46,9 @@ namespace MB.NarrativeSystem
             yield return PlayAudio("SFX/Unsheath Sword");
             yield return PlayAudio("SFX/Unsheath Sword");
 
-            SpeakingCharacter = "Character 1";
+            SetSpeaker("Character 1");
+
+            yield return Say("Old Choice: ", Encounter);
 
             yield return Say("Impossible!");
             yield return Say("<b>The crystal</b> cannot be held by a mortal like you");
@@ -109,7 +111,7 @@ namespace MB.NarrativeSystem
         IEnumerator<Node> ContinueStory()
         {
             yield return FadeIn();
-            yield return Say();
+            yield return HideDialog();
 
             yield return PlayScript<TempleConversation>().Continue();
         }
