@@ -340,7 +340,12 @@ namespace MB.NarrativeSystem
                         for (int i = 0; i < methods.Length; i++)
                         {
                             if (BranchAttribute.TryGet(methods[i], out var attribute) == false)
+                            {
+                                if(methods[i].ReturnType == typeof(IEnumerator<Node>))
+                                    Debug.LogWarning($"Method '{Format.Name.Retrieve(type)}->{methods[i].Name}' Has Return Type of an IEnumerator<Node> but isn't Marked as a Branch");
+
                                 continue;
+                            }
 
                             var data = new Data(attribute, methods[i]);
 

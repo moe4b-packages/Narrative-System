@@ -91,7 +91,7 @@ namespace MB.NarrativeSystem
                 return MUtility.PrettifyName(id);
             }
 
-            public static string FullName(string script, string branch) => $"{script} :: {branch}";
+            public static string FullName(string script, string branch) => $"{script}->{branch}";
         }
     }
 
