@@ -48,7 +48,7 @@ namespace MB.NarrativeSystem
 
             SetSpeaker("Character 1");
 
-            yield return Say("Old Choice: ", Encounter, " Not the best choice if I'm Honest");
+            yield return Say("Old Choice: ", Encounter, " Not the Best Choice if I'm Honest");
 
             yield return Say("Impossible!");
             yield return Say("<b>The crystal</b> cannot be held by a mortal like you");
