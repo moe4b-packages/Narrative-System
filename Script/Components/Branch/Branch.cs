@@ -127,12 +127,5 @@ namespace MB.NarrativeSystem
 
             return attribute != null;
         }
-
-        public static Branch.Delegate CreateDelegate(MethodInfo info, object target)
-        {
-            var type = typeof(Branch.Delegate);
-
-            return info.CreateDelegate(type, target) as Branch.Delegate;
-        }
     }
 }
