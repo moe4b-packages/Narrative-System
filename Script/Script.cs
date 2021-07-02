@@ -99,32 +99,61 @@ namespace MB.NarrativeSystem
             public Branch First => List.First();
             public Branch Last => List.Last();
 
-            public Branch Selection { get; protected set; }
-            public IEnumerator<Node> Numerator { get; protected set; }
-
-            internal void SetSelection(Branch target)
-            {
-                Selection = target;
-
-                if (Selection == null)
-                    Numerator = null;
-                else
-                    Numerator = Selection.GetEnumerator();
-            }
-
             public BranchesProperty(Script script)
             {
                 this.Script = script;
 
-                var functions = Composition.CreateFunctions(script);
+                var functions = Composition.RetrieveFunctions(script);
 
                 List = new Branch[functions.Length];
 
                 for (int i = 0; i < functions.Length; i++)
-                    List[i] = new Branch(functions[i], script, i);
+                    List[i] = new Branch(script, i, functions[i]);
 
                 Dictionary = List.ToDictionary(x => x.ID);
             }
+        }
+
+        public NodesProperty Nodes { get; protected set; }
+        [Serializable]
+        public class NodesProperty
+        {
+            public Script Script { get; protected set; }
+
+            public List<Node> List { get; protected set; }
+
+            public Node this[int index] => List[index];
+            public int Count => List.Count;
+
+            public Node First => List.First();
+            public Node Last => List.Last();
+
+            public Node Selection { get; protected set; }
+            public void Set(Node target)
+            {
+                Selection = target;
+            }
+
+            public NodesProperty(Script script)
+            {
+                this.Script = script;
+
+                List = new List<Node>();
+
+                for (int x = 0; x < Script.Branches.Count; x++)
+                {
+                    List.Capacity += Script.Branches[x].Nodes.Count;
+
+                    for (int y = 0; y < Script.Branches[x].Nodes.Count; y++)
+                        List.Add(Script.Branches[x].Nodes[y]);
+                }
+            }
+        }
+
+        Node Selection
+        {
+            get => Nodes.Selection;
+            set => Nodes.Set(value);
         }
 
         public bool Ready { get; protected set; }
@@ -144,26 +173,10 @@ namespace MB.NarrativeSystem
 
             Variables = new VariablesProeprty(this);
             Branches = new BranchesProperty(this);
+            Nodes = new NodesProperty(this);
 
             Ready = true;
         }
-
-        #region Writing Utility
-        public Character Speaker { get; private set; }
-
-        public void SetSpeaker(string name)
-        {
-            var character = Character.Find(name);
-
-            SetSpeaker(character);
-        }
-        public void SetSpeaker(Character character)
-        {
-            Speaker = character;
-        }
-
-        public static Character FindCharacter(string name) => Character.Find(name);
-        #endregion
 
         #region Flow Logic
         protected internal virtual void Play()
@@ -186,38 +199,40 @@ namespace MB.NarrativeSystem
             Variables.Load();
         }
 
-        void Invoke(Branch branch)
-        {
-            Branches.SetSelection(branch);
-
-            Continue();
-        }
-
-        void Invoke(Node node)
-        {
-            node.Set(Branches.Selection);
-            node.Invoke();
-        }
-
-        public void Continue()
-        {
-            if (Branches.Numerator.MoveNext())
-                Invoke(Branches.Numerator.Current);
-            else if (Branches.Selection.Next == null)
-                End();
-            else
-                Continue(Branches.Selection.Next);
-        }
-        public void Continue(Branch.Delegate branch)
+        public void Invoke(Branch.Delegate branch)
         {
             var id = Branch.Format.ID(branch);
 
             if (Branches.TryGet(id, out var instance) == false)
                 throw new Exception($"Couldn't Find Branch with ID {id} On {this}");
 
-            Continue(instance);
+            Invoke(instance);
         }
-        public void Continue(Branch branch) => Invoke(branch);
+        internal void Invoke(Branch branch)
+        {
+            Invoke(branch.Nodes.First);
+        }
+
+        void Invoke(Node selection)
+        {
+            Nodes.Set(selection);
+            selection.Invoke();
+        }
+
+        public void Continue()
+        {
+            if(Selection.Next == null)
+            {
+                if (Selection.Branch.Next == null)
+                    End();
+                else
+                    Invoke(Selection.Branch.Next);
+            }
+            else
+            {
+                Invoke(Selection.Next);
+            }
+        }
 
         public virtual void Stop()
         {
@@ -228,7 +243,7 @@ namespace MB.NarrativeSystem
         protected virtual void End()
         {
             Variables.Save();
-            Branches.SetSelection(null);
+            Selection = null;
 
             OnEnd?.Invoke();
         }
@@ -314,7 +329,7 @@ namespace MB.NarrativeSystem
                     public int Count => List.Count;
                     public Data this[int index] => List[index];
 
-                    public Branch.Delegate[] CreateFunctions(Script target)
+                    public Branch.Delegate[] RetrieveFunctions(Script target)
                     {
                         var functions = new Branch.Delegate[List.Count];
 

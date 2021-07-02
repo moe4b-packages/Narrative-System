@@ -23,54 +23,54 @@ namespace MB.NarrativeSystem
     public class Script1 : Script
     {
         [Branch]
-        IEnumerator<Node> Introduction()
+        void Introduction()
         {
-            yield return SetFadeState(true);
-            yield return Delay(1);
-            yield return FadeOut();
+            SetFadeState(true);
+            Delay(1);
+            FadeOut();
 
             SetSpeaker("Character 1");
 
-            yield return Say("Hello user");
-            yield return Say("Hope you are doing well today");
-            yield return Say("Welcome to the narrative System");
+            Say("Hello user");
+            Say("Hope you are doing well today");
+            Say("Welcome to the narrative System");
         }
 
         [Branch]
-        IEnumerator<Node> KnowAboutFeatures()
+        void KnowAboutFeatures()
         {
-            yield return Say("Which feature would you like to know about?").SetAutoSubmit();
+            Say("Which feature would you like to know about?");
 
-            yield return Choice(Option1, Option2, Option3);
+            Choice(Option1, Option2, Option3);
         }
 
         [Branch]
-        IEnumerator<Node> Option1()
+        void Option1()
         {
-            yield return Say("You chose option 1");
+            Say("You chose option 1");
 
-            yield return GoTo(ContinueStory);
+            GoTo(ContinueStory);
         }
         [Branch]
-        IEnumerator<Node> Option2()
+        void Option2()
         {
-            yield return Say("You chose option 2");
+            Say("You chose option 2");
 
-            yield return GoTo(ContinueStory);
+            GoTo(ContinueStory);
         }
         [Branch]
-        IEnumerator<Node> Option3()
+        void Option3()
         {
-            yield return Say("You chose option 3");
+            Say("You chose option 3");
 
-            yield return GoTo(ContinueStory);
+            GoTo(ContinueStory);
         }
 
         [Branch]
-        IEnumerator<Node> ContinueStory()
+        void ContinueStory()
         {
-            yield return FadeIn();
-            yield return ClearDialog();
+            FadeIn();
+            ClearDialog();
         }
     }
 }

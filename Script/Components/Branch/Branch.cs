@@ -24,6 +24,12 @@ namespace MB.NarrativeSystem
 {
     public class Branch : ILocalizationTarget
     {
+        public Script Script { get; protected set; }
+        public int Index { get; protected set; }
+
+        public Delegate Function { get; protected set; }
+        public delegate void Delegate();
+
         public string ID { get; protected set; }
         public string Name { get; protected set; }
 
@@ -35,12 +41,39 @@ namespace MB.NarrativeSystem
             }
         }
 
-        public Delegate Function { get; protected set; }
-        public delegate IEnumerator<Node> Delegate();
-        public IEnumerator<Node> GetEnumerator() => Function();
+        public NodesProperty Nodes { get; protected set; }
+        public class NodesProperty
+        {
+            public Branch Branch { get; protected set; }
 
-        public Script Script { get; protected set; }
-        public int Index { get; protected set; }
+            public List<Node> List { get; protected set; }
+
+            public Node First => List.FirstOrDefault();
+            public Node Last => List.LastOrDefault();
+
+            public Node this[int index] => List[index];
+            public int Count => List.Count;
+
+            internal void Register(Node node)
+            {
+                var index = List.Count;
+
+                List.Add(node);
+
+                node.Set(Branch, index);
+            }
+
+            public NodesProperty(Branch branch)
+            {
+                this.Branch = branch;
+
+                List = new List<Node>();
+
+                Node.OnCreate += Register;
+                Branch.Function.Invoke();
+                Node.OnCreate -= Register;
+            }
+        }
 
         public Branch Previous
         {
@@ -65,7 +98,7 @@ namespace MB.NarrativeSystem
 
         public override string ToString() => Format.FullName(Script.Name, Name);
 
-        public Branch(Delegate function, Script script, int index)
+        public Branch(Script script, int index, Delegate function)
         {
             this.Function = function;
 
@@ -74,6 +107,8 @@ namespace MB.NarrativeSystem
 
             this.Script = script;
             this.Index = index;
+
+            Nodes = new NodesProperty(this);
         }
 
         //Static Utility

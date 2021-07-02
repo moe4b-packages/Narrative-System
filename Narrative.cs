@@ -109,14 +109,14 @@ namespace MB.NarrativeSystem
 
 			foreach (var branch in composition.Branches.List)
 			{
-				var numerator = branch.CreateFunction(script).Invoke();
+				var function = branch.CreateFunction(script);
 
-				while (numerator.MoveNext())
-				{
-					var node = numerator.Current;
+				Node.OnCreate += Register;
 
-					list.Add(node);
-				}
+				function.Invoke();
+				void Register(Node node) => list.Add(node);
+
+				Node.OnCreate -= Register;
 			}
 
 			return list;

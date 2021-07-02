@@ -19,25 +19,10 @@ using Random = UnityEngine.Random;
 
 namespace MB.NarrativeSystem
 {
-	public class GoToBranchNode : Node
-	{
-		public Branch.Delegate Function { get; protected set; }
-
-		public override void Invoke()
-		{
-			base.Invoke();
-
-			Script.Invoke(Function);
-		}
-
-		public GoToBranchNode(Branch.Delegate function)
-		{
-			this.Function = function;
-		}
-	}
-
 	partial class Script
-	{
-		protected GoToBranchNode GoTo(Branch.Delegate function) => new GoToBranchNode(function);
-	}
+    {
+        public Character Speaker { get; set; }
+
+        public static Character FindCharacter(string name) => Character.Find(name);
+    }
 }

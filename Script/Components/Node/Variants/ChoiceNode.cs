@@ -100,7 +100,7 @@ namespace MB.NarrativeSystem
 
             OnSubmit?.Invoke(index, data);
 
-            Script.Continue(entry.Branch);
+            Script.Invoke(entry.Branch);
         }
 
         public ChoiceNode()

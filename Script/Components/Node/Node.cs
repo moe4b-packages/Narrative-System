@@ -24,18 +24,53 @@ namespace MB.NarrativeSystem
     public class Node
     {
         public Branch Branch { get; protected set; }
+        public int Index { get; protected set; }
 
-        internal void Set(Branch reference)
+        internal void Set(Branch branch, int index)
         {
-            Branch = reference;
+            this.Branch = branch;
+            this.Index = index;
         }
 
         public Script Script => Branch.Script;
+
+        public Node Previous
+        {
+            get
+            {
+                if (Branch.Nodes.List.TryGet(Index - 1, out var value) == false)
+                    return null;
+
+                return value;
+            }
+        }
+        public Node Next
+        {
+            get
+            {
+                if (Branch.Nodes.List.TryGet(Index + 1, out var value) == false)
+                    return null;
+
+                return value;
+            }
+        }
 
         public event Action OnInvoke;
         public virtual void Invoke()
         {
             OnInvoke?.Invoke();
+        }
+
+        public Node()
+        {
+            InvokeCreation(this);
+        }
+
+        public delegate void CreateDelegate(Node node);
+        public static event CreateDelegate OnCreate;
+        static void InvokeCreation(Node node)
+        {
+            OnCreate?.Invoke(node);
         }
     }
 

@@ -38,7 +38,7 @@ namespace MB.NarrativeSystem
             AssetCollection.OnRefresh += Refresh;
 #endif
 
-            Dictionary = list.ToDictionary(x => x.name);
+            Dictionary = list.ToDictionary(x => x.ID);
         }
 
         public void Init() { }

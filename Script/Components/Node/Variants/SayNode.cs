@@ -47,6 +47,8 @@ namespace MB.NarrativeSystem
         {
             base.Invoke();
 
+            if (Next is ChoiceNode) AutoSubmit = true;
+
             Narrative.Controls.Say.Show(this, Submit);
         }
 

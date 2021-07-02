@@ -19,25 +19,18 @@ using Random = UnityEngine.Random;
 
 namespace MB.NarrativeSystem
 {
-	public class GoToBranchNode : Node
+	public class LogNode : Node
 	{
-		public Branch.Delegate Function { get; protected set; }
+        public string Text { get; protected set; }
 
-		public override void Invoke()
-		{
-			base.Invoke();
-
-			Script.Invoke(Function);
-		}
-
-		public GoToBranchNode(Branch.Delegate function)
-		{
-			this.Function = function;
-		}
+        public LogNode(string text)
+        {
+            this.Text = text;
+        }
 	}
 
 	partial class Script
-	{
-		protected GoToBranchNode GoTo(Branch.Delegate function) => new GoToBranchNode(function);
-	}
+    {
+        public LogNode Log(string text) => new LogNode(text);
+    }
 }

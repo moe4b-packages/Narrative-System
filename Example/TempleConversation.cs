@@ -33,87 +33,86 @@ namespace MB.NarrativeSystem
             ReturnCrystal,
             FightGuardian
         }
+        static void SetEncounter(EncounterChoice choice) => Encounter = choice;
 
         [Branch]
-        IEnumerator<Node> TalkAboutCrystal()
+        void TalkAboutCrystal()
         {
-            Debug.Log($"Encounter Choice: {Encounter}");
+            SetFadeState(true);
+            Delay(1);
+            FadeOut();
 
-            yield return SetFadeState(true);
-            yield return Delay(1);
-            yield return FadeOut();
-
-            yield return PlayAudio("SFX/Unsheath Sword");
-            yield return PlayAudio("SFX/Unsheath Sword");
+            PlayAudio("SFX/Unsheath Sword");
+            PlayAudio("SFX/Unsheath Sword");
 
             SetSpeaker("Character 1");
 
-            yield return Say("Old Choice: ", Encounter, " Not the Best Choice if I'm Honest");
+            Say("Impossible!");
+            Say("<b>The crystal</b> cannot be held by a mortal like you");
+            Say("Even I could only glance at its majestic glow for the last <b>400 years</b>");
 
-            yield return Say("Impossible!");
-            yield return Say("<b>The crystal</b> cannot be held by a mortal like you");
-            yield return Say("Even I could only glance at its majestic glow for the last <b>400 years</b>");
+            Say("Perhaps there is more to you than meets the eye");
 
-            yield return Say("Perhaps there is more to you than meets the eye");
+            Say("Nevertheless, <b>the crystal</b> cannot be exploited by the means of humans");
+            Say("I request that you return it to its righteous place, young hero");
 
-            yield return Say("Nevertheless, <b>the crystal</b> cannot be exploited by the means of humans");
-            yield return Say("I request that you return it to its righteous place, young hero").SetAutoSubmit();
-
-            yield return Choice(ReturnTheCrystal, KeepTheCrystal);
+            Choice(ReturnTheCrystal, KeepTheCrystal);
         }
 
         [Branch]
-        IEnumerator<Node> ReturnTheCrystal()
+        void ReturnTheCrystal()
         {
-            Encounter = EncounterChoice.ReturnCrystal;
+            Callback(SetEncounter, EncounterChoice.ReturnCrystal);
 
-            yield return Say("It's good to see that its power hasn't corrupted you");
-            yield return Say("As it has currpoted the lives of men many ages ago");
+            Say("It's good to see that its power hasn't corrupted you");
+            Say("As it has currpoted the lives of men many ages ago");
 
-            yield return Say("Could it be ...");
-            yield return Say("You ...");
+            Say("Could it be ...");
+            Say("You ...");
 
-            yield return Say("At another time & place maybe");
+            Say("At another time & place maybe");
 
-            yield return Say("Thank you for your help hero");
+            Say("Thank you for your help hero");
 
-            yield return GoTo(ContinueStory);
+            GoTo(ContinueStory);
         }
 
         [Branch]
-        IEnumerator<Node> KeepTheCrystal()
+        void KeepTheCrystal()
         {
-            yield return Say("<b>The crystal</b> must've corrupted you");
-            yield return Say("As it has corrupted the lives of men many ages before");
+            Say("<b>The crystal</b> must've corrupted you");
+            Say("As it has corrupted the lives of men many ages before");
 
-            yield return Say("I cannot allow its power to be exploited by those weak of heart");
+            Say("I cannot allow its power to be exploited by those weak of heart");
 
-            yield return Say("Are you ready to die for it?").SetAutoSubmit();
+            Say("Are you ready to die for it?");
 
-            yield return Choice(ReturnTheCrystal, FightTheGuardian);
+            Choice(ReturnTheCrystal, FightTheGuardian);
         }
 
         [Branch]
-        IEnumerator<Node> FightTheGuardian()
+        void FightTheGuardian()
         {
-            Encounter = EncounterChoice.FightGuardian;
+            Callback(SetEncounter, EncounterChoice.FightGuardian);
 
-            yield return Say("So be it");
+            Say("So be it");
 
-            yield return Say("I will not let a shura roam free");
+            Say("I will not let a shura roam free");
 
-            yield return Say("Prepare to Die");
+            Say("Prepare to Die");
 
-            yield return GoTo(ContinueStory);
+            GoTo(ContinueStory);
         }
 
         [Branch]
-        IEnumerator<Node> ContinueStory()
+        void ContinueStory()
         {
-            yield return FadeIn();
-            yield return HideDialog();
+            RaiseEvent("Exit Temple");
 
-            yield return PlayScript<TempleConversation>().Continue();
+            FadeIn();
+            HideDialog();
+
+            PlayScript<TempleConversation>().Continue();
         }
     }
 }

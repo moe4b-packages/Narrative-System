@@ -70,7 +70,7 @@ namespace MB.NarrativeSystem
 		{
 			var method = data.Method;
 
-			if (method.ReturnType != typeof(IEnumerator<Node>))
+			if (method.ReturnType != typeof(void))
 				throw FormatException("Invalid Return Type, Branches Must Return an IEnumerator<Node>");
 
 			if (method.GetParameters().Length > 0)
