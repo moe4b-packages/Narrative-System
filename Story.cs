@@ -26,116 +26,61 @@ namespace MB.NarrativeSystem
 		{
 			public const BindingFlags Flags = BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
 
+			public static List<Variable> List { get; private set; }
+
+			public static void Register(Variable variable)
+            {
+				List.Add(variable);
+            }
+
 			public static class Scripts
             {
-				public static List<Variable> List { get; private set; }
-				public class Variable : NarrativeSystem.Variable
-				{
-					public Type Script { get; protected set; }
-
-					public Variable(VariableAttribute attribute, MemberInfo member) : base(attribute, member, null)
-					{
-						Script = member.DeclaringType;
-					}
-				}
-
 				internal static void Configure()
 				{
 					var types = TypeQuery.FindAll<Script>();
 
 					for (int i = 0; i < types.Count; i++)
-						Register(types[i]);
+						Process(types[i]);
 				}
-				internal static void Register(Type type)
+
+				internal static void Process(Type type)
 				{
-					var members = new List<MemberInfo>();
-					members.AddRange(type.GetFields(Flags));
-					members.AddRange(type.GetProperties(Flags));
+					var members = type.GetVariables(Flags);
+
+					var path = Script.Format.Name.Retrieve(type);
 
 					for (int i = 0; i < members.Count; i++)
 					{
-						var attribute = members[i].GetCustomAttribute<VariableAttribute>(true);
-						if (attribute == null) continue;
+						if (typeof(Variable).IsAssignableFrom(members[i].ValueType) == false) continue;
 
-						var data = new Variable(attribute, members[i]);
-						List.Add(data);
+						var variable = Variable.Assimilate(null, members[i], path);
+
+						Register(variable);
 					}
-				}
-
-				public static void Load()
-				{
-					for (int i = 0; i < List.Count; i++)
-					{
-						if (Narrative.Progress.Scripts.Contains(List[i].Script, List[i].Name) == false) continue;
-
-						var value = Narrative.Progress.Scripts.Read(List[i].Script, List[i].Type, List[i].Name);
-
-						List[i].Value = value;
-						List[i].Default = value;
-					}
-				}
-				public static void Save()
-				{
-					Narrative.Progress.LockSave();
-
-					for (int i = 0; i < List.Count; i++)
-					{
-						var value = List[i].Value;
-
-						if (Equals(value, List[i].Default)) continue;
-
-						Narrative.Progress.Scripts.Set(List[i].Script, List[i].Name , value);
-					}
-
-					Narrative.Progress.UnlockSave();
-				}
-
-				static Scripts()
-				{
-					List = new List<Variable>();
 				}
 			}
 
 			public static class Global
             {
-				public static List<Variable> List { get; private set; }
-				public class Variable : NarrativeSystem.Variable
-				{
-					public string Path { get; protected set; }
-
-					public Variable(VariableAttribute attribute, MemberInfo member) : base(attribute, member, null)
-					{
-						Path = MUtility.IterateNest(member.DeclaringType, Iterate)
-							.Reverse()
-							.Skip(1)
-							.Select(Select)
-							.Join(JObjectComposer.Path.Seperator);
-
-						Path = JObjectComposer.Path.Compose(Path, Name);
-					}
-
-					static Type Iterate(Type type) => type.DeclaringType;
-					static string Select(Type type) => type.Name;
-				}
-
 				internal static void Configure()
 				{
 					var type = typeof(Story);
-					Register(type);
+					Process(type);
 				}
-				internal static void Register(Type type)
+
+				internal static void Process(Type type)
 				{
-					var members = new List<MemberInfo>();
-					members.AddRange(type.GetFields(Flags));
-					members.AddRange(type.GetProperties(Flags));
+					var members = type.GetVariables(Flags);
+
+					var path = RetrievePath(type);
 
 					for (int i = 0; i < members.Count; i++)
 					{
-						var attribute = members[i].GetCustomAttribute<VariableAttribute>(true);
-						if (attribute == null) continue;
+						if (typeof(Variable).IsAssignableFrom(members[i].ValueType) == false) continue;
 
-						var data = new Variable(attribute, members[i]);
-						List.Add(data);
+						var variable = Variable.Assimilate(null, members[i], path);
+
+						Register(variable);
 					}
 
 					var nested = type.GetNestedTypes(Flags | BindingFlags.Instance);
@@ -143,66 +88,45 @@ namespace MB.NarrativeSystem
 					{
 						if (nested[i].IsClass == false) continue;
 
-						Register(nested[i]);
+						Process(nested[i]);
 					}
 				}
 
-				public static void Load()
+				public static string RetrievePath(Type type)
 				{
-					for (int i = 0; i < List.Count; i++)
-					{
-						if (Narrative.Progress.Global.Contains(List[i].Path) == false) continue;
+					var path = MUtility.IterateNest(type, Iterate)
+							.Reverse()
+							.Select(Select)
+							.Join(JObjectComposer.Path.Seperator);
 
-						var value = Narrative.Progress.Global.Read(List[i].Type, List[i].Path);
+					return path;
 
-						List[i].Value = value;
-						List[i].Default = value;
-					}
-				}
-				public static void Save()
-				{
-					Narrative.Progress.LockSave();
-
-					for (int i = 0; i < List.Count; i++)
-					{
-						var value = List[i].Value;
-
-						if (Equals(value, List[i].Default)) continue;
-
-						Narrative.Progress.Global.Set(List[i].Path, value);
-					}
-
-					Narrative.Progress.UnlockSave();
-				}
-
-				static Global()
-				{
-					List = new List<Variable>();
+					static Type Iterate(Type type) => type.DeclaringType;
+					static string Select(Type type) => type.Name;
 				}
 			}
 
 			internal static void Configure()
 			{
+				InstantiateData();
+
 				Scripts.Configure();
 				Global.Configure();
-
-				Narrative.Progress.OnLoad += Load;
-				Narrative.Progress.OnQuit += Save;
-
-				if (Narrative.Progress.IsLoaded) Load();
 			}
 
-			public static void Save()
+			static void InstantiateData()
             {
-				Scripts.Save();
-				Global.Save();
+				var id = nameof(Story);
+
+				if (Narrative.Progress.Contains(id)) return;
+
+				Narrative.Progress.Set(id, new object());
 			}
 
-			public static void Load()
+			static Variables()
             {
-				Scripts.Load();
-				Global.Load();
-			}
+				List = new List<Variable>();
+            }
 		}
 
 		public static void Configure()
@@ -218,16 +142,13 @@ namespace MB.NarrativeSystem
 
 	partial class Story
 	{
-		[Variable]
-		public static int Counter = 0;
+		public static Variable<int> Counter = new Variable<int>(0);
 
 		public class Player
 		{
-			[Variable]
-			public static int Health = 100;
+			public static Variable<int> Health = new Variable<int>(100);
 
-			[Variable]
-			public static int Armor = 100;
+			public static Variable<int> Armor = new Variable<int>(100);
 		}
 	}
 }

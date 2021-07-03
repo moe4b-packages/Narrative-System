@@ -34,7 +34,7 @@ namespace MB.NarrativeSystem
         
         ChoiceSubmitDelegate submit;
 
-        public void Show<T>(IList<T> entries, ChoiceSubmitDelegate submit) where T : IChoiceData
+        public void Show<T>(ICollection<T> entries, ChoiceSubmitDelegate submit) where T : IChoiceData
         {
             Show();
 

@@ -19,19 +19,16 @@ using Random = UnityEngine.Random;
 
 namespace MB.NarrativeSystem
 {
-    public class ChoiceNode : Node
+    public class ChoiceNode : Node, ILocalizationTarget
     {
-        public List<Entry> Entries { get; protected set; }
-        public class Entry : IChoiceData
+        public Dictionary<IChoiceData, Branch.Delegate> Entries { get; protected set; }
+
+        public IEnumerable<string> TextForLocalization
         {
-            public string Text { get; protected set; }
-
-            public Branch.Delegate Branch { get; protected set; }
-
-            public Entry(string text, Branch.Delegate branch)
+            get
             {
-                this.Text = text;
-                this.Branch = branch;
+                foreach (var entry in Entries.Keys)
+                    yield return entry.Text;
             }
         }
 
@@ -43,13 +40,13 @@ namespace MB.NarrativeSystem
         }
         public ChoiceNode Add(Branch.Delegate branch, string text)
         {
-            var item = new Entry(text, branch);
+            var entry = new DefaultChoiceEntry(text);
 
-            return Add(item);
+            return Add(entry, branch);
         }
-        public ChoiceNode Add(Entry entry)
+        public ChoiceNode Add(IChoiceData entry, Branch.Delegate branch)
         {
-            Entries.Add(entry);
+            Entries.Add(entry, branch);
 
             return this;
         }
@@ -58,54 +55,47 @@ namespace MB.NarrativeSystem
         {
             base.Invoke();
 
-            Narrative.Controls.Choice.Show(Entries, Submit);
+            Narrative.Controls.Choice.Show(Entries.Keys, Submit);
         }
 
-        public delegate void SimpleSubmitDelegate(int index);
-        public ChoiceNode Callback(SimpleSubmitDelegate function)
+        public ChoiceNode Callback(SubmitDelegate function)
         {
             OnSubmit += Surrogate;
 
-            void Surrogate(int index, IChoiceData data) => function?.Invoke(index);
-
-            return this;
-        }
-
-        public delegate void ComplexSubmitDelegate(int index, IChoiceData data);
-        public ChoiceNode Callback(ComplexSubmitDelegate function)
-        {
-            OnSubmit += function;
-            return this;
-        }
-
-        public ChoiceNode Callback<T>(Action<T> function, params T[] options)
-            where T : Enum
-        {
-            Callback(Surrogate);
-
-            void Surrogate(int index, IChoiceData data)
+            void Surrogate(IChoiceData data)
             {
-                var value = options[index];
+                OnSubmit -= Surrogate;
 
-                function(value);
+                function(data);
             }
 
             return this;
         }
 
-        public event ComplexSubmitDelegate OnSubmit;
+        public event SubmitDelegate OnSubmit;
+        public delegate void SubmitDelegate(IChoiceData data);
         public void Submit(int index, IChoiceData data)
         {
-            var entry = Entries[index];
+            var branch = Entries[data];
 
-            OnSubmit?.Invoke(index, data);
+            OnSubmit?.Invoke(data);
 
-            Script.Invoke(entry.Branch);
+            Script.Invoke(branch);
         }
 
         public ChoiceNode()
         {
-            Entries = new List<Entry>();
+            Entries = new Dictionary<IChoiceData, Branch.Delegate>();
+        }
+    }
+
+    public class DefaultChoiceEntry : IChoiceData
+    {
+        public string Text { get; protected set; }
+
+        public DefaultChoiceEntry(string text)
+        {
+            this.Text = text;
         }
     }
 

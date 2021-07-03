@@ -22,7 +22,7 @@ using System.Reflection;
 
 namespace MB.NarrativeSystem
 {
-    public class Branch : ILocalizationTarget
+    public class Branch
     {
         public Script Script { get; protected set; }
         public int Index { get; protected set; }
@@ -32,14 +32,6 @@ namespace MB.NarrativeSystem
 
         public string ID { get; protected set; }
         public string Name { get; protected set; }
-
-        public IEnumerable<string> TextForLocalization
-        {
-            get
-            {
-                yield return Name;
-            }
-        }
 
         public NodesProperty Nodes { get; protected set; }
         public class NodesProperty

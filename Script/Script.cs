@@ -39,43 +39,14 @@ namespace MB.NarrativeSystem
 
             public Variable[] List { get; protected set; }
 
-            public void Load()
-            {
-                for (int i = 0; i < List.Length; i++)
-                {
-                    if (Narrative.Progress.Scripts.Contains(Script, List[i].Name) == false) continue;
-
-                    var value = Narrative.Progress.Scripts.Read(Script, List[i].Type, List[i].Name);
-
-                    List[i].Value = value;
-                    List[i].Default = value;
-                }
-            }
-
-            public void Save()
-            {
-                Narrative.Progress.LockSave();
-
-                for (int i = 0; i < List.Length; i++)
-                {
-                    var value = List[i].Value;
-
-                    if (Equals(value, List[i].Default)) continue;
-
-                    Narrative.Progress.Scripts.Set(Script, List[i].Name, value);
-                }
-
-                Narrative.Progress.UnlockSave();
-            }
-
             public VariablesProeprty(Script script)
             {
                 this.Script = script;
 
                 List = new Variable[Composition.Count];
 
-                for (int i = 0; i < List.Length; i++)
-                    List[i] = new Variable(Composition[i].Attribute, Composition[i].Property, script);
+                for (int i = 0; i < Composition.Count; i++)
+                    List[i] = Variable.Assimilate(script, Composition[i].Info, script.Name);
             }
         }
 
@@ -196,7 +167,7 @@ namespace MB.NarrativeSystem
 
         protected virtual void Reset()
         {
-            Variables.Load();
+            
         }
 
         public void Invoke(Branch.Delegate branch)
@@ -242,7 +213,6 @@ namespace MB.NarrativeSystem
         public event Action OnEnd;
         protected virtual void End()
         {
-            Variables.Save();
             Selection = null;
 
             OnEnd?.Invoke();
@@ -273,14 +243,11 @@ namespace MB.NarrativeSystem
                     public List<Data> List { get; protected set; }
                     public class Data
                     {
-                        public VariableAttribute Attribute { get; protected set; }
+                        public VariableInfo Info { get; protected set; }
 
-                        public PropertyInfo Property { get; protected set; }
-
-                        public Data(VariableAttribute attribute, PropertyInfo property)
+                        public Data(VariableInfo variable)
                         {
-                            this.Attribute = attribute;
-                            this.Property = property;
+                            this.Info = variable;
                         }
                     }
 
@@ -289,19 +256,25 @@ namespace MB.NarrativeSystem
 
                     public VariablesData(Type type)
                     {
-                        var properties = type.GetProperties(Flags);
+                        List = ParseAll(type);
+                    }
 
-                        List = new List<Data>();
+                    public static List<Data> ParseAll(Type type)
+                    {
+                        var list = new List<Data>();
 
-                        for (int i = 0; i < properties.Length; i++)
+                        var variables = type.GetVariables(Flags);
+
+                        for (int i = 0; i < variables.Count; i++)
                         {
-                            var attribute = properties[i].GetCustomAttribute<VariableAttribute>(true);
-                            if (attribute == null) continue;
+                            if (typeof(Variable).IsAssignableFrom(variables[i].ValueType) == false) continue;
 
-                            var data = new Data(attribute, properties[i]);
+                            var data = new Data(variables[i]);
 
-                            List.Add(data);
+                            list.Add(data);
                         }
+
+                        return list;
                     }
                 }
 

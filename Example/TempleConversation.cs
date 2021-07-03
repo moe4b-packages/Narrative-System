@@ -24,8 +24,7 @@ namespace MB.NarrativeSystem
     [Serializable]
     public class TempleConversation : Script
     {
-        [Variable]
-        public static EncounterChoice Encounter { get; set; }
+        public static Variable<EncounterChoice> Encounter { get; set; }
         [Flags]
         public enum EncounterChoice
         {
@@ -33,11 +32,12 @@ namespace MB.NarrativeSystem
             ReturnCrystal,
             FightGuardian
         }
-        static void SetEncounter(EncounterChoice choice) => Encounter = choice;
 
         [Branch]
         void TalkAboutCrystal()
         {
+            Callback(() => Debug.Log($"Encounter Choice: {Encounter}"));
+
             SetFadeState(true);
             Delay(1);
             FadeOut();
@@ -62,7 +62,7 @@ namespace MB.NarrativeSystem
         [Branch]
         void ReturnTheCrystal()
         {
-            Callback(SetEncounter, EncounterChoice.ReturnCrystal);
+            SetVariable(Encounter, EncounterChoice.ReturnCrystal);
 
             Say("It's good to see that its power hasn't corrupted you");
             Say("As it has currpoted the lives of men many ages ago");
@@ -93,7 +93,7 @@ namespace MB.NarrativeSystem
         [Branch]
         void FightTheGuardian()
         {
-            Callback(SetEncounter, EncounterChoice.FightGuardian);
+            SetVariable(Encounter, EncounterChoice.FightGuardian);
 
             Say("So be it");
 

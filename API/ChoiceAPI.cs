@@ -28,6 +28,6 @@ namespace MB.NarrativeSystem
 
 	public interface IChoiceDialog : IDialog
 	{
-		void Show<T>(IList<T> entries, ChoiceSubmitDelegate submit) where T : IChoiceData;
+		void Show<T>(ICollection<T> entries, ChoiceSubmitDelegate submit) where T : IChoiceData;
 	}
 }

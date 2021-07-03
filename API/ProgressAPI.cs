@@ -129,147 +129,7 @@ namespace MB.NarrativeSystem
 				}
 			}
 
-			public static class Global
-			{
-				public const string ID = nameof(Global);
-
-				static string FormatPath(string path) => JObjectComposer.Path.Compose(ID, path);
-
-				public static T Read<T>(string id) => Composer.Read<T>(FormatPath(id));
-				public static object Read(Type data, string id) => Composer.Read(data, FormatPath(id));
-
-				public static bool Contains(string id) => Composer.Contains(FormatPath(id));
-
-				public static bool Remove(string id) => Composer.Remove(FormatPath(id));
-				public static bool RemoveAll() => Composer.Remove(ID);
-
-				public static void Set(string id, object value) => Composer.Set(FormatPath(id), value);
-
-				internal static void SetDefaults()
-				{
-					var token = Composer.Read<JToken>(ID);
-
-					if (token == null)
-					{
-						token = new JObject();
-						Composer.Set(ID, token);
-					}
-				}
-			}
-
-			public static class Scripts
-			{
-				public static T Read<T>(Script script, string id)
-				{
-					var type = script.GetType();
-
-					return Read<T>(type, id);
-				}
-				public static T Read<T>(Type script, string id)
-				{
-					var path = FormatScriptPath(script, id);
-
-					return Composer.Read<T>(path);
-				}
-
-				public static object Read(Script script, Type data, string id)
-				{
-					var type = script.GetType();
-
-					return Read(type, data, id);
-				}
-				public static object Read(Type script, Type data, string id)
-				{
-					var path = FormatScriptPath(script, id);
-
-					return Composer.Read(data, path);
-				}
-
-				public static bool Contains(Script script, string id)
-				{
-					var type = script.GetType();
-
-					return Contains(type, id);
-				}
-				public static bool Contains(Type script, string id)
-				{
-					var path = FormatScriptPath(script, id);
-
-					return Composer.Contains(path);
-				}
-
-				public static bool Contains(Script script)
-				{
-					var type = script.GetType();
-
-					return Contains(type);
-				}
-				public static bool Contains(Type script)
-				{
-					var path = FormatScriptPath(script);
-
-					return Composer.Contains(path);
-				}
-
-				public static bool Remove(Script script, string id)
-				{
-					var type = script.GetType();
-
-					return Remove(type, id);
-				}
-				public static bool Remove(Type type, string id)
-				{
-					var path = FormatScriptPath(type, id);
-
-					return Composer.Remove(path);
-				}
-
-				public static bool RemoveAll(Script script)
-				{
-					var type = script.GetType();
-
-					return RemoveAll(type);
-				}
-				public static bool RemoveAll(Type type)
-				{
-					var path = FormatScriptPath(type);
-
-					return Composer.Remove(path);
-				}
-
-				public static void Set(Script script, string id, object value)
-				{
-					var type = script.GetType();
-
-					Set(type, id, value);
-				}
-				public static void Set(Type script, string id, object value)
-				{
-					var path = FormatScriptPath(script, id);
-
-					Composer.Set(path, value);
-				}
-
-				public static string FormatScriptPath(Type type) => Script.Format.Name.Retrieve(type);
-				public static string FormatScriptPath(Type type, string id) => JObjectComposer.Path.Compose(FormatScriptPath(type), id);
-			}
-			public static class Script<TScript>
-				where TScript : Script
-			{
-				public static Type Type => typeof(TScript);
-
-				public static T Read<T>(string id) => Scripts.Read<T>(Type, id);
-
-				public static bool Contains(string id) => Scripts.Contains(Type, id);
-				public static bool Contains() => Scripts.Contains(Type);
-
-				public static bool Remove(string id) => Scripts.Remove(Type, id);
-				public static bool RemoveAll() => Scripts.RemoveAll(Type);
-
-				public static void Set(string id, object value) => Scripts.Set(Type, id, value);
-			}
-
-			public static void Configure(params JsonConverter[] converters)
+            public static void Configure(params JsonConverter[] converters)
 			{
 				var settings = new JsonSerializerSettings()
 				{
@@ -304,20 +164,11 @@ namespace MB.NarrativeSystem
 				var json = IO.Load(Slot);
 
 				Composer.Load(json);
-
-				SetDefaults();
-			}
-
-			static void SetDefaults()
-			{
-				Global.SetDefaults();
 			}
 
 			public static void Reset()
 			{
 				Composer.Clear();
-
-				SetDefaults();
 
 				Save();
 			}
@@ -330,6 +181,17 @@ namespace MB.NarrativeSystem
 
 				IO.Save(Slot, json);
 			}
+
+			#region Controls
+			public static T Read<T>(string id) => Composer.Read<T>(id);
+			public static object Read(string id, Type type) => Composer.Read(id, type);
+
+			public static bool Contains(string id) => Composer.Contains(id);
+
+			public static bool Remove(string id) => Composer.Remove(id);
+
+			public static void Set(string id, object value) => Composer.Set(id, value);
+			#endregion
 
 			static void InvokeChange()
 			{

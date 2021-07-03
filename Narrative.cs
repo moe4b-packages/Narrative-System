@@ -91,35 +91,52 @@ namespace MB.NarrativeSystem
 
 	partial class Narrative
     {
-		public static List<Node> GetNodes<T>()
+		public static class Composition
         {
-			var type = typeof(T);
-			return GetNodes(type);
-        }
-		public static List<Node> GetNodes(Type type)
-        {
-			var script = Activator.CreateInstance(type) as Script;
-			return GetNodes(script);
-        }
-		public static List<Node> GetNodes(Script script)
-		{
-			var list = new List<Node>();
-
-			var composition = Script.Composer.Retrieve(script);
-
-			foreach (var branch in composition.Branches.List)
+			public static List<Node> GetNodes<T>()
 			{
-				var function = branch.CreateFunction(script);
+				var type = typeof(T);
+				return GetNodes(type);
+			}
+			public static List<Node> GetNodes(Type type)
+			{
+				var script = Activator.CreateInstance(type) as Script;
+				return GetNodes(script);
+			}
+			public static List<Node> GetNodes(Script script)
+			{
+				var list = new List<Node>();
 
-				Node.OnCreate += Register;
+				var composition = Script.Composer.Retrieve(script);
 
-				function.Invoke();
-				void Register(Node node) => list.Add(node);
+				foreach (var branch in composition.Branches.List)
+				{
+					var function = branch.CreateFunction(script);
 
-				Node.OnCreate -= Register;
+					Node.OnCreate += Register;
+
+					function.Invoke();
+					void Register(Node node) => list.Add(node);
+
+					Node.OnCreate -= Register;
+				}
+
+				return list;
 			}
 
-			return list;
+			public static IEnumerable<T> IterateAllNodes<T>()
+			{
+				foreach (var script in TypeQuery.FindAll<Script>())
+				{
+					if (script.IsAbstract) continue;
+
+					foreach (var node in GetNodes(script))
+					{
+						if (node is T target)
+							yield return target;
+					}
+				}
+			}
 		}
 	}
 }

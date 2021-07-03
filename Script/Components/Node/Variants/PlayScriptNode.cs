@@ -51,8 +51,6 @@ namespace MB.NarrativeSystem
             if (Target == Script)
                 throw new Exception($"Cannot Play Script {Target} from Within the Script");
 
-            Script.Variables.Save();
-
             if (Wait)
                 Target.OnEnd += TargetEndCallback;
 
