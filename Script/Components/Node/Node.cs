@@ -70,7 +70,13 @@ namespace MB.NarrativeSystem
         public static event CreateDelegate OnCreate;
         static void InvokeCreation(Node node)
         {
-            OnCreate?.Invoke(node);
+            if(OnCreate == null)
+            {
+                Debug.LogWarning($"Node '{node}' Created Without Any Creation Hook");
+                return;
+            }
+
+            OnCreate.Invoke(node);
         }
     }
 
