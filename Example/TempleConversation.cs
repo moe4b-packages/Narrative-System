@@ -34,7 +34,7 @@ namespace MB.NarrativeSystem
         }
 
         [Branch]
-        void TalkAboutCrystal()
+        void Intro()
         {
             Callback(() => Debug.Log($"Encounter Choice: {Encounter}"));
 
@@ -42,9 +42,12 @@ namespace MB.NarrativeSystem
             Delay(1);
             FadeOut();
 
-            PlayAudio("SFX/Unsheath Sword");
-            PlayAudio("SFX/Unsheath Sword");
+            PlayAudio("SFX/Unsheath Sword").Continue();
+        }
 
+        [Branch]
+        void TalkAboutCrystal()
+        {
             SetSpeaker("Character 1");
 
             Say("Impossible!");

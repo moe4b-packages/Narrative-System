@@ -69,11 +69,12 @@ namespace MB.NarrativeSystem
 
             Narrative.Controls.AudioSource.PlayOneShot(clip, Volume);
 
-            if (Wait) yield return new WaitForSeconds(clip.length);
+            if (Wait == false) Script.Continue();
 
+            yield return new WaitForSeconds(clip.length);
             Addressables.Release(clip);
 
-            Script.Continue();
+            if (Wait == true) Script.Continue();
         }
 
         public PlayAudioNode(string id)
