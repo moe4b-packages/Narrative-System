@@ -24,6 +24,16 @@ namespace MB.NarrativeSystem
 		public string Text { get; }
 	}
 
+	public class DefaultChoiceData : IChoiceData
+	{
+		public string Text { get; protected set; }
+
+		public DefaultChoiceData(string text)
+		{
+			this.Text = text;
+		}
+	}
+
 	public delegate void ChoiceSubmitDelegate(int index, IChoiceData data);
 
 	public interface IChoiceDialog : IDialog

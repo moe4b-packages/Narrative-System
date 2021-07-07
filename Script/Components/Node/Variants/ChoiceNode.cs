@@ -34,19 +34,19 @@ namespace MB.NarrativeSystem
 
         public ChoiceNode Add(Branch.Delegate branch)
         {
-            var text = branch.Method.Name.ToDisplayString();
+            var text = Branch.Format.Name(branch);
 
             return Add(branch, text);
         }
         public ChoiceNode Add(Branch.Delegate branch, string text)
         {
-            var entry = new DefaultChoiceEntry(text);
+            var entry = new DefaultChoiceData(text);
 
             return Add(entry, branch);
         }
-        public ChoiceNode Add(IChoiceData entry, Branch.Delegate branch)
+        public ChoiceNode Add(IChoiceData data, Branch.Delegate branch)
         {
-            Entries.Add(entry, branch);
+            Entries.Add(data, branch);
 
             return this;
         }
@@ -86,16 +86,6 @@ namespace MB.NarrativeSystem
         public ChoiceNode()
         {
             Entries = new Dictionary<IChoiceData, Branch.Delegate>();
-        }
-    }
-
-    public class DefaultChoiceEntry : IChoiceData
-    {
-        public string Text { get; protected set; }
-
-        public DefaultChoiceEntry(string text)
-        {
-            this.Text = text;
         }
     }
 

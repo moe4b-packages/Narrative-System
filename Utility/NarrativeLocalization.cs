@@ -32,6 +32,9 @@ namespace MB.NarrativeSystem
         Entry[] entries = default;
         public Entry[] Entries => entries;
 
+        public int Count => entries.Length;
+        public Entry this[int index] => entries[index];
+
         public Dictionary<string, Entry> Dictionary { get; protected set; }
         public Entry this[string name] => Dictionary[name];
 
@@ -70,6 +73,7 @@ namespace MB.NarrativeSystem
         }
 
         public Entry Selection { get; protected set; }
+
         public TMP_FontAsset Font => Selection.Font;
         public HorizontalAlignmentOptions Alignment => Selection.Alignment;
 
@@ -95,9 +99,7 @@ namespace MB.NarrativeSystem
             }
         }
 
-        [SerializeField]
-        TextProperty text;
-        public TextProperty Text => text;
+        public TextProperty Text { get; protected set; }
         [Serializable]
         public class TextProperty : Property
         {
@@ -121,6 +123,11 @@ namespace MB.NarrativeSystem
             public class Composition : Dictionary<string, string>
             {
                 public static Composition Empty => new Composition();
+
+                public Composition() : base(StringComparer.OrdinalIgnoreCase)
+                {
+
+                }
             }
 
             public Composition Extract(Composition instance)
@@ -146,9 +153,7 @@ namespace MB.NarrativeSystem
             }
         }
 
-        [SerializeField]
-        IOProperty _IO = default;
-        public IOProperty IO => _IO;
+        public IOProperty IO { get; protected set; }
         [Serializable]
         public class IOProperty : Property
         {
@@ -194,7 +199,7 @@ namespace MB.NarrativeSystem
 
         public IEnumerable<Property> RetrieveProperties()
         {
-            yield return text;
+            yield return Text;
             yield return IO;
         }
 
@@ -203,7 +208,10 @@ namespace MB.NarrativeSystem
             for (int i = 0; i < entries.Length; i++)
                 entries[i].Load(this);
 
-            Dictionary = entries.ToDictionary(x => x.Title);
+            Dictionary = new Dictionary<string, Entry>(StringComparer.OrdinalIgnoreCase);
+
+            for (int i = 0; i < entries.Length; i++)
+                Dictionary.Add(entries[i].Title, entries[i]);
 
             References.Set(this, RetrieveProperties);
             Initializer.Configure(RetrieveProperties);
@@ -214,7 +222,10 @@ namespace MB.NarrativeSystem
         public event SetDelegate OnSet;
         public void Set(string id)
         {
-            Selection = Dictionary[id];
+            if (Dictionary.TryGetValue(id, out var entry) == false)
+                throw new Exception($"Cannot Set Localization With ID: '{id}' Because No Entry Was Registerd With That ID");
+
+            Selection = entry;
 
             OnSet?.Invoke(Selection);
         }
@@ -228,7 +239,7 @@ namespace MB.NarrativeSystem
             {
                 var composition = localization.IO.Load(entry.Asset);
 
-                composition.Text = localization.text.Extract(composition.Text);
+                composition.Text = localization.Text.Extract(composition.Text);
 
                 localization.IO.Save(composition, entry.Asset);
             }
@@ -242,8 +253,8 @@ namespace MB.NarrativeSystem
 
         public NarrativeLocalization()
         {
-            text = new TextProperty();
-            _IO = new IOProperty();
+            Text = new TextProperty();
+            IO = new IOProperty();
         }
     }
 }
