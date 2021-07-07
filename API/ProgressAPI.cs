@@ -129,7 +129,7 @@ namespace MB.NarrativeSystem
 				}
 			}
 
-            public static void Configure(params JsonConverter[] converters)
+            public static void Prepare(params JsonConverter[] converters)
 			{
 				var settings = new JsonSerializerSettings()
 				{
@@ -157,6 +157,22 @@ namespace MB.NarrativeSystem
 				Load();
 
 				OnLoad?.Invoke();
+			}
+
+			public static void LoadOrReset()
+            {
+				try
+				{
+					Load("Narrative Progress");
+				}
+				catch (Exception ex)
+				{
+					Debug.LogError($"Error on Loading Narrative Progress, Will Reset" +
+						$"{Environment.NewLine}" +
+						$"Exception: {ex}");
+
+					Reset();
+				}
 			}
 
 			static void Load()

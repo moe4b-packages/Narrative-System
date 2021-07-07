@@ -19,149 +19,225 @@ using Random = UnityEngine.Random;
 
 using Newtonsoft.Json;
 
+using TMPro;
+
 namespace MB.NarrativeSystem
 {
 	[CreateAssetMenu(menuName = Narrative.Path + "Localization")]
 	public class NarrativeLocalization : GlobalScriptableObject<NarrativeLocalization>
 	{
-		public const string Path = Narrative.Path + "Localization/";
+        public const string Path = Narrative.Path + "Localization/";
 
-		[SerializeField]
-		UList<Entry> entries = default;
-        public UList<Entry> Entries => entries;
+        [SerializeField]
+        Entry[] entries = default;
+        public Entry[] Entries => entries;
+
+        public Dictionary<string, Entry> Dictionary { get; protected set; }
+        public Entry this[string name] => Dictionary[name];
 
         [Serializable]
-		public class Entry : ISerializationCallbackReceiver
+        public class Entry : ISerializationCallbackReceiver
         {
-			[SerializeField]
-			[HideInInspector]
-			string title;
+            [SerializeField]
+            [HideInInspector]
+            string title = default;
+            public string Title => title;
 
-			[SerializeField]
+            [SerializeField]
             TextAsset asset = default;
             public TextAsset Asset => asset;
 
-			public Composition Composition { get; protected set; }
+            [SerializeField]
+            TMP_FontAsset font = default;
+            public TMP_FontAsset Font => font;
 
-			public void OnBeforeSerialize()
+            [SerializeField]
+            HorizontalAlignmentOptions alignment = HorizontalAlignmentOptions.Center;
+            public HorizontalAlignmentOptions Alignment => alignment;
+
+            public Composition Composition { get; protected set; }
+
+            internal void Load(NarrativeLocalization localization)
             {
-				if (asset == null)
-					title = null;
-				else
-					title = asset.name;
+                Composition = localization.IO.Load(asset);
             }
-			public void OnAfterDeserialize() { }
+
+            public void OnBeforeSerialize()
+            {
+                title = asset == null ? null : asset.name;
+            }
+            public void OnAfterDeserialize() { }
         }
 
-		[JsonObject]
-		public class Composition
-		{
-			[JsonProperty]
-			public List<Text.Entry> Text { get; set; }
+        public Entry Selection { get; protected set; }
+        public TMP_FontAsset Font => Selection.Font;
+        public HorizontalAlignmentOptions Alignment => Selection.Alignment;
 
-			//Static Utility
-
-			public static Composition Empty
-			{
-				get
-				{
-					return new Composition()
-					{
-						Text = new List<Text.Entry>(),
-					};
-				}
-			}
-		}
-
-		public static void Load(Entry entry)
-		{
-
-		}
-
-		public static class Text
+        [JsonObject]
+        public class Composition
         {
-			public struct Entry
-			{
-				[JsonProperty]
-				public string Key;
+            [JsonProperty]
+            public TextProperty.Composition Text { get; set; }
 
-				[JsonProperty]
-				public string Value;
+            public Composition(TextProperty.Composition text)
+            {
+                this.Text = text;
+            }
 
-				public Entry(string key, string value)
-				{
-					this.Key = key;
-					this.Value = value;
-				}
+            public static Composition Empty
+            {
+                get
+                {
+                    var text = TextProperty.Composition.Empty;
 
-				public static Entry From(KeyValuePair<string, string> pair) => new Entry(pair.Key, pair.Value);
-			}
-
-			public static List<Entry> Extract(List<Entry> list)
-			{
-				var dictionary = list.ToDictionary(x => x.Key, x => x.Value);
-				var hash = new HashSet<string>();
-
-				foreach (var localization in Narrative.Composition.IterateAllNodes<ILocalizationTarget>())
-				{
-					foreach (var entry in localization.TextForLocalization)
-					{
-						if (dictionary.ContainsKey(entry) == false)
-							dictionary.Add(entry, entry);
-
-						hash.Add(entry);
-					}
-				}
-
-				foreach (var key in dictionary.Keys.ToArray())
-					if (hash.Contains(key) == false)
-						dictionary.Remove(key);
-
-				list = dictionary.Select(Entry.From).ToList();
-
-				return list;
-			}
-		}
-
-		[MenuItem(Path + "Extract")]
-		public static void Extract()
-		{
-			foreach (var file in Instance.Entries)
-			{
-				var entry = IO.Load(file.Asset);
-
-				entry.Text = Text.Extract(entry.Text);
-
-				IO.Save(entry, file.Asset);
-			}
-		}
-
-		[MenuItem(Path + "Select")]
-		public static void Select()
-        {
-			Selection.activeObject = Instance;
+                    return new Composition(text);
+                }
+            }
         }
 
-		public static class IO
-		{
-			public static void Save(Composition entry, TextAsset asset)
-			{
-				var json = JsonConvert.SerializeObject(entry, Formatting.Indented);
+        [SerializeField]
+        TextProperty text;
+        public TextProperty Text => text;
+        [Serializable]
+        public class TextProperty : Property
+        {
+            public IDictionary<string, string> Dictionary => Localization.Selection.Composition.Text;
 
-				asset.WriteText(json);
-			}
+            public string this[string key]
+            {
+                get
+                {
+                    if(Dictionary.TryGetValue(key, out var value) == false)
+                    {
+                        Debug.LogWarning($"No Localization Found For '{key}', Returning Key");
+                        return key;
+                    }
 
-			public static Composition Load(TextAsset asset)
-			{
-				var json = asset.text;
+                    return value;
+                }
+            }
 
-				if (string.IsNullOrEmpty(json))
-					return Composition.Empty;
+            [JsonArray]
+            public class Composition : Dictionary<string, string>
+            {
+                public static Composition Empty => new Composition();
+            }
 
-				var entry = JsonConvert.DeserializeObject<Composition>(json);
+            public Composition Extract(Composition instance)
+            {
+                var hash = new HashSet<string>();
 
-				return entry;
-			}
-		}
-	}
+                foreach (var localization in Narrative.Composition.IterateAllNodes<ILocalizationTarget>())
+                {
+                    foreach (var entry in localization.TextForLocalization)
+                    {
+                        if (instance.ContainsKey(entry) == false)
+                            instance.Add(entry, entry);
+
+                        hash.Add(entry);
+                    }
+                }
+
+                foreach (var key in instance.Keys.ToArray())
+                    if (hash.Contains(key) == false)
+                        instance.Remove(key);
+
+                return instance;
+            }
+        }
+
+        [SerializeField]
+        IOProperty _IO = default;
+        public IOProperty IO => _IO;
+        [Serializable]
+        public class IOProperty : Property
+        {
+            public void Save(Composition entry, TextAsset asset)
+            {
+                var json = JsonConvert.SerializeObject(entry, Formatting.Indented);
+
+                asset.WriteText(json);
+            }
+
+            public Composition Load(TextAsset asset)
+            {
+                var json = asset.text;
+
+                if (string.IsNullOrEmpty(json))
+                    return Composition.Empty;
+
+                var entry = JsonConvert.DeserializeObject<Composition>(json);
+
+                return entry;
+            }
+        }
+
+        [Serializable]
+        public class Property : IInitialize, IReference<NarrativeLocalization>
+        {
+            public NarrativeLocalization Localization { get; protected set; }
+            public virtual void Set(NarrativeLocalization context)
+            {
+                Localization = context;
+            }
+
+            public virtual void Configure()
+            {
+
+            }
+
+            public virtual void Init()
+            {
+
+            }
+        }
+
+        public IEnumerable<Property> RetrieveProperties()
+        {
+            yield return text;
+            yield return IO;
+        }
+
+        public void Prepare()
+        {
+            for (int i = 0; i < entries.Length; i++)
+                entries[i].Load(this);
+
+            Dictionary = entries.ToDictionary(x => x.Title);
+
+            References.Set(this, RetrieveProperties);
+            Initializer.Configure(RetrieveProperties);
+            Initializer.Init(RetrieveProperties);
+        }
+
+        public delegate void SetDelegate(Entry entry);
+        public event SetDelegate OnSet;
+        public void Set(string id)
+        {
+            Selection = Dictionary[id];
+
+            OnSet?.Invoke(Selection);
+        }
+
+        [MenuItem(Path + "Extract")]
+        public static void Extract()
+        {
+            var localization = Instance;
+
+            foreach (var entry in localization.entries)
+            {
+                var composition = localization.IO.Load(entry.Asset);
+
+                composition.Text = localization.text.Extract(composition.Text);
+
+                localization.IO.Save(composition, entry.Asset);
+            }
+        }
+
+        public NarrativeLocalization()
+        {
+            text = new TextProperty();
+            _IO = new IOProperty();
+        }
+    }
 }

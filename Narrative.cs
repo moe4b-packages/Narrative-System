@@ -72,6 +72,8 @@ namespace MB.NarrativeSystem
 			return surrogate.Script;
 		}
 		#endregion
+
+		public static NarrativeLocalization Localization => NarrativeLocalization.Instance;
 	}
 
 	public interface ILocalizationTarget

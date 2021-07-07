@@ -129,7 +129,7 @@ namespace MB.NarrativeSystem
             }
 		}
 
-		public static void Configure()
+		public static void Prepare()
 		{
 			Variables.Configure();
 		}
