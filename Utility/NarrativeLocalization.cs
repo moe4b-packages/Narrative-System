@@ -234,6 +234,12 @@ namespace MB.NarrativeSystem
             }
         }
 
+        [MenuItem(Path + "Modify")]
+        public static void Modify()
+        {
+            UnityEditor.Selection.activeObject = Instance;
+        }
+
         public NarrativeLocalization()
         {
             text = new TextProperty();
