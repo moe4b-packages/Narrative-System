@@ -19,7 +19,7 @@ using Random = UnityEngine.Random;
 
 namespace MB.NarrativeSystem
 {
-	[CreateAssetMenu(menuName = Narrative.Path + "Characters Collection")]
+	[CreateAssetMenu(menuName = Character.Path + "Collection")]
 	public class CharactersCollection : GlobalScriptableObject<CharactersCollection>, IInitialize, IScriptableObjectBuildPreProcess
 	{
         [SerializeField]

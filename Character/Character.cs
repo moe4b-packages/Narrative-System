@@ -19,9 +19,11 @@ using Random = UnityEngine.Random;
 
 namespace MB.NarrativeSystem
 {
-	[CreateAssetMenu(menuName = Narrative.Path + "Character")]
+	[CreateAssetMenu(menuName = Path + "Asset")]
 	public class Character : ScriptableObject, ILocalizationTarget
 	{
+		public const string Path = Narrative.Path + "Character/";
+
 		public string ID => name;
 
 		public string DisplayName => name;

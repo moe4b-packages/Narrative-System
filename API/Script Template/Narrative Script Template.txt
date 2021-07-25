@@ -1,0 +1,34 @@
+using System;
+using System.IO;
+using System.Linq;
+using System.Collections;
+using System.Collections.Generic;
+
+using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.SceneManagement;
+using UnityEngine.AI;
+
+#if UNITY_EDITOR
+using UnityEditor;
+using UnityEditorInternal;
+#endif
+
+using Object = UnityEngine.Object;
+using Random = UnityEngine.Random;
+
+using MB.NarrativeSystem;
+
+using static MB.RichTextMarker;
+
+namespace #NAMESPACE#
+{
+	public class #SCRIPTNAME# : Script
+	{
+		[Branch]
+		void Branch()
+		{
+			Say("Hello World");
+		}
+	}
+}
