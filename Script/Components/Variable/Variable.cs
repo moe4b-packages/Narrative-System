@@ -63,7 +63,7 @@ namespace MB.NarrativeSystem
         {
             var variable = info.Read(target) as Variable;
 
-            if(variable == null)
+            if (variable == null)
             {
                 variable = Activator.CreateInstance(info.ValueType) as Variable;
                 info.Set(target, variable);
@@ -73,6 +73,8 @@ namespace MB.NarrativeSystem
 
             return variable;
         }
+
+        public static Variable<T> From<T>(T value) => new Variable<T>(value);
     }
 
     public class Variable<T> : Variable
@@ -92,17 +94,13 @@ namespace MB.NarrativeSystem
         public override object ManagedValue
         {
             get => value;
-            set
-            {
-                Value = (T)value;
-            }
+            set => Value = (T)value;
         }
 
         public override void Save()
         {
             Narrative.Progress.Set(Path, Value);
         }
-
         public override void Load()
         {
             if (Narrative.Progress.Contains(Path) == false) return;
@@ -111,8 +109,8 @@ namespace MB.NarrativeSystem
             Value = Narrative.Progress.Read<T>(Path);
         }
 
-        public Variable() { }
-        public Variable(T value) : this()
+        public Variable() : this(default) { }
+        public Variable(T value)
         {
             this.value = value;
         }

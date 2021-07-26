@@ -142,13 +142,13 @@ namespace MB.NarrativeSystem
 
 	partial class Story
 	{
-		public static Variable<int> Counter = new Variable<int>(0);
+		public static Variable<int> Counter = Variable.From(0);
 
 		public class Player
 		{
-			public static Variable<int> Health = new Variable<int>(100);
+			public static Variable<int> Health = Variable.From(100);
 
-			public static Variable<int> Armor = new Variable<int>(100);
+			public static Variable<int> Armor = Variable.From(100);
 		}
 	}
 }
