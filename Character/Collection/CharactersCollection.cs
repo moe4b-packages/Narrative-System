@@ -58,5 +58,10 @@ namespace MB.NarrativeSystem
 
         public void PreProcessBuild() => Refresh();
 #endif
+
+        public CharactersCollection()
+        {
+            list = new List<Character>();
+        }
     }
 }

@@ -36,7 +36,7 @@ namespace MB.NarrativeSystem
         {
             this.Key = key;
         }
-	}
+    }
 
 	partial class Script
     {

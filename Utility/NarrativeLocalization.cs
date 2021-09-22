@@ -157,12 +157,14 @@ namespace MB.NarrativeSystem
         [Serializable]
         public class IOProperty : Property
         {
+#if UNITY_EDITOR
             public void Save(Composition entry, TextAsset asset)
             {
                 var json = JsonConvert.SerializeObject(entry, Formatting.Indented);
 
                 asset.WriteText(json);
             }
+#endif
 
             public Composition Load(TextAsset asset)
             {
@@ -230,6 +232,7 @@ namespace MB.NarrativeSystem
             OnSet?.Invoke(Selection);
         }
 
+#if UNITY_EDITOR
         [MenuItem(Path + "Extract")]
         public static void Extract()
         {
@@ -250,9 +253,12 @@ namespace MB.NarrativeSystem
         {
             UnityEditor.Selection.activeObject = Instance;
         }
+#endif
 
         public NarrativeLocalization()
         {
+            entries = new Entry[] { };
+
             Text = new TextProperty();
             IO = new IOProperty();
         }

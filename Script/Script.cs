@@ -632,19 +632,14 @@ namespace MB.NarrativeSystem
             }
 
             [CustomPropertyDrawer(typeof(Asset))]
-            public class Drawer : PersistantPropertyDrawer
+            public class Drawer : PropertyDrawer
             {
-                SerializedProperty file;
+                SerializedProperty FindFileProperty(SerializedProperty property) => property.FindPropertyRelative(nameof(file));
 
-                protected override void Init()
+                public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
                 {
-                    base.Init();
+                    var file = FindFileProperty(property);
 
-                    file = Property.FindPropertyRelative(nameof(file));
-                }
-
-                public override float CalculateHeight()
-                {
                     var height = 0f;
 
                     height += EditorGUIUtility.singleLineHeight;
@@ -655,15 +650,17 @@ namespace MB.NarrativeSystem
                     return height;
                 }
 
-                public override void Draw(Rect rect)
+                public override void OnGUI(Rect rect, SerializedProperty property, GUIContent label)
                 {
-                    DrawField(ref rect, Label);
+                    var file = FindFileProperty(property);
+
+                    DrawField(ref rect, label, file);
 
                     if (file.objectReferenceValue != null && Validate(file.objectReferenceValue) == false)
                         DrawHelpBox(ref rect);
                 }
 
-                void DrawField(ref Rect rect, GUIContent label)
+                void DrawField(ref Rect rect, GUIContent label, SerializedProperty file)
                 {
                     var area = MUtility.GUICoordinates.SliceLine(ref rect);
 
