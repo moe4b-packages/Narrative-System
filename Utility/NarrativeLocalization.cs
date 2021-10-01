@@ -23,9 +23,10 @@ using TMPro;
 
 namespace MB.NarrativeSystem
 {
-	[CreateAssetMenu(menuName = Narrative.Path + "Localization")]
-	public class NarrativeLocalization : GlobalScriptableObject<NarrativeLocalization>
-	{
+    [CreateAssetMenu(menuName = Narrative.Path + "Localization")]
+    [ScriptableObjectSettingsProvider("Project/Narrative/Localization")]
+    public class NarrativeLocalization : GlobalScriptableObject<NarrativeLocalization>
+    {
         public const string Path = Narrative.Path + "Localization/";
 
         [SerializeField]
@@ -193,7 +194,7 @@ namespace MB.NarrativeSystem
 
             }
 
-            public virtual void Init()
+            public virtual void Initialize()
             {
 
             }

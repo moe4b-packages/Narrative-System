@@ -20,7 +20,7 @@ using Random = UnityEngine.Random;
 namespace MB.NarrativeSystem
 {
 	[CreateAssetMenu(menuName = Character.Path + "Collection")]
-	public class CharactersCollection : GlobalScriptableObject<CharactersCollection>, IInitialize, IScriptableObjectBuildPreProcess
+	public class CharactersCollection : GlobalScriptableObject<CharactersCollection>, IScriptableObjectBuildPreProcess
 	{
         [SerializeField]
         List<Character> list = default;
@@ -30,8 +30,10 @@ namespace MB.NarrativeSystem
 
         public static bool TryFind(string id, out Character asset) => Instance.Dictionary.TryGetValue(id, out asset);
 
-        public void Configure()
+        protected override void Load()
         {
+            base.Load();
+
 #if UNITY_EDITOR
             Refresh();
 
@@ -40,8 +42,6 @@ namespace MB.NarrativeSystem
 
             Dictionary = list.ToDictionary(x => x.ID);
         }
-
-        public void Init() { }
 
 #if UNITY_EDITOR
         void Refresh()
