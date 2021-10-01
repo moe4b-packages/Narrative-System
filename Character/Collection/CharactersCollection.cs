@@ -46,7 +46,7 @@ namespace MB.NarrativeSystem
 #if UNITY_EDITOR
         void Refresh()
         {
-            var targets = AssetQuery<ScriptableObject>.FindAll<Character>();
+            var targets = AssetCollection.Query<Character>();
 
             if (MUtility.CheckElementsInclusion(list, targets) == false)
             {
