@@ -19,8 +19,9 @@ using Random = UnityEngine.Random;
 
 namespace MB.NarrativeSystem
 {
-	[CreateAssetMenu(menuName = Character.Path + "Collection")]
-	public class CharactersCollection : GlobalScriptableObject<CharactersCollection>, IScriptableObjectBuildPreProcess
+    [Global(ScriptableManagerScope.Project)]
+    [SettingsMenu(Narrative.Path + "Characters")]
+    public class CharactersCollection : ScriptableManager<CharactersCollection>, IScriptableObjectBuildPreProcess
 	{
         [SerializeField]
         List<Character> list = default;

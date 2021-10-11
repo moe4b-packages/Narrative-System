@@ -23,9 +23,9 @@ using TMPro;
 
 namespace MB.NarrativeSystem
 {
-    [CreateAssetMenu(menuName = Narrative.Path + "Localization")]
-    [ScriptableObjectSettingsProvider("Project/Narrative/Localization")]
-    public class NarrativeLocalization : GlobalScriptableObject<NarrativeLocalization>
+    [Global(ScriptableManagerScope.Project)]
+    [SettingsMenu(Narrative.Path + "Localization")]
+    public class NarrativeLocalization : ScriptableManager<NarrativeLocalization>
     {
         public const string Path = Narrative.Path + "Localization/";
 
