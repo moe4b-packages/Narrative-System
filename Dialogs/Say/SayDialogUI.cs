@@ -26,6 +26,7 @@ using TMPro;
 
 namespace MB.NarrativeSystem
 {
+    [AddComponentMenu(Narrative.Controls.Path + "Say Dialog UI")]
     public class SayDialogUI : UIPanel, ISayDialog, IPointerClickHandler
     {
         [SerializeField]

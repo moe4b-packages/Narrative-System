@@ -21,6 +21,7 @@ using MB.UISystem;
 
 namespace MB.NarrativeSystem
 {
+	[AddComponentMenu(Narrative.Controls.Path + "Auto Register Controls")]
 	public class AutoRegisterNarrativeControls : MonoBehaviour
 	{
         [SerializeField]
@@ -30,7 +31,7 @@ namespace MB.NarrativeSystem
         InterfaceComponentSelection<IChoiceDialog> choice;
 
         [SerializeField]
-        UIFader fader;
+        FadeUI fader;
 
         [SerializeField]
         AudioSource audioSource;

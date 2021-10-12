@@ -23,6 +23,7 @@ using TMPro;
 
 namespace MB.NarrativeSystem
 {
+	[AddComponentMenu(Narrative.Controls.Path + "Choice Dialog UI Template")]
 	public class ChoiceDialogUITemplate : UITemplate<ChoiceDialogUITemplate, IChoiceData>
 	{
 		[SerializeField]

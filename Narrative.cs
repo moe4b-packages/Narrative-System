@@ -30,7 +30,7 @@ namespace MB.NarrativeSystem
 {
 	public static partial class Narrative
 	{
-		public const string Path = Toolbox.Path + "Narrative System/";
+		public const string Path = Toolbox.Paths.Root + "Narrative System/";
 
 		#region Play
 		public static Script[] PlayAll(params Script.Asset[] assets)
