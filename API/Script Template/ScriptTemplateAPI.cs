@@ -29,7 +29,7 @@ namespace MB.NarrativeSystem
 			{
 				var template = FindTemplate();
 
-				if (template == default)
+				if (template == null)
 					throw new Exception("No Narrative Script Template Found");
 
 				ProjectWindowUtil.CreateScriptAssetFromTemplateFile(template, "New Narrative Script.cs");
@@ -39,14 +39,10 @@ namespace MB.NarrativeSystem
 			{
 				var paths = AssetDatabase.FindAssets("Narrative Script Template")
 					.Select(AssetDatabase.GUIDToAssetPath)
-					.OrderBy(x => x.BeginsWith("Assets"));
+					.Select(x=>x.ToLower())
+					.OrderBy(x => x.Contains("assets") || x.Contains("override"));
 
-				foreach (var path in paths)
-				{
-					return path;
-				}
-
-				return default;
+				return paths.FirstOr(null);
 			}
 		}
 	}
