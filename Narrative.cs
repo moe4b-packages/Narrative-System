@@ -32,6 +32,8 @@ namespace MB.NarrativeSystem
 	{
 		public const string Path = Toolbox.Paths.Root + "Narrative System/";
 
+		public static NarrativeManager Manager => NarrativeManager.Instance;
+
 		#region Play
 		public static Script[] PlayAll(params Script.Asset[] assets)
 		{
@@ -72,8 +74,6 @@ namespace MB.NarrativeSystem
 			return surrogate.Script;
 		}
 		#endregion
-
-		public static NarrativeLocalization Localization => NarrativeLocalization.Instance;
 	}
 
 	public interface ILocalizationTarget
