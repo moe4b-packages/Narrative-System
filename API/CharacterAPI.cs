@@ -26,18 +26,26 @@ namespace MB.NarrativeSystem
 
     partial class NarrativeManager
     {
-        [ReadOnly]
         [SerializeField]
         CharacterProperty character = new CharacterProperty();
         public CharacterProperty Character => character;
         [Serializable]
         public class CharacterProperty : Property
         {
+            [ReadOnly]
             [SerializeField]
-            List<Character> list;
+            List<Character> list = new List<Character>();
             public List<Character> Collection => list;
 
-            public Dictionary<string, Character> Dictionary { get; private set; }
+            public Dictionary<string, Character> Dictionary { get; } = new Dictionary<string, Character>();
+
+            void UpdateDictionary()
+            {
+                Dictionary.Clear();
+
+                for (int i = 0; i < list.Count; i++)
+                    Dictionary[list[i].name] = list[i];
+            }
 
             public bool TryFind(string id, out Character asset) => Dictionary.TryGetValue(id, out asset);
 
@@ -49,7 +57,7 @@ namespace MB.NarrativeSystem
                 Refresh();
 #endif
 
-                Dictionary = list.ToDictionary(x => x.ID);
+                UpdateDictionary();
             }
 
 #if UNITY_EDITOR
@@ -60,16 +68,11 @@ namespace MB.NarrativeSystem
                 if (MUtility.CheckElementsInclusion(list, targets) == false)
                 {
                     list = targets;
-                    Dictionary = list.ToDictionary(x => x.name);
+                    UpdateDictionary();
                     ScriptableManagerRuntime.Save(Manager);
                 }
             }
 #endif
-
-            public CharacterProperty()
-            {
-                list = new List<Character>();
-            }
         }
     }
 }

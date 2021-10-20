@@ -32,6 +32,6 @@ namespace MB.NarrativeSystem
 	{
 		void Show(ISayData data, Action submit);
 
-        void Clear();
-    }
+		void Clear();
+	}
 }

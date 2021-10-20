@@ -34,6 +34,22 @@ namespace MB.NarrativeSystem
 
 		public static NarrativeManager Manager => NarrativeManager.Instance;
 
+		public static bool IsInitialized { get; private set; }
+		public static void Initialize()
+		{
+			if (IsInitialized)
+				throw new InvalidOperationException($"Narrative System Already Initialized");
+
+			IsInitialized = true;
+
+			Progress.Prepare();
+
+			Story.Prepare();
+
+			Localization.Prepare();
+			Localization.Set("Arabic");
+		}
+
 		#region Play
 		public static Script[] PlayAll(params Script.Asset[] assets)
 		{
@@ -74,27 +90,9 @@ namespace MB.NarrativeSystem
 			return surrogate.Script;
 		}
 		#endregion
-	}
 
-	public interface ILocalizationTarget
-	{
-		IEnumerable<string> TextForLocalization { get; }
-	}
-
-	public interface IDynamicResourceTarget
-	{
-		IEnumerable<string> DynamicResources { get; }
-	}
-
-	public interface INestedScriptTarget
-	{
-		IEnumerable<Script> NestedScripts { get; }
-	}
-
-	partial class Narrative
-    {
 		public static class Composition
-        {
+		{
 			public static List<Node> GetNodes<T>()
 			{
 				var type = typeof(T);
@@ -140,5 +138,20 @@ namespace MB.NarrativeSystem
 				}
 			}
 		}
+	}
+
+	public interface ILocalizationTarget
+	{
+		IEnumerable<string> TextForLocalization { get; }
+	}
+
+	public interface IDynamicResourceTarget
+	{
+		IEnumerable<string> DynamicResources { get; }
+	}
+
+	public interface INestedScriptTarget
+	{
+		IEnumerable<Script> NestedScripts { get; }
 	}
 }

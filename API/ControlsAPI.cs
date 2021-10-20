@@ -41,5 +41,7 @@ namespace MB.NarrativeSystem
 	{
 		void Show();
 		void Hide();
+
+		void UpdateLocalization();
 	}
 }

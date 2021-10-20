@@ -28,11 +28,6 @@ namespace MB.NarrativeSystem
 
 			public static List<Variable> List { get; private set; }
 
-			public static void Register(Variable variable)
-            {
-				List.Add(variable);
-            }
-
 			public static class Scripts
             {
 				internal static void Configure()
@@ -59,7 +54,6 @@ namespace MB.NarrativeSystem
 					}
 				}
 			}
-
 			public static class Global
             {
 				internal static void Configure()
@@ -106,21 +100,23 @@ namespace MB.NarrativeSystem
 				}
 			}
 
-			internal static void Configure()
+			internal static void Prepare()
 			{
-				InstantiateData();
+				//Register Narrative Progress Entry
+				{
+					const string id = nameof(Story);
+
+					if (Narrative.Progress.Contains(id) == false)
+						Narrative.Progress.Set(id, new object());
+				}
 
 				Scripts.Configure();
 				Global.Configure();
 			}
 
-			static void InstantiateData()
-            {
-				var id = nameof(Story);
-
-				if (Narrative.Progress.Contains(id)) return;
-
-				Narrative.Progress.Set(id, new object());
+			public static void Register(Variable variable)
+			{
+				List.Add(variable);
 			}
 
 			static Variables()
@@ -131,7 +127,7 @@ namespace MB.NarrativeSystem
 
 		public static void Prepare()
 		{
-			Variables.Configure();
+			Variables.Prepare();
 		}
 
 		static Story()
@@ -140,15 +136,16 @@ namespace MB.NarrativeSystem
 		}
 	}
 
+	//Story Extension Example
 	partial class Story
 	{
-		public static Variable<int> Counter = Variable.From(0);
+		public static Variable<int> Counter = Variable.Assign(0);
 
-		public class Player
+		public static class Player
 		{
-			public static Variable<int> Health = Variable.From(100);
+			public static Variable<int> Health = Variable.Assign(100);
 
-			public static Variable<int> Armor = Variable.From(100);
+			public static Variable<int> Armor = Variable.Assign(100);
 		}
 	}
 }

@@ -74,7 +74,7 @@ namespace MB.NarrativeSystem
             return variable;
         }
 
-        public static Variable<T> From<T>(T value) => new Variable<T>(value);
+        public static Variable<T> Assign<T>(T value) => new Variable<T>(value);
     }
 
     public class Variable<T> : Variable

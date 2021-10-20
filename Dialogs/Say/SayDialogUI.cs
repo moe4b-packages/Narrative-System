@@ -33,13 +33,7 @@ namespace MB.NarrativeSystem
         TextMeshProUGUI label = default;
         public TextMeshProUGUI Label => label;
 
-        public string Text
-        {
-            get => label.text;
-            set => label.text = value;
-        }
-
-        public int MaxVisibleCharacters
+        public int VisibleCharacters
         {
             get => label.maxVisibleCharacters;
             set => label.maxVisibleCharacters = value;
@@ -63,45 +57,36 @@ namespace MB.NarrativeSystem
             coroutine = StartCoroutine(Procedure());
         }
 
+        public void Clear()
+        {
+            label.text = string.Empty;
+        }
+
+        public void UpdateLocalization()
+        {
+            label.font = Narrative.Localization.Font;
+            label.horizontalAlignment = Narrative.Localization.Alignment;
+
+            label.text = Narrative.Localization.Text[data.Text];
+        }
+
+        string FormatText(ISayData data)
+        {
+            return Narrative.Localization.Text[data.Text];
+        }
+
         Coroutine coroutine;
         IEnumerator Procedure()
         {
-            Text = FormatText(data);
+            label.text = FormatText(data);
 
-            for (int i = 0; i < Text.Length; i++)
+            for (int i = 0; i < label.text.Length; i++)
             {
-                MaxVisibleCharacters = i;
-
+                VisibleCharacters = i;
                 yield return new WaitForSeconds(typeDelay);
             }
 
             Finish();
-        }
-
-        void Finish()
-        {
-            if (coroutine != null)
-            {
-                StopCoroutine(coroutine);
-                coroutine = null;
-            }
-
-            MaxVisibleCharacters = 99999;
-            Text = FormatText(data);
-
-            if (data.AutoSubmit) Submit();
-        }
-
-        void Submit()
-        {
-            var callback = submit;
-            submit = null;
-            callback?.Invoke();
-        }
-
-        public void Clear()
-        {
-            label.text = string.Empty;
         }
 
         public void OnPointerClick(PointerEventData eventData)
@@ -112,13 +97,25 @@ namespace MB.NarrativeSystem
                 Submit();
         }
 
-        //Static Utility
-        static string FormatText(ISayData data)
+        void Finish()
         {
-            if (data.Character == null)
-                return data.Text;
-            else
-                return $"{data.Character}: {data.Text}";
+            if (coroutine != null)
+            {
+                StopCoroutine(coroutine);
+                coroutine = null;
+            }
+
+            VisibleCharacters = 99999;
+            label.text = FormatText(data);
+
+            if (data.AutoSubmit) Submit();
+        }
+
+        void Submit()
+        {
+            var callback = submit;
+            submit = null;
+            callback?.Invoke();
         }
     }
 }

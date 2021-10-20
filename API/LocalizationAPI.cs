@@ -39,13 +39,13 @@ namespace MB.NarrativeSystem
             public const string Path = Narrative.Path + "Localization/";
 
             [SerializeField]
-            Entry[] entries;
+            Entry[] entries = Array.Empty<Entry>();
             public Entry[] Entries => entries;
 
             public int Count => entries.Length;
             public Entry this[int index] => entries[index];
 
-            public Dictionary<string, Entry> Dictionary { get; protected set; }
+            public Dictionary<string, Entry> Dictionary { get; } = new Dictionary<string, Entry>(StringComparer.OrdinalIgnoreCase);
             public Entry this[string name] => Dictionary[name];
 
             [Serializable]
@@ -109,7 +109,7 @@ namespace MB.NarrativeSystem
                 }
             }
 
-            public TextProperty Text { get; protected set; }
+            public TextProperty Text { get; } = new TextProperty();
             [Serializable]
             public class TextProperty : Property
             {
@@ -163,7 +163,7 @@ namespace MB.NarrativeSystem
                 }
             }
 
-            public IOProperty IO { get; protected set; }
+            public IOProperty IO { get; } = new IOProperty();
             [Serializable]
             public class IOProperty : Property
             {
@@ -221,7 +221,7 @@ namespace MB.NarrativeSystem
                 for (int i = 0; i < entries.Length; i++)
                     entries[i].Load(this);
 
-                Dictionary = new Dictionary<string, Entry>(StringComparer.OrdinalIgnoreCase);
+                Dictionary.Clear();
 
                 for (int i = 0; i < entries.Length; i++)
                     Dictionary.Add(entries[i].Title, entries[i]);
@@ -241,14 +241,6 @@ namespace MB.NarrativeSystem
                 Selection = entry;
 
                 OnSet?.Invoke(Selection);
-            }
-
-            public LocalizationProperty()
-            {
-                entries = new Entry[] { };
-
-                Text = new TextProperty();
-                IO = new IOProperty();
             }
 
             //Static Utility

@@ -44,6 +44,11 @@ namespace MB.NarrativeSystem
             this.submit = submit;
         }
 
+        public void UpdateLocalization()
+        {
+
+        }
+
         void ProcessTemplate(ChoiceDialogUITemplate template, int index)
         {
             template.SetParent(layout);

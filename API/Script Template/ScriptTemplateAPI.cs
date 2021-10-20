@@ -20,7 +20,7 @@ using Random = UnityEngine.Random;
 
 namespace MB.NarrativeSystem
 {
-	public partial class Narrative
+	partial class Narrative
     {
 		public static class ScriptTemplate
 		{

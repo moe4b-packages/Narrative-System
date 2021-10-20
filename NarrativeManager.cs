@@ -13,6 +13,10 @@ namespace MB.NarrativeSystem
     [SettingsMenu(Toolbox.Paths.Root + "Narrative")]
     public partial class NarrativeManager : ScriptableManager<NarrativeManager>
     {
+        [SerializeField]
+        bool autoInitialize = true;
+        public bool AutoInitialize => autoInitialize;
+
         [Serializable]
         public class Property : IReference<NarrativeManager>, IInitialize
         {
@@ -44,6 +48,7 @@ namespace MB.NarrativeSystem
         {
             yield return character;
             yield return localization;
+            yield return progress;
         }
 
         protected override void OnLoad()
@@ -52,17 +57,10 @@ namespace MB.NarrativeSystem
 
             References.Set(this, RetrieveAllProperties);
 
-            Configure();
-            Initialize();
-        }
-
-        protected virtual void Configure()
-        {
             Initializer.Configure(RetrieveAllProperties);
-        }
-        protected virtual void Initialize()
-        {
             Initializer.Initialize(RetrieveAllProperties);
+
+            if (Application.isPlaying && autoInitialize) Narrative.Initialize();
         }
     }
 }

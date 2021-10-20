@@ -19,7 +19,7 @@ using Random = UnityEngine.Random;
 
 namespace MB.NarrativeSystem
 {
-	static partial class Narrative
+	partial class Narrative
     {
         public static class Events
         {

@@ -19,28 +19,41 @@ using Random = UnityEngine.Random;
 
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Converters;
 
 namespace MB.NarrativeSystem
 {
 	partial class Narrative
 	{
-		/// <summary>
-		/// Requires .Net 4.X compatibility on Windows (and possibly other platforms too)
-		/// instead of .Net 2.0 Standard because of a bug? with JsonDotNet I think
-		/// </summary>
-		public static class Progress
+		public static NarrativeManager.ProgressProperty Progress => Manager.Progress;
+	}
+
+	partial class NarrativeManager
+    {
+		[SerializeField]
+		ProgressProperty progress = new ProgressProperty();
+		public ProgressProperty Progress => progress;
+		[Serializable]
+		public class ProgressProperty : Property
 		{
-			public static JObjectComposer Composer { get; private set; }
+			[SerializeField]
+			string fileName = "Narrative Progress";
+			public string FileName => fileName;
 
-			public static string Slot { get; private set; }
-			public static bool IsLoaded => Composer.IsLoaded;
+			[SerializeField]
+			[SerializedType.Selection(typeof(JsonConverter))]
+			SerializedType[] converters = new SerializedType[] { SerializedType.From<StringEnumConverter>() };
+			public SerializedType[] Converters => converters;
 
-			public static bool IsDirty { get; private set; }
+			public JObjectComposer Composer { get; private set; }
+			public bool IsLoaded => Composer.IsLoaded;
 
-            #region Save Lock
-            public static bool SaveLock { get; private set; }
+			public bool IsDirty { get; private set; }
 
-			public static void LockSave()
+			#region Save Lock
+			public bool SaveLock { get; private set; }
+
+			public void LockSave()
 			{
 				if (SaveLock)
 					Debug.LogWarning("Narrative Progress Save Lock Already On, Did you Forget to Unlock it");
@@ -48,7 +61,7 @@ namespace MB.NarrativeSystem
 				SaveLock = true;
 			}
 
-			public static void UnlockSave()
+			public void UnlockSave()
 			{
 				SaveLock = false;
 
@@ -56,11 +69,35 @@ namespace MB.NarrativeSystem
 			}
 			#endregion
 
-			public static class IO
+			public IOProperty IO { get; } = new IOProperty();
+			public class IOProperty
 			{
-				public static string Directory { get; private set; }
+				public string Directory { get; private set; }
 
-				public static string Load(string file)
+				public ObfuscationProperty Obfuscation { get; } = new ObfuscationProperty();
+				public class ObfuscationProperty
+				{
+					public void SetMethods(EncryptDelegate encrypt, DecryptDelegate decrypt)
+					{
+						Encrypt = encrypt;
+						Decrypt = decrypt;
+					}
+
+					public EncryptDelegate Encrypt { get; set; } = DefaultEncryptMethod;
+					public delegate string EncryptDelegate(string text);
+					public static string DefaultEncryptMethod(string text) => text;
+
+					public DecryptDelegate Decrypt { get; set; } = DefaultDecryptMethod;
+					public delegate string DecryptDelegate(string text);
+					public static string DefaultDecryptMethod(string text) => text;
+				}
+
+				internal void Prepare()
+                {
+					Directory = Application.isEditor ? Application.dataPath : Application.persistentDataPath;
+				}
+
+				public string Load(string file)
 				{
 					var target = FormatPath(file);
 
@@ -74,7 +111,7 @@ namespace MB.NarrativeSystem
 					return content;
 				}
 
-				public static void Save(string file, string content)
+				public void Save(string file, string content)
 				{
 					content = Obfuscation.Encrypt(content);
 
@@ -83,43 +120,21 @@ namespace MB.NarrativeSystem
 					File.WriteAllText(target, content);
 				}
 
-				static string FormatPath(string file)
+				string FormatPath(string file)
 				{
 					file += ".json";
 
 					return System.IO.Path.Combine(Directory, file);
 				}
-
-				static IO()
-				{
-					Directory = Application.isEditor ? Application.dataPath : Application.persistentDataPath;
-				}
 			}
 
-			public static class Obfuscation
+			public AutoSaveProperty AutoSave { get; } = new AutoSaveProperty();
+			public class AutoSaveProperty
 			{
-				public static void SetMethods(EncryptDelegate encrypt, DecryptDelegate decrypt)
-				{
-					Encrypt = encrypt;
-					Decrypt = decrypt;
-				}
+				public bool OnChange { get; set; } = true;
+				public bool OnExit { get; set; } = true;
 
-				public static EncryptDelegate Encrypt { get; set; } = DefaultEncryptMethod;
-				public delegate string EncryptDelegate(string text);
-				public static string DefaultEncryptMethod(string text) => text;
-
-				public static DecryptDelegate Decrypt { get; set; } = DefaultDecryptMethod;
-				public delegate string DecryptDelegate(string text);
-				public static string DefaultDecryptMethod(string text) => text;
-			}
-
-			public static class AutoSave
-			{
-				public static bool OnChange { get; set; } = true;
-
-				public static bool OnExit { get; set; } = true;
-
-				public static bool All
+				public bool All
 				{
 					set
 					{
@@ -129,87 +144,76 @@ namespace MB.NarrativeSystem
 				}
 			}
 
-            public static void Prepare(params JsonConverter[] converters)
-			{
-				var settings = new JsonSerializerSettings()
-				{
-					Converters = converters,
-					Formatting = Formatting.Indented,
-				};
+            public override void Configure()
+            {
+                base.Configure();
 
-				Configure(settings);
+				IO.Prepare();
 			}
-			public static void Configure(JsonSerializerSettings settings)
-			{
+
+			internal void Prepare()
+            {
+				JsonSerializerSettings settings;
+
+				//Create Serializer Settings
+                {
+					var array = new JsonConverter[converters.Length];
+
+					for (int i = 0; i < array.Length; i++)
+						array[i] = Activator.CreateInstance(converters[i]) as JsonConverter;
+
+					settings = new JsonSerializerSettings()
+					{
+						Converters = array,
+						Formatting = Formatting.Indented,
+					};
+				}
+
 				if (Composer.IsConfigured) throw new Exception("Narrative Progress Already Configured");
 
 				Composer.Configure(settings);
 				Composer.OnChange += InvokeChange;
 
+				Load();
+
 				Application.quitting += QuitCallback;
 			}
 
-			public static event Action OnLoad;
-			public static void Load(string slot)
+			internal void Load()
 			{
-				Slot = slot;
-
-				Load();
-
-				OnLoad?.Invoke();
-			}
-
-			public static void LoadOrReset()
-            {
-				try
-				{
-					Load("Narrative Progress");
-				}
-				catch (Exception ex)
-				{
-					Debug.LogError($"Error on Loading Narrative Progress, Will Reset" +
-						$"{Environment.NewLine}" +
-						$"Exception: {ex}");
-
-					Reset();
-				}
-			}
-
-			static void Load()
-			{
-				var json = IO.Load(Slot);
+				var json = IO.Load(fileName);
 
 				Composer.Load(json);
 			}
 
-			public static void Reset()
+			public void Reset()
 			{
 				Composer.Clear();
 
 				Save();
 			}
 
-			public static void Save()
+			public void Save()
 			{
 				IsDirty = false;
 
 				var json = Composer.Read();
 
-				IO.Save(Slot, json);
+				IO.Save(fileName, json);
 			}
 
 			#region Controls
-			public static T Read<T>(string id) => Composer.Read<T>(id);
-			public static object Read(string id, Type type) => Composer.Read(id, type);
+			public T Read<T>(string id) => Composer.Read<T>(id);
+			public object Read(string id, Type type) => Composer.Read(id, type);
 
-			public static bool Contains(string id) => Composer.Contains(id);
+			public bool Contains(string id) => Composer.Contains(id);
 
-			public static bool Remove(string id) => Composer.Remove(id);
+			public bool Remove(string id) => Composer.Remove(id);
 
-			public static void Set(string id, object value) => Composer.Set(id, value);
+			public void Set(string id, object value) => Composer.Set(id, value);
 			#endregion
 
-			static void InvokeChange()
+			void InvokeChange()
 			{
 				if (AutoSave.OnChange)
 					Save();
@@ -217,15 +221,15 @@ namespace MB.NarrativeSystem
 					IsDirty = true;
 			}
 
-			public static event Action OnQuit;
-			static void QuitCallback()
+			public event Action OnQuit;
+			void QuitCallback()
 			{
 				OnQuit?.Invoke();
 
 				if (AutoSave.OnExit) if (IsDirty) Save();
 			}
 
-			static Progress()
+			public ProgressProperty()
 			{
 				Composer = new JObjectComposer();
 			}
