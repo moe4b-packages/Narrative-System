@@ -17,25 +17,36 @@ using UnityEditorInternal;
 using Object = UnityEngine.Object;
 using Random = UnityEngine.Random;
 
+using static MB.NarrativeSystem.NarrativeManager;
+using static MB.NarrativeSystem.NarrativeManager.CharactersProperty;
+
 namespace MB.NarrativeSystem
 {
     partial class Narrative
     {
-        public static NarrativeManager.CharacterProperty Character => Manager.Character;
+        public static class Characters
+        {
+            static CharactersProperty Manager => Narrative.Manager.Characters;
+
+            public static List<Character> List => Manager.Collection;
+            public static Dictionary<string, Character> Dictionary => Manager.Dictionary;
+
+            public static bool TryFind(string id, out Character asset) => Dictionary.TryGetValue(id, out asset);
+        }
     }
 
     partial class NarrativeManager
     {
         [SerializeField]
-        CharacterProperty character = new CharacterProperty();
-        public CharacterProperty Character => character;
+        CharactersProperty characters = new CharactersProperty();
+        public CharactersProperty Characters => characters;
         [Serializable]
-        public class CharacterProperty : Property
+        public class CharactersProperty : Property
         {
             [ReadOnly]
             [SerializeField]
-            List<Character> list = new List<Character>();
-            public List<Character> Collection => list;
+            List<Character> collection = new List<Character>();
+            public List<Character> Collection => collection;
 
             public Dictionary<string, Character> Dictionary { get; } = new Dictionary<string, Character>();
 
@@ -43,11 +54,9 @@ namespace MB.NarrativeSystem
             {
                 Dictionary.Clear();
 
-                for (int i = 0; i < list.Count; i++)
-                    Dictionary[list[i].name] = list[i];
+                for (int i = 0; i < collection.Count; i++)
+                    Dictionary[collection[i].name] = collection[i];
             }
-
-            public bool TryFind(string id, out Character asset) => Dictionary.TryGetValue(id, out asset);
 
             public override void Configure()
             {
@@ -65,9 +74,9 @@ namespace MB.NarrativeSystem
             {
                 var targets = AssetCollection.Query<Character>();
 
-                if (MUtility.CheckElementsInclusion(list, targets) == false)
+                if (MUtility.CheckElementsInclusion(collection, targets) == false)
                 {
-                    list = targets;
+                    collection = targets;
                     UpdateDictionary();
                     ScriptableManagerRuntime.Save(Manager);
                 }

@@ -34,7 +34,15 @@ namespace MB.NarrativeSystem
 
 		public static NarrativeManager Manager => NarrativeManager.Instance;
 
+		public static bool AutoInitialize => Manager.AutoInitialize;
 		public static bool IsInitialized { get; private set; }
+
+		[RuntimeInitializeOnLoadMethod]
+		static void OnLoad()
+        {
+			if (AutoInitialize) Initialize();
+        }
+
 		public static void Initialize()
 		{
 			if (IsInitialized)
@@ -43,11 +51,8 @@ namespace MB.NarrativeSystem
 			IsInitialized = true;
 
 			Progress.Prepare();
-
 			Story.Prepare();
-
 			Localization.Prepare();
-			Localization.Set("Arabic");
 		}
 
 		#region Play

@@ -46,7 +46,7 @@ namespace MB.NarrativeSystem
 
         public IEnumerable<Property> RetrieveAllProperties()
         {
-            yield return character;
+            yield return characters;
             yield return localization;
             yield return progress;
         }
@@ -59,8 +59,6 @@ namespace MB.NarrativeSystem
 
             Initializer.Configure(RetrieveAllProperties);
             Initializer.Initialize(RetrieveAllProperties);
-
-            if (Application.isPlaying && autoInitialize) Narrative.Initialize();
         }
     }
 }

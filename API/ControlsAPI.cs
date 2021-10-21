@@ -28,7 +28,6 @@ namespace MB.NarrativeSystem
 			public const string Path = Narrative.Path + "Controls/";
 			
 			public static ISayDialog Say { get; set; }
-
 			public static IChoiceDialog Choice { get; set; }
 
 			public static FadeUI Fader { get; set; }

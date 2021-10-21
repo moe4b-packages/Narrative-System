@@ -42,7 +42,7 @@ namespace MB.NarrativeSystem
 
 		public static Character Find(string name)
         {
-			if (Narrative.Character.TryFind(name, out var character) == false)
+			if (Narrative.Characters.TryFind(name, out var character) == false)
 				throw new Exception($"No Character Named {name} was Found");
 
 			return character;

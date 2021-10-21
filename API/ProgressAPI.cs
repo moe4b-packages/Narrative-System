@@ -21,83 +21,49 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Converters;
 
+using static MB.NarrativeSystem.NarrativeManager;
+using static MB.NarrativeSystem.NarrativeManager.ProgressProperty;
+
 namespace MB.NarrativeSystem
 {
 	partial class Narrative
 	{
-		public static NarrativeManager.ProgressProperty Progress => Manager.Progress;
-	}
+		public static class Progress
+        {
+			static ProgressProperty Manager => Narrative.Manager.progress;
 
-	partial class NarrativeManager
-    {
-		[SerializeField]
-		ProgressProperty progress = new ProgressProperty();
-		public ProgressProperty Progress => progress;
-		[Serializable]
-		public class ProgressProperty : Property
-		{
-			[SerializeField]
-			string fileName = "Narrative Progress";
-			public string FileName => fileName;
+			public static string FileName => Manager.fileName;
 
-			[SerializeField]
-			[SerializedType.Selection(typeof(JsonConverter))]
-			SerializedType[] converters = new SerializedType[] { SerializedType.From<StringEnumConverter>() };
-			public SerializedType[] Converters => converters;
+			public static SerializedType[] Converters => Manager.converters;
+			static JsonConverter[] CreateConverters()
+            {
+				var array = new JsonConverter[Converters.Length];
 
-			public JObjectComposer Composer { get; private set; }
-			public bool IsLoaded => Composer.IsLoaded;
+				for (int i = 0; i < array.Length; i++)
+					array[i] = Activator.CreateInstance(Converters[i]) as JsonConverter;
 
-			public bool IsDirty { get; private set; }
-
-			#region Save Lock
-			public bool SaveLock { get; private set; }
-
-			public void LockSave()
-			{
-				if (SaveLock)
-					Debug.LogWarning("Narrative Progress Save Lock Already On, Did you Forget to Unlock it");
-
-				SaveLock = true;
+				return array;
 			}
 
-			public void UnlockSave()
+			public static JObjectComposer Composer { get; private set; }
+			public static bool IsLoaded => Composer.IsLoaded;
+
+			public static bool IsDirty { get; private set; }
+
+			public static StringObfuscator Obfuscator { get; }
+
+			public static class IO
 			{
-				SaveLock = false;
+				public static string Directory { get; private set; }
 
-				if (IsDirty) Save();
-			}
-			#endregion
-
-			public IOProperty IO { get; } = new IOProperty();
-			public class IOProperty
-			{
-				public string Directory { get; private set; }
-
-				public ObfuscationProperty Obfuscation { get; } = new ObfuscationProperty();
-				public class ObfuscationProperty
+				static string FormatPath(string file)
 				{
-					public void SetMethods(EncryptDelegate encrypt, DecryptDelegate decrypt)
-					{
-						Encrypt = encrypt;
-						Decrypt = decrypt;
-					}
+					file += ".json";
 
-					public EncryptDelegate Encrypt { get; set; } = DefaultEncryptMethod;
-					public delegate string EncryptDelegate(string text);
-					public static string DefaultEncryptMethod(string text) => text;
-
-					public DecryptDelegate Decrypt { get; set; } = DefaultDecryptMethod;
-					public delegate string DecryptDelegate(string text);
-					public static string DefaultDecryptMethod(string text) => text;
+					return System.IO.Path.Combine(Directory, file);
 				}
 
-				internal void Prepare()
-                {
-					Directory = Application.isEditor ? Application.dataPath : Application.persistentDataPath;
-				}
-
-				public string Load(string file)
+				public static string Load(string file)
 				{
 					var target = FormatPath(file);
 
@@ -106,35 +72,52 @@ namespace MB.NarrativeSystem
 
 					var content = File.ReadAllText(target);
 
-					content = Obfuscation.Decrypt(content);
+					content = Obfuscator.Decrypt(content);
 
 					return content;
 				}
 
-				public void Save(string file, string content)
+				public static void Save(string file, string content)
 				{
-					content = Obfuscation.Encrypt(content);
+					content = Obfuscator.Encrypt(content);
 
 					var target = FormatPath(file);
 
 					File.WriteAllText(target, content);
 				}
 
-				string FormatPath(string file)
-				{
-					file += ".json";
-
-					return System.IO.Path.Combine(Directory, file);
+				static IO()
+                {
+					Directory = Application.isEditor ? Application.dataPath : Application.persistentDataPath;
 				}
 			}
 
-			public AutoSaveProperty AutoSave { get; } = new AutoSaveProperty();
-			public class AutoSaveProperty
+			public static class SaveLock
 			{
-				public bool OnChange { get; set; } = true;
-				public bool OnExit { get; set; } = true;
+				public static bool IsOn { get; private set; }
 
-				public bool All
+				public static void Start()
+				{
+					if (IsOn)
+						Debug.LogWarning("Narrative Progress Save Lock Already On, Did you Forget to Unlock it");
+
+					IsOn = true;
+				}
+
+				public static void End()
+				{
+					IsOn = false;
+
+					if (IsDirty) Save();
+				}
+			}
+
+			public static class AutoSave
+			{
+				public static bool OnChange { get; set; } = true;
+				public static bool OnExit { get; set; } = true;
+
+				public static bool All
 				{
 					set
 					{
@@ -144,33 +127,15 @@ namespace MB.NarrativeSystem
 				}
 			}
 
-            public override void Configure()
-            {
-                base.Configure();
+			internal static void Prepare()
+			{
+				var settings = new JsonSerializerSettings()
+				{
+					Converters = CreateConverters(),
+					Formatting = Formatting.Indented,
+				};
 
-				IO.Prepare();
-			}
-
-			internal void Prepare()
-            {
-				JsonSerializerSettings settings;
-
-				//Create Serializer Settings
-                {
-					var array = new JsonConverter[converters.Length];
-
-					for (int i = 0; i < array.Length; i++)
-						array[i] = Activator.CreateInstance(converters[i]) as JsonConverter;
-
-					settings = new JsonSerializerSettings()
-					{
-						Converters = array,
-						Formatting = Formatting.Indented,
-					};
-				}
-
-				if (Composer.IsConfigured) throw new Exception("Narrative Progress Already Configured");
-
+				Composer = new JObjectComposer();
 				Composer.Configure(settings);
 				Composer.OnChange += InvokeChange;
 
@@ -179,41 +144,41 @@ namespace MB.NarrativeSystem
 				Application.quitting += QuitCallback;
 			}
 
-			internal void Load()
+			internal static void Load()
 			{
-				var json = IO.Load(fileName);
+				var json = IO.Load(FileName);
 
 				Composer.Load(json);
 			}
 
-			public void Reset()
+			public static void Reset()
 			{
 				Composer.Clear();
 
 				Save();
 			}
 
-			public void Save()
+			public static void Save()
 			{
 				IsDirty = false;
 
 				var json = Composer.Read();
 
-				IO.Save(fileName, json);
+				IO.Save(FileName, json);
 			}
 
 			#region Controls
-			public T Read<T>(string id) => Composer.Read<T>(id);
-			public object Read(string id, Type type) => Composer.Read(id, type);
+			public static T Read<T>(string id, T fallback = default) => Composer.Read<T>(id, fallback: fallback);
+			public static object Read(string id, Type type, object fallback = default) => Composer.Read(id, type, fallback: fallback);
 
-			public bool Contains(string id) => Composer.Contains(id);
+			public static bool Contains(string id) => Composer.Contains(id);
 
-			public bool Remove(string id) => Composer.Remove(id);
+			public static bool Remove(string id) => Composer.Remove(id);
 
-			public void Set(string id, object value) => Composer.Set(id, value);
+			public static void Set(string id, object value) => Composer.Set(id, value);
 			#endregion
 
-			void InvokeChange()
+			static void InvokeChange()
 			{
 				if (AutoSave.OnChange)
 					Save();
@@ -221,18 +186,31 @@ namespace MB.NarrativeSystem
 					IsDirty = true;
 			}
 
-			public event Action OnQuit;
-			void QuitCallback()
+			static void QuitCallback()
 			{
-				OnQuit?.Invoke();
-
 				if (AutoSave.OnExit) if (IsDirty) Save();
 			}
 
-			public ProgressProperty()
-			{
-				Composer = new JObjectComposer();
+			static Progress()
+            {
+				Obfuscator = new StringObfuscator();
 			}
+		}
+	}
+
+	partial class NarrativeManager
+    {
+		[SerializeField]
+		internal ProgressProperty progress = new ProgressProperty();
+		[Serializable]
+		public class ProgressProperty : Property
+		{
+			[SerializeField]
+			internal string fileName = "Narrative Progress";
+
+			[SerializeField]
+			[SerializedType.Selection(typeof(JsonConverter))]
+			internal SerializedType[] converters = new SerializedType[] { SerializedType.From<StringEnumConverter>() };
 		}
 	}
 }
