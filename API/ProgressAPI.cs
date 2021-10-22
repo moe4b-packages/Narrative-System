@@ -129,8 +129,7 @@ namespace MB.NarrativeSystem
 					Formatting = Formatting.Indented,
 				};
 
-				Composer = new JObjectComposer();
-				Composer.Configure(settings);
+				Composer = new JObjectComposer(settings);
 				Composer.OnChange += InvokeChange;
 
 				Load();
