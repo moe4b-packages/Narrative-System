@@ -21,7 +21,7 @@ using MB.UISystem;
 
 namespace MB.NarrativeSystem
 {
-	[AddComponentMenu(Narrative.Controls.Path + "Auto Register Controls")]
+	[AddComponentMenu(Narrative.Controls.Path + "Auto Register Narrative Controls")]
 	public class AutoRegisterNarrativeControls : MonoBehaviour
 	{
         [SerializeField]
