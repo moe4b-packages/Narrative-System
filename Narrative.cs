@@ -39,8 +39,24 @@ namespace MB.NarrativeSystem
 		bool autoInitialize = true;
 		public static bool AutoInitialize => Instance.autoInitialize;
 
-        #region Unity Callbacks
-        [RuntimeInitializeOnLoadMethod]
+		protected override void OnLoad()
+		{
+			base.OnLoad();
+
+			Characters.Refresh();
+		}
+
+#if UNITY_EDITOR
+		protected override void PreProcessBuild()
+        {
+            base.PreProcessBuild();
+
+			Characters.Refresh();
+		}
+#endif
+
+		#region Unity Callbacks
+		[RuntimeInitializeOnLoadMethod]
 		static void OnEntetPlayerMode()
 		{
 #if UNITY_EDITOR
@@ -58,13 +74,6 @@ namespace MB.NarrativeSystem
 		}
 #endif
 		#endregion
-
-		protected override void OnLoad()
-		{
-			base.OnLoad();
-
-			Characters.Load();
-		}
 
 		public static bool IsInitialized { get; private set; }
 		public static void Initialize()

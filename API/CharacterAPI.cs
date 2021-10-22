@@ -32,20 +32,7 @@ namespace MB.NarrativeSystem
 
             internal Dictionary<string, Character> dictionary = new Dictionary<string, Character>();
 
-            void UpdateDictionary()
-            {
-                dictionary.Clear();
-
-                for (int i = 0; i < collection.Count; i++)
-                    dictionary[collection[i].name] = collection[i];
-            }
-
-            internal void Load()
-            {
-                Refresh();
-            }
-
-            void Refresh()
+            internal void Refresh()
             {
 #if UNITY_EDITOR
                 var targets = AssetCollection.Query<Character>();
@@ -57,7 +44,10 @@ namespace MB.NarrativeSystem
                 }
 #endif
 
-                UpdateDictionary();
+                dictionary.Clear();
+
+                for (int i = 0; i < collection.Count; i++)
+                    dictionary[collection[i].name] = collection[i];
             }
         }
         public static class Characters
@@ -67,7 +57,7 @@ namespace MB.NarrativeSystem
             public static List<Character> List => Instance.collection;
             public static Dictionary<string, Character> Dictionary => Instance.dictionary;
 
-            internal static void Load() => Instance.Load();
+            internal static void Refresh() => Instance.Refresh();
 
             public static bool TryFind(string id, out Character asset) => Dictionary.TryGetValue(id, out asset);
         }
