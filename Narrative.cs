@@ -28,16 +28,19 @@ using System.Text.RegularExpressions;
 
 namespace MB.NarrativeSystem
 {
-	public static partial class Narrative
+	[CreateAssetMenu]
+	[Global(ScriptableManagerScope.Project)]
+	[SettingsMenu(Toolbox.Paths.Root + "Narrative")]
+	public partial class Narrative : ScriptableManager<Narrative>
 	{
 		public const string Path = Toolbox.Paths.Root + "Narrative System/";
 
-		public static NarrativeManager Manager => NarrativeManager.Instance;
+		[SerializeField]
+		bool autoInitialize = true;
+		public static bool AutoInitialize => Instance.autoInitialize;
 
-		public static bool AutoInitialize => Manager.AutoInitialize;
-		public static bool IsInitialized { get; private set; }
-
-		[RuntimeInitializeOnLoadMethod]
+        #region Unity Callbacks
+        [RuntimeInitializeOnLoadMethod]
 		static void OnEntetPlayerMode()
 		{
 #if UNITY_EDITOR
@@ -53,8 +56,17 @@ namespace MB.NarrativeSystem
 		{
 			Validation.OnRecompile();
 		}
-		#endif
+#endif
+		#endregion
 
+		protected override void OnLoad()
+		{
+			base.OnLoad();
+
+			Characters.Load();
+		}
+
+		public static bool IsInitialized { get; private set; }
 		public static void Initialize()
 		{
 			if (IsInitialized)

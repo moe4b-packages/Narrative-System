@@ -23,7 +23,11 @@ namespace MB.NarrativeSystem
 #if UNITY_EDITOR
 	partial class Narrative
 	{
-		public static ValidateScriptOptions ValidationOption => Manager.validationOption;
+		[Tooltip("Specifies when to validate narrative components, " +
+			"validating will catch the basic composition errors in your scripts, editor only!")]
+		[SerializeField]
+		internal ValidateScriptOptions validationOption = ValidateScriptOptions.All;
+		public static ValidateScriptOptions ValidationOption => Instance.validationOption;
 
 		public static class Validation
 		{
@@ -97,14 +101,6 @@ namespace MB.NarrativeSystem
 		}
 	}
 #endif
-
-	partial class NarrativeManager
-    {
-		[Tooltip("Specifies when to validate narrative components, " +
-			"validating will catch the basic composition errors in your scripts, editor only!")]
-		[SerializeField]
-		internal ValidateScriptOptions validationOption = ValidateScriptOptions.All;
-	}
 
 	[Flags]
 	public enum ValidateScriptOptions

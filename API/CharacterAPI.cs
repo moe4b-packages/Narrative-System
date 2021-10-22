@@ -16,72 +16,61 @@ using UnityEditorInternal;
 
 using Object = UnityEngine.Object;
 using Random = UnityEngine.Random;
-
-using static MB.NarrativeSystem.NarrativeManager;
-using static MB.NarrativeSystem.NarrativeManager.CharactersProperty;
+using UnityEditor.PackageManager;
 
 namespace MB.NarrativeSystem
 {
     partial class Narrative
     {
-        public static class Characters
-        {
-            static CharactersProperty Manager => Narrative.Manager.Characters;
-
-            public static List<Character> List => Manager.Collection;
-            public static Dictionary<string, Character> Dictionary => Manager.Dictionary;
-
-            public static bool TryFind(string id, out Character asset) => Dictionary.TryGetValue(id, out asset);
-        }
-    }
-
-    partial class NarrativeManager
-    {
         [SerializeField]
         CharactersProperty characters = new CharactersProperty();
-        public CharactersProperty Characters => characters;
         [Serializable]
-        public class CharactersProperty : Property
+        class CharactersProperty
         {
             [ReadOnly]
             [SerializeField]
-            List<Character> collection = new List<Character>();
-            public List<Character> Collection => collection;
+            internal List<Character> collection = new List<Character>();
 
-            public Dictionary<string, Character> Dictionary { get; } = new Dictionary<string, Character>();
+            internal Dictionary<string, Character> dictionary = new Dictionary<string, Character>();
 
             void UpdateDictionary()
             {
-                Dictionary.Clear();
+                dictionary.Clear();
 
                 for (int i = 0; i < collection.Count; i++)
-                    Dictionary[collection[i].name] = collection[i];
+                    dictionary[collection[i].name] = collection[i];
             }
 
-            public override void Configure()
+            internal void Load()
             {
-                base.Configure();
-
-#if UNITY_EDITOR
                 Refresh();
-#endif
-
-                UpdateDictionary();
             }
 
-#if UNITY_EDITOR
             void Refresh()
             {
+#if UNITY_EDITOR
                 var targets = AssetCollection.Query<Character>();
 
                 if (MUtility.CheckElementsInclusion(collection, targets) == false)
                 {
                     collection = targets;
-                    UpdateDictionary();
-                    ScriptableManagerRuntime.Save(Manager);
+                    ScriptableManagerRuntime.Save(Instance);
                 }
-            }
 #endif
+
+                UpdateDictionary();
+            }
+        }
+        public static class Characters
+        {
+            static CharactersProperty Instance => Narrative.Instance.characters;
+
+            public static List<Character> List => Instance.collection;
+            public static Dictionary<string, Character> Dictionary => Instance.dictionary;
+
+            internal static void Load() => Instance.Load();
+
+            public static bool TryFind(string id, out Character asset) => Dictionary.TryGetValue(id, out asset);
         }
     }
 }

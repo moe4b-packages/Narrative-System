@@ -21,20 +21,29 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Converters;
 
-using static MB.NarrativeSystem.NarrativeManager;
-using static MB.NarrativeSystem.NarrativeManager.ProgressProperty;
-
 namespace MB.NarrativeSystem
 {
 	partial class Narrative
 	{
+		[SerializeField]
+		ProgressProperty progress = new ProgressProperty();
+		[Serializable]
+		class ProgressProperty
+		{
+			[SerializeField]
+			internal string fileName = "Narrative Progress";
+
+			[SerializeField]
+			[SerializedType.Selection(typeof(JsonConverter))]
+			internal SerializedType[] converters = new SerializedType[] { SerializedType.From<StringEnumConverter>() };
+		}
 		public static class Progress
         {
-			static ProgressProperty Manager => Narrative.Manager.progress;
+			static ProgressProperty Instance => Narrative.Instance.progress;
 
-			public static string FileName => Manager.fileName;
+			public static string FileName => Instance.fileName;
 
-			public static SerializedType[] Converters => Manager.converters;
+			public static SerializedType[] Converters => Instance.converters;
 			static JsonConverter[] CreateConverters()
             {
 				var array = new JsonConverter[Converters.Length];
@@ -188,22 +197,6 @@ namespace MB.NarrativeSystem
             {
 				
 			}
-		}
-	}
-
-	partial class NarrativeManager
-    {
-		[SerializeField]
-		internal ProgressProperty progress = new ProgressProperty();
-		[Serializable]
-		public class ProgressProperty : Property
-		{
-			[SerializeField]
-			internal string fileName = "Narrative Progress";
-
-			[SerializeField]
-			[SerializedType.Selection(typeof(JsonConverter))]
-			internal SerializedType[] converters = new SerializedType[] { SerializedType.From<StringEnumConverter>() };
 		}
 	}
 }
