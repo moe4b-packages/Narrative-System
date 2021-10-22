@@ -16,7 +16,6 @@ using UnityEditorInternal;
 
 using Object = UnityEngine.Object;
 using Random = UnityEngine.Random;
-using UnityEditor.PackageManager;
 
 namespace MB.NarrativeSystem
 {
