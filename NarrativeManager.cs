@@ -47,7 +47,6 @@ namespace MB.NarrativeSystem
         public IEnumerable<Property> RetrieveAllProperties()
         {
             yield return characters;
-            yield return localization;
             yield return progress;
         }
 

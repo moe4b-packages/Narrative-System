@@ -24,6 +24,8 @@ using System.Text;
 
 using TMPro;
 
+using MB.LocalizationSystem;
+
 namespace MB.NarrativeSystem
 {
     [AddComponentMenu(Narrative.Controls.Path + "Say Dialog UI")]
@@ -64,15 +66,15 @@ namespace MB.NarrativeSystem
 
         public void UpdateLocalization()
         {
-            label.font = Narrative.Localization.Font;
-            label.horizontalAlignment = Narrative.Localization.Alignment;
-
-            label.text = Narrative.Localization.Text[data.Text];
+            //TODO Change Localization method
+            //label.font = Localization.Font;
+            //label.horizontalAlignment = Localization.Alignment;
+            label.text = FormatText(data);
         }
 
         string FormatText(ISayData data)
         {
-            return Narrative.Localization.Text[data.Text];
+            return Localization.Text[data.Text];
         }
 
         Coroutine coroutine;

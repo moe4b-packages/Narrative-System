@@ -64,7 +64,6 @@ namespace MB.NarrativeSystem
 
 			Progress.Prepare();
 			Story.Prepare();
-			Localization.Prepare();
 		}
 
 		#region Play

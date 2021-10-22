@@ -33,8 +33,6 @@ namespace MB.NarrativeSystem
             FightGuardian
         }
 
-        Variable<int> Index;
-
         [Branch]
         void Intro()
         {
@@ -42,16 +40,14 @@ namespace MB.NarrativeSystem
             Delay(1);
             FadeOut();
 
-            SayHello();
+            SayHelloTo("Moayad");
 
             PlayAudio("SFX/Unsheath Sword").Continue();
-
-            SetVariable(Index, 2);
         }
 
-        void SayHello()
+        void SayHelloTo(string name)
         {
-            Say("Hello There!");
+            Say($"Hello There {name}!");
             Say("Hope you are Doing Well");
         }
 
