@@ -50,8 +50,6 @@ namespace MB.NarrativeSystem
 
 			public static bool IsDirty { get; private set; }
 
-			public static StringObfuscator Obfuscator { get; }
-
 			public static class IO
 			{
 				public static string Directory { get; private set; }
@@ -72,15 +70,11 @@ namespace MB.NarrativeSystem
 
 					var content = File.ReadAllText(target);
 
-					content = Obfuscator.Decrypt(content);
-
 					return content;
 				}
 
 				public static void Save(string file, string content)
 				{
-					content = Obfuscator.Encrypt(content);
-
 					var target = FormatPath(file);
 
 					File.WriteAllText(target, content);
@@ -193,7 +187,7 @@ namespace MB.NarrativeSystem
 
 			static Progress()
             {
-				Obfuscator = new StringObfuscator();
+				
 			}
 		}
 	}
