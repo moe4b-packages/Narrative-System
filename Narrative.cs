@@ -38,10 +38,22 @@ namespace MB.NarrativeSystem
 		public static bool IsInitialized { get; private set; }
 
 		[RuntimeInitializeOnLoadMethod]
-		static void OnLoad()
-        {
+		static void OnEntetPlayerMode()
+		{
+#if UNITY_EDITOR
+			Validation.OnEntetPlayerMode();
+#endif
+
 			if (AutoInitialize) Initialize();
-        }
+		}
+
+#if UNITY_EDITOR
+		[UnityEditor.Callbacks.DidReloadScripts]
+		static void OnRecompile()
+		{
+			Validation.OnRecompile();
+		}
+		#endif
 
 		public static void Initialize()
 		{

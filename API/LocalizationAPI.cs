@@ -81,6 +81,10 @@ namespace MB.NarrativeSystem
 
             internal static void Prepare()
             {
+                if (Entries.Length == 0)
+                    throw new Exception($"No Narrative Localization Entries Set," +
+                        $" Please Set at Least Once in the Project Settings Window");
+
                 for (int i = 0; i < Entries.Length; i++)
                 {
                     var composition = IO.Load(Entries[i].Asset);
@@ -221,7 +225,7 @@ namespace MB.NarrativeSystem
                     if (TryGetValue(key, out var value) == false)
                     {
                         Debug.LogWarning($"No Localization Text Found for '{key}'");
-                        return key;
+                        return $"${key}$";
                     }
 
                     return value;

@@ -26,6 +26,8 @@ namespace MB.NarrativeSystem
     [Serializable]
     public abstract partial class Script
     {
+        public const string SuffixPath = nameof(Script) + "/";
+
         public string Name { get; protected set; }
 
         public Composer.Data Composition { get; protected set; }
@@ -46,7 +48,7 @@ namespace MB.NarrativeSystem
                 List = new Variable[Composition.Count];
 
                 for (int i = 0; i < Composition.Count; i++)
-                    List[i] = Variable.Assimilate(script, Composition[i].Info, script.Name);
+                    List[i] = Variable.Assimilate(script, Composition[i].Info, SuffixPath + script.Name);
             }
         }
 

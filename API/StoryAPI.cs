@@ -42,7 +42,7 @@ namespace MB.NarrativeSystem
 				{
 					var members = type.GetVariables(Flags);
 
-					var path = Script.Format.Name.Retrieve(type);
+					var path = Script.SuffixPath + Script.Format.Name.Retrieve(type);
 
 					for (int i = 0; i < members.Count; i++)
 					{

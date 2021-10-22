@@ -33,16 +33,26 @@ namespace MB.NarrativeSystem
             FightGuardian
         }
 
+        Variable<int> Index;
+
         [Branch]
         void Intro()
         {
-            Callback(() => Debug.Log($"Encounter Choice: {Encounter}"));
-
             SetFadeState(true);
             Delay(1);
             FadeOut();
 
+            SayHello();
+
             PlayAudio("SFX/Unsheath Sword").Continue();
+
+            SetVariable(Index, 2);
+        }
+
+        void SayHello()
+        {
+            Say("Hello There!");
+            Say("Hope you are Doing Well");
         }
 
         [Branch]

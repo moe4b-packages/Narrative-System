@@ -118,6 +118,10 @@ namespace MB.NarrativeSystem
                 return MUtility.PrettifyName(id);
             }
 
+            public static string FullName(Type script, MethodInfo branch)
+            {
+                return FullName(Script.Format.Name.Retrieve(script), ID(branch));
+            }
             public static string FullName(string script, string branch) => $"{script}->{branch}";
         }
     }
