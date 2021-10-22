@@ -40,15 +40,7 @@ namespace MB.NarrativeSystem
             Delay(1);
             FadeOut();
 
-            SayHelloTo("Moayad");
-
             PlayAudio("SFX/Unsheath Sword").Continue();
-        }
-
-        void SayHelloTo(string name)
-        {
-            Say($"Hello There {name}!");
-            Say("Hope you are Doing Well");
         }
 
         [Branch]
