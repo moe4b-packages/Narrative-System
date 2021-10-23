@@ -26,26 +26,22 @@ namespace MB.NarrativeSystem
 	partial class Narrative
 	{
 		[SerializeField]
-		ProgressProperty progress = new ProgressProperty();
+		Progress progress = new Progress();
 		[Serializable]
-		class ProgressProperty
+		public class Progress
 		{
+			static Progress Instance => Narrative.Instance.progress;
+
 			[SerializeField]
 			internal string fileName = "Narrative Progress";
+			public static string FileName => Instance.fileName;
 
 			[SerializeField]
 			[SerializedType.Selection(typeof(JsonConverter))]
 			internal SerializedType[] converters = new SerializedType[] { SerializedType.From<StringEnumConverter>() };
-		}
-		public static class Progress
-        {
-			static ProgressProperty Instance => Narrative.Instance.progress;
-
-			public static string FileName => Instance.fileName;
-
 			public static SerializedType[] Converters => Instance.converters;
 			static JsonConverter[] CreateConverters()
-            {
+			{
 				var array = new JsonConverter[Converters.Length];
 
 				for (int i = 0; i < array.Length; i++)
@@ -90,7 +86,7 @@ namespace MB.NarrativeSystem
 				}
 
 				static IO()
-                {
+				{
 					Directory = Application.isEditor ? Application.dataPath : Application.persistentDataPath;
 				}
 			}
@@ -194,8 +190,8 @@ namespace MB.NarrativeSystem
 			}
 
 			static Progress()
-            {
-				
+			{
+
 			}
 		}
 	}

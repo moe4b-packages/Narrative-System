@@ -22,42 +22,38 @@ namespace MB.NarrativeSystem
     partial class Narrative
     {
         [SerializeField]
-        CharactersProperty characters = new CharactersProperty();
+        Characters characters = new Characters();
         [Serializable]
-        class CharactersProperty
+        public class Characters
         {
+            static Characters Instance => Narrative.Instance.characters;
+
             [ReadOnly]
             [SerializeField]
             internal List<Character> collection = new List<Character>();
+            public static List<Character> Collection
+            {
+                get => Instance.collection;
+                set => Instance.collection = value;
+            }
 
-            internal Dictionary<string, Character> dictionary = new Dictionary<string, Character>();
+            public static Dictionary<string, Character> Dictionary { get; } = new Dictionary<string, Character>();
 
-            internal void Refresh()
+            internal static void Refresh()
             {
 #if UNITY_EDITOR
                 var targets = AssetCollection.Query<Character>();
 
-                if (MUtility.CheckElementsInclusion(collection, targets) == false)
+                if (MUtility.CheckElementsInclusion(Collection, targets) == false)
                 {
-                    collection = targets;
-                    ScriptableManagerRuntime.Save(Instance);
+                    Collection = targets;
+                    ScriptableManagerRuntime.Save(Narrative.Instance);
                 }
 #endif
 
-                dictionary.Clear();
-
-                for (int i = 0; i < collection.Count; i++)
-                    dictionary[collection[i].name] = collection[i];
+                Dictionary.Clear();
+                Dictionary.AddAll(Collection, x => x.name);
             }
-        }
-        public static class Characters
-        {
-            static CharactersProperty Instance => Narrative.Instance.characters;
-
-            public static List<Character> List => Instance.collection;
-            public static Dictionary<string, Character> Dictionary => Instance.dictionary;
-
-            internal static void Refresh() => Instance.Refresh();
 
             public static bool TryFind(string id, out Character asset) => Dictionary.TryGetValue(id, out asset);
         }
