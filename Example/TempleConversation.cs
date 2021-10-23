@@ -7,7 +7,6 @@ using static MB.RichTextMarker;
 #endregion
 
 using MB.NarrativeSystem;
-using System.Collections;
 
 namespace MB.NarrativeSystem
 {
