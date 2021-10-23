@@ -34,7 +34,7 @@ namespace MB.NarrativeSystem
         {
             yield return Narrative.Controls.Fader.Hide(duration: Duration);
 
-            Script.Continue();
+            Narrative.Player.Continue();
         }
 
         public FadeOutNode(float? duration)

@@ -47,12 +47,10 @@ namespace MB.NarrativeSystem
         {
             base.Invoke();
 
-            if (Next is ChoiceNode) AutoSubmit = true;
-
             Narrative.Controls.Say.Show(this, Submit);
         }
 
-        void Submit() => Script.Continue();
+        void Submit() => Narrative.Player.Continue();
 
         public SayNode(object[] targets, Character character)
         {

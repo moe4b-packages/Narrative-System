@@ -34,7 +34,7 @@ namespace MB.NarrativeSystem
         {
             yield return new WaitForSeconds(Duration);
 
-            Script.Continue();
+            Narrative.Player.Continue();
         }
 
         public DelayNode(float duration)

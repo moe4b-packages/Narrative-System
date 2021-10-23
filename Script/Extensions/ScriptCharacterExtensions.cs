@@ -21,7 +21,7 @@ namespace MB.NarrativeSystem
 {
 	partial class Script
     {
-        public Character Speaker { get; set; }
+        public static Character Speaker { get; set; }
 
         public static Character FindCharacter(string name) => Character.Find(name);
     }

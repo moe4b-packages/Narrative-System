@@ -19,7 +19,7 @@ using Random = UnityEngine.Random;
 
 namespace MB.NarrativeSystem
 {
-    public class PlayScriptNode : Node, INestedScriptTarget, IWaitNode<PlayScriptNode>
+    public class PlayScriptNode : Node, INestedScriptTarget
     {
         public Script Target { get; protected set; }
 
@@ -31,39 +31,12 @@ namespace MB.NarrativeSystem
             }
         }
 
-        #region Wait
-        public bool Wait { get; protected set; } = true;
-
-        public PlayScriptNode SetWait(bool value)
-        {
-            Wait = value;
-            return this;
-        }
-
-        public PlayScriptNode Await() => SetWait(true);
-        public PlayScriptNode Continue() => SetWait(false);
-        #endregion
-
         public override void Invoke()
         {
             base.Invoke();
 
-            if (Target == Script)
-                throw new Exception($"Cannot Play Script {Target} from Within the Script");
-
-            if (Wait)
-                Target.OnEnd += TargetEndCallback;
-
-            Narrative.Play(Target);
-
-            if (Wait == false)
-                Script.Continue();
-        }
-
-        void TargetEndCallback()
-        {
-            Target.OnEnd -= TargetEndCallback;
-            Script.Continue();
+            Narrative.Player.Stop();
+            Narrative.Player.Start(Target);
         }
 
         public PlayScriptNode(Script target)

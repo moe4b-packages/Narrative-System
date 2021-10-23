@@ -28,79 +28,21 @@ namespace MB.NarrativeSystem
         public int Index { get; protected set; }
 
         public Delegate Function { get; protected set; }
-        public delegate void Delegate();
+        public delegate IEnumerable Delegate();
 
         public string ID { get; protected set; }
         public string Name { get; protected set; }
-
-        public NodesProperty Nodes { get; protected set; }
-        public class NodesProperty
-        {
-            public Branch Branch { get; protected set; }
-
-            public List<Node> List { get; protected set; }
-
-            public Node First => List.FirstOrDefault();
-            public Node Last => List.LastOrDefault();
-
-            public Node this[int index] => List[index];
-            public int Count => List.Count;
-
-            internal void Register(Node node)
-            {
-                var index = List.Count;
-
-                List.Add(node);
-
-                node.Set(Branch, index);
-            }
-
-            public NodesProperty(Branch branch)
-            {
-                this.Branch = branch;
-
-                List = new List<Node>();
-
-                Node.OnCreate += Register;
-                Branch.Function.Invoke();
-                Node.OnCreate -= Register;
-            }
-        }
-
-        public Branch Previous
-        {
-            get
-            {
-                if (Script.Branches.List.TryGet(Index - 1, out var value) == false)
-                    return null;
-
-                return value;
-            }
-        }
-        public Branch Next
-        {
-            get
-            {
-                if (Script.Branches.List.TryGet(Index + 1, out var value) == false)
-                    return null;
-
-                return value;
-            }
-        }
 
         public override string ToString() => Format.FullName(Script.Name, Name);
 
         public Branch(Script script, int index, Delegate function)
         {
+            this.Script = script;
+            this.Index = index;
             this.Function = function;
 
             ID = Format.ID(function);
             Name = Format.Name(function);
-
-            this.Script = script;
-            this.Index = index;
-
-            Nodes = new NodesProperty(this);
         }
 
         //Static Utility

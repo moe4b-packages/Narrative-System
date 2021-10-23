@@ -27,7 +27,7 @@ namespace MB.NarrativeSystem
 		{
 			base.Invoke();
 
-			Script.Invoke(Function);
+			Narrative.Player.Invoke(Function);
 		}
 
 		public GoToBranchNode(Branch.Delegate function)

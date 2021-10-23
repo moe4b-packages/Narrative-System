@@ -24,35 +24,11 @@ namespace MB.NarrativeSystem
     public class Node
     {
         public Branch Branch { get; protected set; }
-        public int Index { get; protected set; }
-
-        internal void Set(Branch branch, int index)
-        {
-            this.Branch = branch;
-            this.Index = index;
-        }
-
         public Script Script => Branch.Script;
 
-        public Node Previous
+        internal void Set(Branch branch)
         {
-            get
-            {
-                if (Branch.Nodes.List.TryGet(Index - 1, out var value) == false)
-                    return null;
-
-                return value;
-            }
-        }
-        public Node Next
-        {
-            get
-            {
-                if (Branch.Nodes.List.TryGet(Index + 1, out var value) == false)
-                    return null;
-
-                return value;
-            }
+            this.Branch = branch;
         }
 
         public event Action OnInvoke;
@@ -63,20 +39,7 @@ namespace MB.NarrativeSystem
 
         public Node()
         {
-            InvokeCreation(this);
-        }
 
-        public delegate void CreateDelegate(Node node);
-        public static event CreateDelegate OnCreate;
-        static void InvokeCreation(Node node)
-        {
-            if(OnCreate == null)
-            {
-                Debug.LogWarning($"Node '{node}' Created Without Any Creation Hook");
-                return;
-            }
-
-            OnCreate.Invoke(node);
         }
     }
 

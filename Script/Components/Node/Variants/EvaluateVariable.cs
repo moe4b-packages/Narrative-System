@@ -54,7 +54,7 @@ namespace MB.NarrativeSystem
                 return;
             }
 
-            Script.Invoke(branch);
+            Narrative.Player.Invoke(branch);
         }
 
         public EvaluateVariable(Variable<T> variable)

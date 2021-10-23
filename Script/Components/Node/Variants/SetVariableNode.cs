@@ -31,7 +31,7 @@ namespace MB.NarrativeSystem
 
             Variable.Value = Value;
 
-            Script.Continue();
+            Narrative.Player.Continue();
         }
 
         public SetVariableNode(Variable<T> variable, T value)

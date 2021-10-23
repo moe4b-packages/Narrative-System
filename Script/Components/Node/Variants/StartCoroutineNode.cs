@@ -42,14 +42,14 @@ namespace MB.NarrativeSystem
 
             GlobalCoroutine.Start(Procedure);
 
-            if (Wait == false) Script.Continue();
+            if (Wait == false) Narrative.Player.Continue();
         }
 
         IEnumerator Procedure()
         {
             yield return Numerator;
 
-            if (Wait) Script.Continue();
+            if (Wait) Narrative.Player.Continue();
         }
 
         public StartCoroutineNode(IEnumerator numerator)

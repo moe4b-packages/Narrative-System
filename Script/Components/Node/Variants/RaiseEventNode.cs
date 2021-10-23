@@ -29,7 +29,7 @@ namespace MB.NarrativeSystem
 
             Narrative.Events.Raise(Key);
 
-            Script.Continue();
+            Narrative.Player.Continue();
         }
 
         public RaiseEventNode(string key)

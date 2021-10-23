@@ -87,94 +87,86 @@ namespace MB.NarrativeSystem
 			Story.Prepare();
 		}
 
-		#region Play
-		public static Script[] PlayAll(params Script.Asset[] assets)
-		{
-			var scripts = Array.ConvertAll(assets, x => x.CreateInstance());
-
-			PlayAll(scripts);
-
-			return scripts;
-		}
-		public static void PlayAll(params Script[] scripts)
-		{
-			Iterate(0);
-
-			void Iterate(int index)
-			{
-				if (scripts.ValidateCollectionBounds(index) == false) return;
-
-				scripts[index].OnEnd += Continue;
-				void Continue() => Iterate(index + 1);
-
-				Play(scripts[index]);
-			}
-		}
-
-		public static T Play<T>()
-			where T : Script, new()
-		{
-			var instance = new T();
-
-			Play(instance);
-
-			return instance;
-		}
-		public static Script Play(Script.Surrogate surrogate)
-		{
-			surrogate.Script.Play();
-
-			return surrogate.Script;
-		}
-		#endregion
-
+#if UNITY_EDITOR
 		public static class Composition
 		{
-			public static List<Node> GetNodes<T>()
-			{
-				var type = typeof(T);
-				return GetNodes(type);
-			}
-			public static List<Node> GetNodes(Type type)
-			{
-				var script = Activator.CreateInstance(type) as Script;
-				return GetNodes(script);
-			}
-			public static List<Node> GetNodes(Script script)
-			{
-				var list = new List<Node>();
+			public static List<Script> Scripts { get; }
+			public static List<Branch> Branches { get; }
+			public static List<Node> Nodes { get; }
 
-				var composition = Script.Composer.Retrieve(script);
-
-				foreach (var branch in composition.Branches.List)
+			public static IEnumerable<T> IterateNodes<T>()
+            {
+				foreach (var node in Nodes)
 				{
-					var function = branch.CreateFunction(script);
+					if (node is T target)
+						yield return target;
+				}
+			}
 
-					Node.OnCreate += Register;
+			static Composition()
+			{
+				//Scripts
+				{
+					Scripts = new List<Script>();
 
-					function.Invoke();
-					void Register(Node node) => list.Add(node);
+					foreach (var type in TypeCache.GetTypesDerivedFrom<Script>())
+					{
+						if (type.IsAbstract) continue;
 
-					Node.OnCreate -= Register;
+						var instance = Activator.CreateInstance(type) as Script;
+						Scripts.Add(instance);
+					}
 				}
 
-				return list;
-			}
+                //Branches
+                {
+					Branches = new List<Branch>();
 
-			public static IEnumerable<T> IterateAllNodes<T>()
-			{
-				foreach (var script in TypeQuery.FindAll<Script>())
+                    foreach (var script in Scripts)
+                    {
+						var composition = Script.Composition.Retrieve(script).Branches;
+
+						for (int i = 0; i < composition.Count; i++)
+						{
+							var function = composition[i].CreateFunction(script);
+							var instance = new Branch(script, i, function);
+							Branches.Add(instance);
+						}
+					}
+                }
+
+				//Nodes
 				{
-					if (script.IsAbstract) continue;
+					Nodes = new List<Node>();
 
-					foreach (var node in GetNodes(script))
+					foreach (var branch in Branches)
 					{
-						if (node is T target)
-							yield return target;
+						var range = Iterate(branch.Function());
+						Nodes.AddRange(range);
+					}
+
+					static IEnumerable<Node> Iterate(IEnumerable branch)
+					{
+						foreach (var item in branch)
+						{
+							if (item is Node node)
+							{
+								yield return node;
+							}
+							else if (item is IEnumerable collection)
+							{
+								foreach (var nest in Iterate(collection))
+								{
+									yield return nest;
+								}
+							}
+						}
 					}
 				}
 			}
+
 		}
+#endif
 	}
 
 	public interface ILocalizationTarget

@@ -34,7 +34,7 @@ namespace MB.NarrativeSystem
 
             //Scripts Nodes
             {
-                foreach (var node in Narrative.Composition.IterateAllNodes<ILocalizationTarget>())
+                foreach (var node in Narrative.Composition.IterateNodes<ILocalizationTarget>())
                 {
                     foreach (var entry in node.TextForLocalization)
                     {

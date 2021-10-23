@@ -25,7 +25,7 @@ namespace MB.NarrativeSystem
         {
             base.Invoke();
 
-            Script.Stop();
+            Narrative.Player.Stop();
         }
     }
 

@@ -80,7 +80,7 @@ namespace MB.NarrativeSystem
 
             OnSubmit?.Invoke(data);
 
-            Script.Invoke(branch);
+            Narrative.Player.Invoke(branch);
         }
 
         public ChoiceNode()

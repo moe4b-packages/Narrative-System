@@ -27,7 +27,7 @@ namespace MB.NarrativeSystem
 
             Narrative.Controls.Say.Clear();
 
-            Script.Continue();
+            Narrative.Player.Continue();
         }
     }
 
@@ -39,7 +39,7 @@ namespace MB.NarrativeSystem
 
             Narrative.Controls.Say.Show();
 
-            Script.Continue();
+            Narrative.Player.Continue();
         }
     }
 
@@ -51,7 +51,7 @@ namespace MB.NarrativeSystem
 
             Narrative.Controls.Say.Hide();
 
-            Script.Continue();
+            Narrative.Player.Continue();
         }
     }
 

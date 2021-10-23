@@ -30,196 +30,8 @@ namespace MB.NarrativeSystem
 
         public string Name { get; protected set; }
 
-        public Composer.Data Composition { get; protected set; }
-
-        public VariablesProeprty Variables { get; protected set; }
-        [Serializable]
-        public class VariablesProeprty
-        {
-            public Script Script { get; protected set; }
-            public Composer.Data.VariablesData Composition => Script.Composition.Variables;
-
-            public Variable[] List { get; protected set; }
-
-            public VariablesProeprty(Script script)
-            {
-                this.Script = script;
-
-                List = new Variable[Composition.Count];
-
-                for (int i = 0; i < Composition.Count; i++)
-                    List[i] = Variable.Assimilate(script, Composition[i].Info, SuffixPath + script.Name);
-            }
-        }
-
-        public BranchesProperty Branches { get; protected set; }
-        [Serializable]
-        public class BranchesProperty
-        {
-            public Script Script { get; protected set; }
-            public Composer.Data.BranchesData Composition => Script.Composition.Branches;
-
-            public Branch[] List { get; protected set; }
-
-            public Dictionary<string, Branch> Dictionary { get; protected set; }
-
-            public bool TryGet(string id, out Branch branch) => Dictionary.TryGetValue(id, out branch);
-            public Branch this[string id] => Dictionary[id];
-
-            public Branch this[int index] => List[index];
-            public int Count => List.Length;
-
-            public Branch First => List.First();
-            public Branch Last => List.Last();
-
-            public BranchesProperty(Script script)
-            {
-                this.Script = script;
-
-                var functions = Composition.RetrieveFunctions(script);
-
-                List = new Branch[functions.Length];
-
-                for (int i = 0; i < functions.Length; i++)
-                    List[i] = new Branch(script, i, functions[i]);
-
-                Dictionary = List.ToDictionary(x => x.ID);
-            }
-        }
-
-        public NodesProperty Nodes { get; protected set; }
-        [Serializable]
-        public class NodesProperty
-        {
-            public Script Script { get; protected set; }
-
-            public List<Node> List { get; protected set; }
-
-            public Node this[int index] => List[index];
-            public int Count => List.Count;
-
-            public Node First => List.First();
-            public Node Last => List.Last();
-
-            public Node Selection { get; protected set; }
-            public void Set(Node target)
-            {
-                Selection = target;
-            }
-
-            public NodesProperty(Script script)
-            {
-                this.Script = script;
-
-                List = new List<Node>();
-
-                for (int x = 0; x < Script.Branches.Count; x++)
-                {
-                    List.Capacity += Script.Branches[x].Nodes.Count;
-
-                    for (int y = 0; y < Script.Branches[x].Nodes.Count; y++)
-                        List.Add(Script.Branches[x].Nodes[y]);
-                }
-            }
-        }
-
-        Node Selection
-        {
-            get => Nodes.Selection;
-            set => Nodes.Set(value);
-        }
-
-        public bool Ready { get; protected set; }
-
         protected bool IsPlaying => Application.isPlaying;
         protected bool IsComposing => !IsPlaying;
-
-        public virtual void Prepare()
-        {
-            if (Ready)
-            {
-                Debug.LogWarning("Script already Ready");
-                return;
-            }
-
-            Composition = Composer.Retrieve(this);
-
-            Variables = new VariablesProeprty(this);
-            Branches = new BranchesProperty(this);
-            Nodes = new NodesProperty(this);
-
-            Ready = true;
-        }
-
-        #region Flow Logic
-        protected internal virtual void Play()
-        {
-            if (Ready == false) Prepare();
-
-            Reset();
-
-            if (Branches.Count == 0)
-            {
-                Debug.LogWarning($"{this} Has No Branches Defined");
-                return;
-            }
-
-            Invoke(Branches.First);
-        }
-
-        protected virtual void Reset()
-        {
-            
-        }
-
-        public void Invoke(Branch.Delegate branch)
-        {
-            var id = Branch.Format.ID(branch);
-
-            if (Branches.TryGet(id, out var instance) == false)
-                throw new Exception($"Couldn't Find Branch with ID {id} On {this}");
-
-            Invoke(instance);
-        }
-        internal void Invoke(Branch branch)
-        {
-            Invoke(branch.Nodes.First);
-        }
-
-        void Invoke(Node selection)
-        {
-            Nodes.Set(selection);
-            selection.Invoke();
-        }
-
-        public void Continue()
-        {
-            if(Selection.Next == null)
-            {
-                if (Selection.Branch.Next == null)
-                    End();
-                else
-                    Invoke(Selection.Branch.Next);
-            }
-            else
-            {
-                Invoke(Selection.Next);
-            }
-        }
-
-        public virtual void Stop()
-        {
-            End();
-        }
-
-        public event Action OnEnd;
-        protected virtual void End()
-        {
-            Selection = null;
-
-            OnEnd?.Invoke();
-        }
-        #endregion
 
         public override string ToString() => Name;
 
@@ -231,155 +43,154 @@ namespace MB.NarrativeSystem
         #region Static Utility
         protected static T[] Arrange<T>(params T[] array) => array;
 
-        public static class Composer
+        public class Composition
         {
-            public static Dictionary<Type, Data> Dictionary { get; private set; }
-
-            public class Data
+            public VariablesData Variables { get; protected set; }
+            public class VariablesData
             {
-                public VariablesData Variables { get; protected set; }
-                public class VariablesData
+                public const BindingFlags Flags = BindingFlags.FlattenHierarchy | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+
+                public List<Data> List { get; protected set; }
+                public class Data
                 {
-                    public const BindingFlags Flags = BindingFlags.FlattenHierarchy | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+                    public VariableInfo Info { get; protected set; }
 
-                    public List<Data> List { get; protected set; }
-                    public class Data
+                    public Data(VariableInfo variable)
                     {
-                        public VariableInfo Info { get; protected set; }
-
-                        public Data(VariableInfo variable)
-                        {
-                            this.Info = variable;
-                        }
-                    }
-
-                    public int Count => List.Count;
-                    public Data this[int index] => List[index];
-
-                    public VariablesData(Type type)
-                    {
-                        List = ParseAll(type);
-                    }
-
-                    public static List<Data> ParseAll(Type type)
-                    {
-                        var list = new List<Data>();
-
-                        var variables = type.GetVariables(Flags);
-
-                        for (int i = 0; i < variables.Count; i++)
-                        {
-                            if (typeof(Variable).IsAssignableFrom(variables[i].ValueType) == false) continue;
-
-                            var data = new Data(variables[i]);
-
-                            list.Add(data);
-                        }
-
-                        return list;
+                        this.Info = variable;
                     }
                 }
 
-                public BranchesData Branches { get; protected set; }
-                public class BranchesData
+                public int Count => List.Count;
+                public Data this[int index] => List[index];
+
+                public VariablesData(Type type)
                 {
-                    public const BindingFlags Flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
-
-                    public List<Data> List { get; protected set; }
-                    public class Data
-                    {
-                        public BranchAttribute Attribute { get; protected set; }
-
-                        public MethodInfo Method { get; protected set; }
-
-                        public Branch.Delegate CreateFunction(Script target) => Method.CreateDelegate<Branch.Delegate>(target);
-
-                        public Data(BranchAttribute attribute, MethodInfo method)
-                        {
-                            this.Attribute = attribute;
-                            this.Method = method;
-                        }
-                    }
-
-                    public int Count => List.Count;
-                    public Data this[int index] => List[index];
-
-                    public Branch.Delegate[] RetrieveFunctions(Script target)
-                    {
-                        var functions = new Branch.Delegate[List.Count];
-
-                        for (int i = 0; i < List.Count; i++)
-                            functions[i] = List[i].CreateFunction(target);
-
-                        return functions;
-                    }
-
-                    public BranchesData(Type type)
-                    {
-                        List = ParseAll(type);
-                    }
-
-                    public static List<Data> ParseAll(Type type)
-                    {
-                        var tree = ReadInheritanceTree(type);
-
-                        var list = new List<Data>();
-
-                        foreach (var item in tree)
-                        {
-                            var range = ParseSelf(item);
-                            list.AddRange(range);
-                        }
-
-                        return list;
-                    }
-
-                    public static List<Data> ParseSelf(Type type)
-                    {
-                        var methods = type.GetMethods(Flags);
-
-                        var list = new List<Data>();
-
-                        for (int i = 0; i < methods.Length; i++)
-                        {
-                            if (BranchAttribute.TryGet(methods[i], out var attribute) == false)
-                            {
-                                if(methods[i].ReturnType == typeof(IEnumerator<Node>))
-                                    Debug.LogWarning($"Method '{Format.Name.Retrieve(type)}->{methods[i].Name}' Has Return Type of an IEnumerator<Node> but isn't Marked as a Branch");
-
-                                continue;
-                            }
-
-                            var data = new Data(attribute, methods[i]);
-
-                            list.Add(data);
-                        }
-
-                        list.Sort((right, left) => right.Attribute.Line - left.Attribute.Line);
-
-                        return list;
-                    }
+                    List = ParseAll(type);
                 }
 
-                public Data(Type type)
+                public static List<Data> ParseAll(Type type)
                 {
-                    Variables = new VariablesData(type);
-                    Branches = new BranchesData(type);
+                    var list = new List<Data>();
+
+                    var variables = type.GetVariables(Flags);
+
+                    for (int i = 0; i < variables.Count; i++)
+                    {
+                        if (typeof(Variable).IsAssignableFrom(variables[i].ValueType) == false) continue;
+
+                        var data = new Data(variables[i]);
+
+                        list.Add(data);
+                    }
+
+                    return list;
                 }
             }
 
-            public static Data Retrieve(Script script)
+            public BranchesData Branches { get; protected set; }
+            public class BranchesData
+            {
+                public const BindingFlags Flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+
+                public List<Data> List { get; protected set; }
+                public class Data
+                {
+                    public BranchAttribute Attribute { get; protected set; }
+
+                    public MethodInfo Method { get; protected set; }
+
+                    public Branch.Delegate CreateFunction(Script target) => Method.CreateDelegate<Branch.Delegate>(target);
+
+                    public Data(BranchAttribute attribute, MethodInfo method)
+                    {
+                        this.Attribute = attribute;
+                        this.Method = method;
+                    }
+                }
+
+                public int Count => List.Count;
+                public Data this[int index] => List[index];
+
+                public Branch.Delegate[] RetrieveFunctions(Script target)
+                {
+                    var functions = new Branch.Delegate[List.Count];
+
+                    for (int i = 0; i < List.Count; i++)
+                        functions[i] = List[i].CreateFunction(target);
+
+                    return functions;
+                }
+
+                public BranchesData(Type type)
+                {
+                    List = ParseAll(type);
+                }
+
+                public static List<Data> ParseAll(Type type)
+                {
+                    var tree = ReadInheritanceTree(type);
+
+                    var list = new List<Data>();
+
+                    foreach (var item in tree)
+                    {
+                        var range = ParseSelf(item);
+                        list.AddRange(range);
+                    }
+
+                    return list;
+                }
+
+                public static List<Data> ParseSelf(Type type)
+                {
+                    var methods = type.GetMethods(Flags);
+
+                    var list = new List<Data>();
+
+                    for (int i = 0; i < methods.Length; i++)
+                    {
+                        if (BranchAttribute.TryGet(methods[i], out var attribute) == false)
+                        {
+                            if (methods[i].ReturnType == typeof(IEnumerator<Node>))
+                                Debug.LogWarning($"Method '{Format.Name.Retrieve(type)}->{methods[i].Name}' Has Return Type of an IEnumerator<Node> but isn't Marked as a Branch");
+
+                            continue;
+                        }
+
+                        var data = new Data(attribute, methods[i]);
+
+                        list.Add(data);
+                    }
+
+                    list.Sort((right, left) => right.Attribute.Line - left.Attribute.Line);
+
+                    return list;
+                }
+            }
+
+            public Composition(Type type)
+            {
+                Variables = new VariablesData(type);
+                Branches = new BranchesData(type);
+            }
+
+            //Static Utility
+
+            public static Dictionary<Type, Composition> Dictionary { get; private set; }
+
+            public static Composition Retrieve(Script script)
             {
                 var type = script.GetType();
 
                 return Retrieve(type);
             }
-            public static Data Retrieve(Type type)
+            public static Composition Retrieve(Type type)
             {
                 if (Dictionary.TryGetValue(type, out var composition))
                     return composition;
 
-                composition = new Data(type);
+                composition = new Composition(type);
                 Dictionary[type] = composition;
 
                 return composition;
@@ -403,9 +214,9 @@ namespace MB.NarrativeSystem
                 return stack;
             }
 
-            static Composer()
+            static Composition()
             {
-                Dictionary = new Dictionary<Type, Data>();
+                Dictionary = new Dictionary<Type, Composition>();
             }
         }
 
@@ -677,26 +488,6 @@ namespace MB.NarrativeSystem
                 }
             }
 #endif
-        }
-
-        public struct Surrogate
-        {
-            public Script Script { get; private set; }
-
-            public Surrogate(Script script)
-            {
-                this.Script = script;
-            }
-
-            public static implicit operator Script(Surrogate surrogate) => surrogate.Script;
-
-            public static implicit operator Surrogate(Script script) => new Surrogate(script);
-            public static implicit operator Surrogate(Asset script)
-            {
-                var instance = script.CreateInstance();
-
-                return new Surrogate(instance);
-            }
         }
         #endregion
     }

@@ -62,7 +62,7 @@ namespace MB.NarrativeSystem
             {
 				public static void Process(Type script)
 				{
-					var data = Script.Composer.Data.BranchesData.ParseSelf(script);
+					var data = Script.Composition.BranchesData.ParseSelf(script);
 
 					var pathes = data.Select(x => x.Attribute.Path).Distinct().Count();
 
@@ -73,12 +73,12 @@ namespace MB.NarrativeSystem
 						Process(script, data[i]);
 				}
 
-				public static void Process(Type script, Script.Composer.Data.BranchesData.Data data)
+				public static void Process(Type script, Script.Composition.BranchesData.Data data)
 				{
 					var method = data.Method;
 
-					if (method.ReturnType != typeof(void))
-						Throw("Invalid Return Type, Branches Must Return void", script, data.Method);
+					if (method.ReturnType != typeof(IEnumerable))
+						Throw("Invalid Return Type, Branches Must Return IEnumerable", script, data.Method);
 
 					if (method.GetParameters().Length > 0)
 						Throw("Invalid Parameters, Branches Must not take in any Parameters", script, data.Method);

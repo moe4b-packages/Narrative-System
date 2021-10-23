@@ -29,7 +29,7 @@ namespace MB.NarrativeSystem
 
             Narrative.Controls.Fader.SetState(IsOn);
 
-            Script.Continue();
+            Narrative.Player.Continue();
         }
 
         public SetFadeStateNode(bool isOn)

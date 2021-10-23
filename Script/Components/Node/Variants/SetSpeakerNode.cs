@@ -29,7 +29,7 @@ namespace MB.NarrativeSystem
 
             Script.Speaker = Character.Find(ID);
 
-            Script.Continue();
+            Narrative.Player.Continue();
         }
 
         public SetSpeakerNode(string ID)
