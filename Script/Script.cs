@@ -26,12 +26,7 @@ namespace MB.NarrativeSystem
     [Serializable]
     public abstract partial class Script
     {
-        public const string SuffixPath = nameof(Script) + "/";
-
         public string Name { get; protected set; }
-
-        protected bool IsPlaying => Application.isPlaying;
-        protected bool IsComposing => !IsPlaying;
 
         public override string ToString() => Name;
 

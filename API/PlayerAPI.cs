@@ -10,6 +10,8 @@ namespace MB.NarrativeSystem
 {
     partial class Narrative
     {
+		public const string ScriptSuffixPath = nameof(Script) + "/";
+
 		public static T Play<T>()
 			where T : Script, new()
 		{
@@ -55,7 +57,7 @@ namespace MB.NarrativeSystem
 
 					for (int i = 0; i < Composition.Variables.Count; i++)
 					{
-						var variable = Variable.Assimilate(Script, Composition.Variables[i].Info, Script.SuffixPath + Script.Name);
+						var variable = Variable.Assimilate(Script, Composition.Variables[i].Info, ScriptSuffixPath + Script.Name);
 						List.Add(variable);
 					}
 				}
