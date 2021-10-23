@@ -7,6 +7,7 @@ using static MB.RichTextMarker;
 #endregion
 
 using MB.NarrativeSystem;
+using System.Collections;
 
 namespace MB.NarrativeSystem
 {
@@ -31,16 +32,7 @@ namespace MB.NarrativeSystem
             yield return Delay(1);
             yield return FadeOut();
 
-            yield return Insert(Greeter("Moayad"));
-
             yield return PlayAudio("SFX/Unsheath Sword").Continue();
-        }
-
-        Body Greeter(string name)
-        {
-            yield return Say($"Hello {name}");
-            yield return Say($"How are you doing?");
-            yield return Say("Hope you are doing well");
         }
 
         [Branch]

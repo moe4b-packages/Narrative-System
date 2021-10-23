@@ -145,17 +145,17 @@ namespace MB.NarrativeSystem
 						Nodes.AddRange(range);
 					}
 
-					static IEnumerable<Node> Iterate(IEnumerable branch)
+					static IEnumerable<Node> Iterate(IEnumerable<Script.Block> branch)
 					{
-						foreach (var item in branch)
+						foreach (var Block in branch)
 						{
-							if (item is Node node)
+							if (Block.HasNode)
 							{
-								yield return node;
+								yield return Block.Node;
 							}
-							else if (item is IEnumerable collection)
+							else if (Block.HasBody)
 							{
-								foreach (var nest in Iterate(collection))
+								foreach (var nest in Iterate(Block.Body))
 								{
 									yield return nest;
 								}
