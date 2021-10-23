@@ -77,8 +77,8 @@ namespace MB.NarrativeSystem
 				{
 					var method = data.Method;
 
-					if (method.ReturnType != typeof(IEnumerable))
-						Throw("Invalid Return Type, Branches Must Return IEnumerable", script, data.Method);
+					if (method.ReturnType != typeof(IEnumerable<Script.Block>))
+						Throw("Invalid Return Type, Branches Must Have a Return Type of Block", script, data.Method);
 
 					if (method.GetParameters().Length > 0)
 						Throw("Invalid Parameters, Branches Must not take in any Parameters", script, data.Method);

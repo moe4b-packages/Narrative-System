@@ -91,8 +91,8 @@ namespace MB.NarrativeSystem
 
 				public static class Nodes
                 {
-					static Stack<IEnumerator> Stack { get; } = new Stack<IEnumerator>();
-					static IEnumerator Top => Stack.Peek();
+					static Stack<IEnumerator<Script.Block>> Stack { get; } = new Stack<IEnumerator<Script.Block>>();
+					static IEnumerator<Script.Block> Top => Stack.Peek();
 
 					internal static void Load(Branch branch)
 					{
@@ -108,15 +108,15 @@ namespace MB.NarrativeSystem
 
 						if (Top.MoveNext())
 						{
-							if (Top.Current is Node target)
+							if (Top.Current.HasNode)
 							{
-								node = target;
+								node = Top.Current.Node;
 								node.Set(Selection.Value);
 								return true;
 							}
-							else if (Top.Current is IEnumerable collection)
+							else if (Top.Current.HasBody)
 							{
-								var numerator = collection.GetEnumerator();
+								var numerator = Top.Current.Body.GetEnumerator();
 								Stack.Push(numerator);
 								goto Start;
 							}

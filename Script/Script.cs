@@ -21,6 +21,8 @@ using System.Reflection;
 using UnityEngine.UIElements;
 using System.Text;
 
+using Body = System.Collections.Generic.IEnumerable<MB.NarrativeSystem.Script.Block>;
+
 namespace MB.NarrativeSystem
 {
     [Serializable]
@@ -323,6 +325,34 @@ namespace MB.NarrativeSystem
             }
         }
         #endregion
+
+        public readonly struct Block
+        {
+            public readonly Body Body { get; }
+            public readonly bool HasBody => Body != null;
+
+            public readonly Node Node { get; }
+            public readonly bool HasNode => Node != null;
+
+            public static implicit operator Block(Node node) => new Block(node);
+
+            public Block(Body collection)
+            {
+                this.Node = null;
+                this.Body = collection;
+            }
+            public Block(Node node)
+            {
+                this.Node = node;
+                this.Body = default;
+            }
+        }
+
+        public static Block Insert(Func<Body> function) => Insert(function());
+        public static Block Insert(Body numerator)
+        {
+            return new Block(numerator);
+        }
 
         #region Utility Types
         /// <summary>

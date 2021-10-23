@@ -28,7 +28,7 @@ namespace MB.NarrativeSystem
         public int Index { get; protected set; }
 
         public Delegate Function { get; protected set; }
-        public delegate IEnumerable Delegate();
+        public delegate IEnumerable<Script.Block> Delegate();
 
         public string ID { get; protected set; }
         public string Name { get; protected set; }

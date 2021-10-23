@@ -1,6 +1,11 @@
 using UnityEngine;
-using MB.NarrativeSystem;
+
+#region Aliases
+using Body = System.Collections.Generic.IEnumerable<MB.NarrativeSystem.Script.Block>;
 using static MB.RichTextMarker;
+#endregion
+
+using MB.NarrativeSystem;
 
 namespace #NAMESPACE#
 {
@@ -8,9 +13,9 @@ namespace #NAMESPACE#
 	public class #SCRIPTNAME# : Script
 	{
 		[Branch]
-		void Branch()
+		Body Branch()
 		{
-			Say("Hello World");
+			yield return Say("Hello World");
 		}
 	}
 }

@@ -1,29 +1,19 @@
-using System;
-using System.IO;
-using System.Linq;
-using System.Collections;
-using System.Collections.Generic;
-
 using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.SceneManagement;
-using UnityEngine.AI;
 
-#if UNITY_EDITOR
-using UnityEditor;
-using UnityEditorInternal;
-#endif
+#region Aliases
+using Body = System.Collections.Generic.IEnumerable<MB.NarrativeSystem.Script.Block>;
+using static MB.RichTextMarker;
+#endregion
 
-using Object = UnityEngine.Object;
-using Random = UnityEngine.Random;
+using MB.NarrativeSystem;
 
 namespace MB.NarrativeSystem
 {
-    [Serializable]
+    [System.Serializable]
     public class Script1 : Script
     {
         [Branch]
-        IEnumerable Introduction()
+        Body Introduction()
         {
             yield return SetFadeState(true);
             yield return Delay(1);
@@ -37,7 +27,7 @@ namespace MB.NarrativeSystem
         }
 
         [Branch]
-        IEnumerable KnowAboutFeatures()
+        Body KnowAboutFeatures()
         {
             yield return Say("Which feature would you like to know about?");
 
@@ -45,21 +35,21 @@ namespace MB.NarrativeSystem
         }
 
         [Branch]
-        IEnumerable Option1()
+        Body Option1()
         {
             yield return Say("You chose option 1");
 
             yield return GoTo(ContinueStory);
         }
         [Branch]
-        IEnumerable Option2()
+        Body Option2()
         {
             yield return Say("You chose option 2");
 
             yield return GoTo(ContinueStory);
         }
         [Branch]
-        IEnumerable Option3()
+        Body Option3()
         {
             yield return Say("You chose option 3");
 
@@ -67,7 +57,7 @@ namespace MB.NarrativeSystem
         }
 
         [Branch]
-        IEnumerable ContinueStory()
+        Body ContinueStory()
         {
             yield return FadeIn();
             yield return ClearDialog();

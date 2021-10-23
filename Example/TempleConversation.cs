@@ -1,27 +1,16 @@
 using System;
-using System.IO;
-using System.Linq;
-using System.Collections;
-using System.Collections.Generic;
-
 using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.SceneManagement;
-using UnityEngine.AI;
 
-#if UNITY_EDITOR
-using UnityEditor;
-using UnityEditorInternal;
-#endif
-
-using Object = UnityEngine.Object;
-using Random = UnityEngine.Random;
-
+#region Aliases
+using Body = System.Collections.Generic.IEnumerable<MB.NarrativeSystem.Script.Block>;
 using static MB.RichTextMarker;
+#endregion
+
+using MB.NarrativeSystem;
 
 namespace MB.NarrativeSystem
 {
-    [Serializable]
+    [System.Serializable]
     public class TempleConversation : Script
     {
         public static Variable<EncounterChoice> Encounter { get; set; }
@@ -34,7 +23,7 @@ namespace MB.NarrativeSystem
         }
 
         [Branch]
-        IEnumerable Intro()
+        Body Intro()
         {
             yield return Action(() => Debug.Log("Hello World"));
 
@@ -42,11 +31,20 @@ namespace MB.NarrativeSystem
             yield return Delay(1);
             yield return FadeOut();
 
+            yield return Insert(Greeter("Moayad"));
+
             yield return PlayAudio("SFX/Unsheath Sword").Continue();
         }
 
+        Body Greeter(string name)
+        {
+            yield return Say($"Hello {name}");
+            yield return Say($"How are you doing?");
+            yield return Say("Hope you are doing well");
+        }
+
         [Branch]
-        IEnumerable TalkAboutCrystal()
+        Body TalkAboutCrystal()
         {
             yield return SetSpeaker("Character 1");
 
@@ -63,7 +61,7 @@ namespace MB.NarrativeSystem
         }
 
         [Branch]
-        IEnumerable ReturnTheCrystal()
+        Body ReturnTheCrystal()
         {
             yield return SetVariable(Encounter, EncounterChoice.ReturnCrystal);
 
@@ -81,7 +79,7 @@ namespace MB.NarrativeSystem
         }
 
         [Branch]
-        IEnumerable KeepTheCrystal()
+        Body KeepTheCrystal()
         {
             yield return Say("<b>The crystal</b> must've corrupted you");
             yield return Say("As it has corrupted the lives of men many ages before");
@@ -94,7 +92,7 @@ namespace MB.NarrativeSystem
         }
 
         [Branch]
-        IEnumerable FightTheGuardian()
+        Body FightTheGuardian()
         {
             yield return SetVariable(Encounter, EncounterChoice.FightGuardian);
 
@@ -108,7 +106,7 @@ namespace MB.NarrativeSystem
         }
 
         [Branch]
-        IEnumerable ContinueStory()
+        Body ContinueStory()
         {
             yield return RaiseEvent("Exit Temple");
 
