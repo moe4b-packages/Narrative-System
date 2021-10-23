@@ -38,6 +38,6 @@ namespace MB.NarrativeSystem
 
 	partial class Script
 	{
-		protected GoToBranchNode GoTo(Branch.Delegate function) => new GoToBranchNode(function);
+		public static GoToBranchNode GoTo(Branch.Delegate function) => new GoToBranchNode(function);
 	}
 }

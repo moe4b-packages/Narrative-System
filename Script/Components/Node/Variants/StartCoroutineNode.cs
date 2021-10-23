@@ -60,13 +60,13 @@ namespace MB.NarrativeSystem
 
     partial class Script
     {
-        protected StartCoroutineNode StartCoroutine(Func<IEnumerator> function)
+        public static StartCoroutineNode StartCoroutine(Func<IEnumerator> function)
         {
             var numerator = function();
 
             return StartCoroutine(numerator);
         }
-        protected StartCoroutineNode StartCoroutine(IEnumerator numerator)
+        public static StartCoroutineNode StartCoroutine(IEnumerator numerator)
         {
             return new StartCoroutineNode(numerator);
         }

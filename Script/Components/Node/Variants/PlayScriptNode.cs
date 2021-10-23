@@ -47,8 +47,8 @@ namespace MB.NarrativeSystem
 
     partial class Script
     {
-        protected PlayScriptNode PlayScript(Script target) => new PlayScriptNode(target);
-        protected PlayScriptNode PlayScript<T>() where T : Script, new()
+        public static  PlayScriptNode PlayScript(Script target) => new PlayScriptNode(target);
+        public static PlayScriptNode PlayScript<T>() where T : Script, new()
         {
             var script = new T();
             return PlayScript(script);

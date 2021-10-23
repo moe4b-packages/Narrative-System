@@ -63,7 +63,7 @@ namespace MB.NarrativeSystem
 
     partial class Script
     {
-        protected SayNode Say(params object[] lines) => Say(Speaker, lines);
-        protected SayNode Say(Character character, params object[] lines) => new SayNode(lines, character);
+        public static  SayNode Say(params object[] lines) => Say(Speaker, lines);
+        public static SayNode Say(Character character, params object[] lines) => new SayNode(lines, character);
     }
 }

@@ -40,6 +40,6 @@ namespace MB.NarrativeSystem
 
 	partial class Script
     {
-		public RaiseEventNode RaiseEvent(string key) => new RaiseEventNode(key);
+		public static RaiseEventNode RaiseEvent(string key) => new RaiseEventNode(key);
     }
 }

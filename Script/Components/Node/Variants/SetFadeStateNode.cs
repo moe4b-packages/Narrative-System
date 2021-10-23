@@ -40,6 +40,6 @@ namespace MB.NarrativeSystem
 
     partial class Script
     {
-        protected SetFadeStateNode SetFadeState(bool isOn) => new SetFadeStateNode(isOn);
+        public static SetFadeStateNode SetFadeState(bool isOn) => new SetFadeStateNode(isOn);
     }
 }

@@ -91,8 +91,8 @@ namespace MB.NarrativeSystem
 
     partial class Script
     {
-        protected ChoiceNode Choice() => new ChoiceNode();
-        protected ChoiceNode Choice(params Branch.Delegate[] branches)
+        public static ChoiceNode Choice() => new ChoiceNode();
+        public static ChoiceNode Choice(params Branch.Delegate[] branches)
         {
             var node = Choice();
 

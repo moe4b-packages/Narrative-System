@@ -45,6 +45,6 @@ namespace MB.NarrativeSystem
 
     partial class Script
     {
-        protected FadeOutNode FadeOut(float? duration = null) => new FadeOutNode(duration);
+        public static FadeOutNode FadeOut(float? duration = null) => new FadeOutNode(duration);
     }
 }

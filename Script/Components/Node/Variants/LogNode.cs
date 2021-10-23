@@ -23,6 +23,15 @@ namespace MB.NarrativeSystem
 	{
         public string Text { get; protected set; }
 
+        public override void Invoke()
+        {
+            base.Invoke();
+
+            Debug.Log(Text);
+
+            Narrative.Player.Continue();
+        }
+
         public LogNode(string text)
         {
             this.Text = text;
@@ -31,6 +40,6 @@ namespace MB.NarrativeSystem
 
 	partial class Script
     {
-        public LogNode Log(string text) => new LogNode(text);
+        public static LogNode Log(string text) => new LogNode(text);
     }
 }

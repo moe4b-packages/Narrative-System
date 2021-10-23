@@ -86,6 +86,6 @@ namespace MB.NarrativeSystem
 
     partial class Script
     {
-        protected PlayAudioNode PlayAudio(string address) => new PlayAudioNode(address);
+        public static PlayAudioNode PlayAudio(string address) => new PlayAudioNode(address);
     }
 }

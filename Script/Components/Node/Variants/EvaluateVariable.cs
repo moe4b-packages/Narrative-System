@@ -67,6 +67,6 @@ namespace MB.NarrativeSystem
 
 	partial class Script
     {
-		protected EvaluateVariable<T> EvaluateVariable<T>(Variable<T> variable) => new EvaluateVariable<T>(variable);
+		public static EvaluateVariable<T> EvaluateVariable<T>(Variable<T> variable) => new EvaluateVariable<T>(variable);
     }
 }

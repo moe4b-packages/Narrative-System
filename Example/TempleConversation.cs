@@ -36,7 +36,6 @@ namespace MB.NarrativeSystem
         [Branch]
         IEnumerable Intro()
         {
-            yield return Action(Debug.Log, "Hello World");
             yield return Action(() => Debug.Log("Hello World"));
 
             yield return SetFadeState(true);
@@ -44,13 +43,6 @@ namespace MB.NarrativeSystem
             yield return FadeOut();
 
             yield return PlayAudio("SFX/Unsheath Sword").Continue();
-        }
-
-        IEnumerable Welcome(string name)
-        {
-            yield return Say($"Hello {name}!");
-            yield return Say("How are you doing on this fine Day?");
-            yield return Say("Hope you are doing well");
         }
 
         [Branch]

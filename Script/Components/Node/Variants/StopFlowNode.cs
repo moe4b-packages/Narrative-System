@@ -31,6 +31,6 @@ namespace MB.NarrativeSystem
 
     partial class Script
     {
-        protected StopFlowNode StopFlow() => new StopFlowNode();
+        public static StopFlowNode StopFlow() => new StopFlowNode();
     }
 }

@@ -40,6 +40,6 @@ namespace MB.NarrativeSystem
 
 	partial class Script
     {
-        public SetSpeakerNode SetSpeaker(string ID) => new SetSpeakerNode(ID);
+        public static SetSpeakerNode SetSpeaker(string ID) => new SetSpeakerNode(ID);
     }
 }

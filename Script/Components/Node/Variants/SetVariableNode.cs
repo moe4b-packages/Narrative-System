@@ -43,6 +43,6 @@ namespace MB.NarrativeSystem
 
 	partial class Script
     {
-		public SetVariableNode<T> SetVariable<T>(Variable<T> variable, T value) => new SetVariableNode<T>(variable, value);
+		public static SetVariableNode<T> SetVariable<T>(Variable<T> variable, T value) => new SetVariableNode<T>(variable, value);
     }
 }
