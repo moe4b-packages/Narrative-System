@@ -46,7 +46,7 @@ namespace MB.NarrativeSystem
             yield return Say("Perhaps there is more to you than meets the eye");
 
             yield return Say("Nevertheless, <b>the crystal</b> cannot be exploited by the means of humans");
-            yield return Say("I request that you return it to its righteous place, young hero");
+            yield return Say("I request that you return it to its righteous place, young hero").SetAutoSubmit();
 
             yield return Choice(ReturnTheCrystal, KeepTheCrystal);
         }
@@ -77,8 +77,7 @@ namespace MB.NarrativeSystem
 
             yield return Say("I cannot allow its power to be exploited by those weak of heart");
 
-            yield return Say("Are you ready to die for it?");
-
+            yield return Say("Are you ready to die for it?").SetAutoSubmit();
             yield return Choice(ReturnTheCrystal, FightTheGuardian);
         }
 
