@@ -21,16 +21,13 @@ namespace MB.NarrativeSystem
 {
     public class SayNode : Node, ISayData, ILocalizationTarget
     {
-        public string[] Lines { get; protected set; }
-
         public string Text { get; protected set; }
 
         public IEnumerable<string> TextForLocalization
         {
             get
             {
-                for (int i = 0; i < Lines.Length; i++)
-                    yield return Lines[i];
+                yield return Text;
             }
         }
 
@@ -52,18 +49,16 @@ namespace MB.NarrativeSystem
 
         void Submit() => Narrative.Player.Continue();
 
-        public SayNode(object[] targets, Character character)
+        public SayNode(Character character, string text)
         {
-            Lines = Array.ConvertAll(targets, x => x.ToString());
-            Text = string.Join("", targets);
-
             this.Character = character;
+            this.Text = text;
         }
     }
 
     partial class Script
     {
-        public static  SayNode Say(params object[] lines) => Say(Speaker, lines);
-        public static SayNode Say(Character character, params object[] lines) => new SayNode(lines, character);
+        public static SayNode Say(string text) => Say(Speaker, text);
+        public static SayNode Say(Character character, string text) => new SayNode(character, text);
     }
 }
