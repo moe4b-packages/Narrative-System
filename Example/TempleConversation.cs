@@ -31,6 +31,17 @@ namespace MB.NarrativeSystem
             yield return FadeOut();
 
             yield return PlayAudio("SFX/Unsheath Sword").Wait.Continue();
+
+            yield return Choice()
+                .Add(SendCompanionToShip, "Choice 1")
+                .Add(SendCompanionToShip, "Choice 2")
+                .Add(SendCompanionToShip, "Choice 3");
+        }
+
+        [Branch]
+        Body SendCompanionToShip()
+        {
+            yield return Say("Companion Returned to Ship");
         }
 
         [Branch]
