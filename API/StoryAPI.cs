@@ -88,14 +88,13 @@ namespace MB.NarrativeSystem
 
 				public static string RetrievePath(Type type)
 				{
-					var path = MUtility.IterateNest(type, Iterate)
+					var path = MUtility.IterateTypeNesting(type)
 							.Reverse()
 							.Select(Select)
 							.Join(JObjectComposer.Path.Seperator);
 
 					return path;
 
-					static Type Iterate(Type type) => type.DeclaringType;
 					static string Select(Type type) => type.Name;
 				}
 			}

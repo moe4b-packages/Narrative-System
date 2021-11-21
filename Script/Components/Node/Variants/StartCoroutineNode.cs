@@ -19,42 +19,33 @@ using Random = UnityEngine.Random;
 
 namespace MB.NarrativeSystem
 {
-    public class StartCoroutineNode : Node, IWaitNode<StartCoroutineNode>
+    public class StartCoroutineNode : Node
     {
         public IEnumerator Numerator { get; protected set; }
 
-        #region Wait
-        public bool Wait { get; protected set; } = true;
+        public NodeWaitProperty<StartCoroutineNode> Wait { get; private set; }
 
-        public StartCoroutineNode SetWait(bool value)
-        {
-            Wait = value;
-            return this;
-        }
-
-        public StartCoroutineNode Await() => SetWait(true);
-        public StartCoroutineNode Continue() => SetWait(false);
-        #endregion
-
-        public override void Invoke()
+        protected internal override void Invoke()
         {
             base.Invoke();
 
             GlobalCoroutine.Start(Procedure);
-
-            if (Wait == false) Narrative.Player.Continue();
         }
 
         IEnumerator Procedure()
         {
+            if (Wait.On == false) Playback.Next();
+
             yield return Numerator;
 
-            if (Wait) Narrative.Player.Continue();
+            if (Wait.On == true) Playback.Next();
         }
 
         public StartCoroutineNode(IEnumerator numerator)
         {
             this.Numerator = numerator;
+
+            this.Wait = new NodeWaitProperty<StartCoroutineNode>(this);
         }
     }
 

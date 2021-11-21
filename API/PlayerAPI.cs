@@ -77,8 +77,9 @@ namespace MB.NarrativeSystem
 
 				public static int Count => List.Count;
 
-				public static Dictionary<string, Branch> Dictionary { get; } = new Dictionary<string, Branch>();
+				public static DualDictionary<string, Branch.Delegate, Branch> Dictionary { get; } = new DualDictionary<string, Branch.Delegate, Branch>();
 				public static bool TryGet(string id, out Branch branch) => Dictionary.TryGetValue(id, out branch);
+				public static bool TryGet(Branch.Delegate id, out Branch branch) => Dictionary.TryGetValue(id, out branch);
 
 				public static class Selection
                 {
@@ -111,7 +112,6 @@ namespace MB.NarrativeSystem
 							if (Top.Current.HasNode)
 							{
 								node = Top.Current.Node;
-								node.Set(Selection.Value);
 								return true;
 							}
 							else if (Top.Current.HasBody)
@@ -160,10 +160,10 @@ namespace MB.NarrativeSystem
 					for (int i = 0; i < functions.Length; i++)
 					{
 						var branch = new Branch(Script, i, functions[i]);
-						List.Add(branch);
-					}
 
-					Dictionary.AddAll(List, x => x.ID);
+						List.Add(branch);
+						Dictionary.Add(branch.ID, branch.Function, branch);
+					}
 				}
 
 				internal static bool Iterate()
@@ -208,10 +208,11 @@ namespace MB.NarrativeSystem
 
 			public static void Invoke(Branch.Delegate branch)
 			{
-				var id = Branch.Format.ID(branch);
-
-				if (Branches.TryGet(id, out var instance) == false)
-					throw new Exception($"Couldn't Find Branch with ID {id} On {Script}");
+				if (Branches.TryGet(branch, out var instance) == false)
+                {
+					var id = Branch.Format.ID(branch);
+					throw new Exception($"Couldn't Find Branch Assigned for {Script}->{id}");
+				}
 
 				Invoke(instance);
 			}

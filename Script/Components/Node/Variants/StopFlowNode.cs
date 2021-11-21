@@ -21,11 +21,11 @@ namespace MB.NarrativeSystem
 {
     public class StopFlowNode : Node
     {
-        public override void Invoke()
+        protected internal override void Invoke()
         {
             base.Invoke();
 
-            Narrative.Player.Stop();
+            Playback.Stop();
         }
     }
 

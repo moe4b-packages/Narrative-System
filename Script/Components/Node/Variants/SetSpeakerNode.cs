@@ -23,13 +23,13 @@ namespace MB.NarrativeSystem
 	{
         public string ID { get; protected set; }
 
-        public override void Invoke()
+        protected internal override void Invoke()
         {
             base.Invoke();
 
             Script.Speaker = Character.Find(ID);
 
-            Narrative.Player.Continue();
+            Playback.Next();
         }
 
         public SetSpeakerNode(string ID)

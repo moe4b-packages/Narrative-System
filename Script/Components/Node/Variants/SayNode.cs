@@ -21,17 +21,16 @@ namespace MB.NarrativeSystem
 {
     public class SayNode : Node, ISayData, ILocalizationTarget
     {
+        public Character Character { get; protected set; }
         public string Text { get; protected set; }
 
-        public IEnumerable<string> TextForLocalization
+        IEnumerable<string> ILocalizationTarget.TextForLocalization
         {
             get
             {
                 yield return Text;
             }
         }
-
-        public Character Character { get; protected set; }
 
         public bool AutoSubmit { get; set; }
         public SayNode SetAutoSubmit(bool value = true)
@@ -40,14 +39,14 @@ namespace MB.NarrativeSystem
             return this;
         }
 
-        public override void Invoke()
+        protected internal override void Invoke()
         {
             base.Invoke();
 
             Narrative.Controls.Say.Show(this, Submit);
         }
 
-        void Submit() => Narrative.Player.Continue();
+        void Submit() => Playback.Next();
 
         public SayNode(Character character, string text)
         {

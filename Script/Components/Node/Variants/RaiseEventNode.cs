@@ -23,13 +23,13 @@ namespace MB.NarrativeSystem
 	{
         public string Key { get; protected set; }
 
-        public override void Invoke()
+        protected internal override void Invoke()
         {
             base.Invoke();
 
             Narrative.Events.Raise(Key);
 
-            Narrative.Player.Continue();
+            Playback.Next();
         }
 
         public RaiseEventNode(string key)

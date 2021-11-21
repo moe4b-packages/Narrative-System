@@ -23,11 +23,11 @@ namespace MB.NarrativeSystem
 	{
 		public Branch.Delegate Function { get; protected set; }
 
-		public override void Invoke()
+		protected internal override void Invoke()
 		{
 			base.Invoke();
 
-			Narrative.Player.Invoke(Function);
+			Playback.Goto(Function);
 		}
 
 		public GoToBranchNode(Branch.Delegate function)

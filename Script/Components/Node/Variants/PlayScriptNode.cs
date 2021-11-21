@@ -23,7 +23,7 @@ namespace MB.NarrativeSystem
     {
         public Script Target { get; protected set; }
 
-        public IEnumerable<Script> NestedScripts
+        IEnumerable<Script> INestedScriptTarget.NestedScripts
         {
             get
             {
@@ -31,12 +31,12 @@ namespace MB.NarrativeSystem
             }
         }
 
-        public override void Invoke()
+        protected internal override void Invoke()
         {
             base.Invoke();
 
-            Narrative.Player.Stop();
-            Narrative.Player.Start(Target);
+            Playback.Stop();
+            Playback.Start(Target);
         }
 
         public PlayScriptNode(Script target)
@@ -47,7 +47,7 @@ namespace MB.NarrativeSystem
 
     partial class Script
     {
-        public static  PlayScriptNode PlayScript(Script target) => new PlayScriptNode(target);
+        public static PlayScriptNode PlayScript(Script target) => new PlayScriptNode(target);
         public static PlayScriptNode PlayScript<T>() where T : Script, new()
         {
             var script = new T();

@@ -30,6 +30,9 @@ namespace MB.NarrativeSystem
     {
         public string Name { get; protected set; }
 
+        public static bool IsPlaying => Application.isPlaying;
+        public static bool IsComposing => IsPlaying == false;
+
         public override string ToString() => Name;
 
         public Script()

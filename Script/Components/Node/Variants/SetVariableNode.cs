@@ -25,13 +25,13 @@ namespace MB.NarrativeSystem
 
 		public T Value { get; protected set; }
 
-        public override void Invoke()
+        protected internal override void Invoke()
         {
             base.Invoke();
 
             Variable.Value = Value;
 
-            Narrative.Player.Continue();
+            Playback.Next();
         }
 
         public SetVariableNode(Variable<T> variable, T value)

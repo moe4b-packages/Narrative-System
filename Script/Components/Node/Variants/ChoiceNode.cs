@@ -23,7 +23,7 @@ namespace MB.NarrativeSystem
     {
         public Dictionary<IChoiceData, Branch.Delegate> Entries { get; protected set; }
 
-        public IEnumerable<string> TextForLocalization
+        IEnumerable<string> ILocalizationTarget.TextForLocalization
         {
             get
             {
@@ -35,52 +35,31 @@ namespace MB.NarrativeSystem
         public ChoiceNode Add(Branch.Delegate branch)
         {
             var text = Branch.Format.Name(branch);
-
             return Add(branch, text);
         }
         public ChoiceNode Add(Branch.Delegate branch, string text)
         {
             var entry = new DefaultChoiceData(text);
-
-            return Add(entry, branch);
+            return Add(branch, entry);
         }
-        public ChoiceNode Add(IChoiceData data, Branch.Delegate branch)
+        public ChoiceNode Add(Branch.Delegate branch, IChoiceData data)
         {
             Entries.Add(data, branch);
-
             return this;
         }
 
-        public override void Invoke()
+        protected internal override void Invoke()
         {
             base.Invoke();
 
             Narrative.Controls.Choice.Show(Entries.Keys, Submit);
         }
 
-        public ChoiceNode Callback(SubmitDelegate function)
-        {
-            OnSubmit += Surrogate;
-
-            void Surrogate(IChoiceData data)
-            {
-                OnSubmit -= Surrogate;
-
-                function(data);
-            }
-
-            return this;
-        }
-
-        public event SubmitDelegate OnSubmit;
-        public delegate void SubmitDelegate(IChoiceData data);
         public void Submit(int index, IChoiceData data)
         {
             var branch = Entries[data];
 
-            OnSubmit?.Invoke(data);
-
-            Narrative.Player.Invoke(branch);
+            Playback.Goto(branch);
         }
 
         public ChoiceNode()

@@ -41,18 +41,8 @@ namespace MB.NarrativeSystem
 
         public bool HasValue { get; protected set; }
 
-        public abstract object ManagedValue { get; set; }
-
         public abstract void Save();
         public abstract void Load();
-
-        public override string ToString()
-        {
-            if (HasValue == false)
-                return "NULL";
-
-            return ManagedValue.ToString();
-        }
 
         //Static Utility
 
@@ -91,22 +81,30 @@ namespace MB.NarrativeSystem
             }
         }
 
-        public override object ManagedValue
-        {
-            get => value;
-            set => Value = (T)value;
-        }
-
         public override void Save()
         {
             Narrative.Progress.Set(Path, Value);
         }
         public override void Load()
         {
-            if (Narrative.Progress.Contains(Path) == false) return;
+            if (Narrative.Progress.Contains(Path) == false)
+            {
+                HasValue = false;
+                value = default;
+            }
+            else
+            {
+                HasValue = true;
+                Value = Narrative.Progress.Read<T>(Path);
+            }
+        }
 
-            HasValue = true;
-            Value = Narrative.Progress.Read<T>(Path);
+        public override string ToString()
+        {
+            if (HasValue == false)
+                return "No Value";
+
+            return value.ToString();
         }
 
         public Variable() : this(default) { }

@@ -23,7 +23,7 @@ namespace MB.NarrativeSystem
     {
         public float Duration { get; protected set; }
 
-        public override void Invoke()
+        protected internal override void Invoke()
         {
             base.Invoke();
 
@@ -34,7 +34,7 @@ namespace MB.NarrativeSystem
         {
             yield return new WaitForSeconds(Duration);
 
-            Narrative.Player.Continue();
+            Playback.Next();
         }
 
         public DelayNode(float duration)

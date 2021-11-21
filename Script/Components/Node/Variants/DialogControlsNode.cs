@@ -21,37 +21,37 @@ namespace MB.NarrativeSystem
 {
     public class ClearDialogNode : Node
     {
-        public override void Invoke()
+        protected internal override void Invoke()
         {
             base.Invoke();
 
             Narrative.Controls.Say.Clear();
 
-            Narrative.Player.Continue();
+            Playback.Next();
         }
     }
 
     public class ShowDialogNode : Node
     {
-        public override void Invoke()
+        protected internal override void Invoke()
         {
             base.Invoke();
 
             Narrative.Controls.Say.Show();
 
-            Narrative.Player.Continue();
+            Playback.Next();
         }
     }
 
     public class HideDialogNode : Node
     {
-        public override void Invoke()
+        protected internal override void Invoke()
         {
             base.Invoke();
 
             Narrative.Controls.Say.Hide();
 
-            Narrative.Player.Continue();
+            Playback.Next();
         }
     }
 

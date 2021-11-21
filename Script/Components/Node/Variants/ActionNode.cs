@@ -23,13 +23,13 @@ namespace MB.NarrativeSystem
 	{
         public Action Method { get; protected set; }
 
-        public override void Invoke()
+        protected internal override void Invoke()
         {
             base.Invoke();
 
             Method.Invoke();
 
-            Narrative.Player.Continue();
+            Playback.Next();
         }
 
         public ActionNode(Action action)

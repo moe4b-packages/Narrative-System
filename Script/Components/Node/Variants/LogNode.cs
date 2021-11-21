@@ -23,13 +23,13 @@ namespace MB.NarrativeSystem
 	{
         public string Text { get; protected set; }
 
-        public override void Invoke()
+        protected internal override void Invoke()
         {
             base.Invoke();
 
             Debug.Log(Text);
 
-            Narrative.Player.Continue();
+            Playback.Next();
         }
 
         public LogNode(string text)

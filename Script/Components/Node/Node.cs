@@ -23,18 +23,18 @@ namespace MB.NarrativeSystem
 {
     public class Node
     {
-        public Branch Branch { get; protected set; }
-        public Script Script => Branch.Script;
-
-        internal void Set(Branch branch)
+        protected internal virtual void Invoke()
         {
-            this.Branch = branch;
+
         }
 
-        public event Action OnInvoke;
-        public virtual void Invoke()
+        protected static class Playback
         {
-            OnInvoke?.Invoke();
+            public static void Next() => Narrative.Player.Continue();
+            public static void Goto(Branch.Delegate branch) => Narrative.Player.Invoke(branch);
+
+            public static void Start(Script script) => Narrative.Player.Start(script);
+            public static void Stop() => Narrative.Player.Stop();
         }
 
         public Node()
@@ -43,27 +43,41 @@ namespace MB.NarrativeSystem
         }
     }
 
-    public interface IWaitNode<TSelf>
+    public class NodeWaitProperty<TSelf>
+        where TSelf : Node
     {
-        bool Wait { get; }
+        public TSelf Self { get; }
+
+        public bool On { get; private set; }
 
         /// <summary>
         /// Determine if this Node will Wait to Complete or not Before Movin to the Next Node
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
-        TSelf SetWait(bool value);
-
-        /// <summary>
-        /// Wait for this Node to Complete before Moving to the Next Node
-        /// </summary>
-        /// <returns></returns>
-        TSelf Await();
+        public TSelf SetWait(bool value)
+        {
+            On = value;
+            return Self;
+        }
 
         /// <summary>
         /// Continue to the Next Node Without Waiting for this Node to Complete
         /// </summary>
         /// <returns></returns>
-        TSelf Continue();
+        public TSelf Continue() => SetWait(false);
+
+        /// <summary>
+        /// Wait for this Node to Complete before Moving to the Next Node
+        /// </summary>
+        /// <returns></returns>
+        public TSelf Await() => SetWait(true);
+
+        public NodeWaitProperty(TSelf reference) : this(reference, true) { }
+        public NodeWaitProperty(TSelf reference, bool on)
+        {
+            this.Self = reference;
+            this.On = on;
+        }
     }
 }

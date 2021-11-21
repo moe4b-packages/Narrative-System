@@ -7,6 +7,7 @@ using static MB.RichTextMarker;
 #endregion
 
 using MB.NarrativeSystem;
+using System.Collections.Generic;
 
 namespace MB.NarrativeSystem
 {
@@ -25,13 +26,11 @@ namespace MB.NarrativeSystem
         [Branch]
         Body Intro()
         {
-            yield return Action(() => Debug.Log("Hello World"));
-
             yield return SetFadeState(true);
             yield return Delay(1);
             yield return FadeOut();
 
-            yield return PlayAudio("SFX/Unsheath Sword").Continue();
+            yield return PlayAudio("SFX/Unsheath Sword").Wait.Continue();
         }
 
         [Branch]
