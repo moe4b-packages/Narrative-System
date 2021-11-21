@@ -1,5 +1,5 @@
 {
-    "name": "MB-Narrative-System",
+    "name": "MB.Narrative-System",
     "rootNamespace": "MB.NarrativeSystem",
     "references": [
         "GUID:25bbaff0f61abea489d3a55b470819db",
