@@ -33,6 +33,8 @@ namespace MB.NarrativeSystem
             yield return Log($"Hello {Encounter}");
 
             yield return PlayAudio("SFX/Unsheath Sword").Wait.Continue();
+
+            Debug.Log("Hello World");
         }
 
         [Branch]
