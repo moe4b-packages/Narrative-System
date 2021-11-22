@@ -55,6 +55,7 @@ namespace MB.NarrativeSystem
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
+        [NarrativeConstructorMethod]
         public TSelf SetWait(bool value)
         {
             On = value;
@@ -65,12 +66,14 @@ namespace MB.NarrativeSystem
         /// Continue to the Next Node Without Waiting for this Node to Complete
         /// </summary>
         /// <returns></returns>
+        [NarrativeConstructorMethod]
         public TSelf Continue() => SetWait(false);
 
         /// <summary>
         /// Wait for this Node to Complete before Moving to the Next Node
         /// </summary>
         /// <returns></returns>
+        [NarrativeConstructorMethod]
         public TSelf Await() => SetWait(true);
 
         public NodeWaitProperty(TSelf reference) : this(reference, true) { }
@@ -79,5 +82,11 @@ namespace MB.NarrativeSystem
             this.Self = reference;
             this.On = on;
         }
+    }
+
+    [AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = true)]
+    sealed class NarrativeConstructorMethodAttribute : Attribute
+    {
+
     }
 }

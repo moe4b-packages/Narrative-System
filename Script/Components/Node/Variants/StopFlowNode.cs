@@ -31,6 +31,7 @@ namespace MB.NarrativeSystem
 
     partial class Script
     {
+        [NarrativeConstructorMethod]
         public static StopFlowNode StopFlow() => new StopFlowNode();
     }
 }

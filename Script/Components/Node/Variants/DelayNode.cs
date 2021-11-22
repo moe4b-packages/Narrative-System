@@ -45,6 +45,7 @@ namespace MB.NarrativeSystem
 
     partial class Script
     {
+        [NarrativeConstructorMethod]
         public static DelayNode Delay(float duration = 1f) => new DelayNode(duration);
     }
 }

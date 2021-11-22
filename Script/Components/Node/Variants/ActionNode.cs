@@ -40,20 +40,26 @@ namespace MB.NarrativeSystem
 
     partial class Script
     {
+        [NarrativeConstructorMethod]
         public static ActionNode Action(Action function) => new ActionNode(function);
 
+        [NarrativeConstructorMethod]
         public static ActionNode Action<T>(Action<T> function, T value)
         {
             void Surrogate() => function.Invoke(value);
 
             return new ActionNode(Surrogate);
         }
+
+        [NarrativeConstructorMethod]
         public static ActionNode Action<T>(Action<object> function, T value)
         {
             void Surrogate() => function.Invoke(value);
 
             return new ActionNode(Surrogate);
         }
+
+        [NarrativeConstructorMethod]
         public static ActionNode Action(Action<object> function, object value)
         {
             void Surrogate() => function.Invoke(value);

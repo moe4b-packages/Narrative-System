@@ -47,7 +47,10 @@ namespace MB.NarrativeSystem
 
     partial class Script
     {
+        [NarrativeConstructorMethod]
         public static PlayScriptNode PlayScript(Script target) => new PlayScriptNode(target);
+
+        [NarrativeConstructorMethod]
         public static PlayScriptNode PlayScript<T>() where T : Script, new()
         {
             var script = new T();

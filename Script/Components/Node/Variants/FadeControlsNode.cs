@@ -100,10 +100,13 @@ namespace MB.NarrativeSystem
 
     partial class Script
     {
+        [NarrativeConstructorMethod]
         public static FadeInNode FadeIn(float? duration = null) => new FadeInNode(duration);
 
+        [NarrativeConstructorMethod]
         public static FadeOutNode FadeOut(float? duration = null) => new FadeOutNode(duration);
 
+        [NarrativeConstructorMethod]
         public static SetFadeStateNode SetFadeState(bool isOn) => new SetFadeStateNode(isOn);
     }
 }

@@ -57,9 +57,13 @@ namespace MB.NarrativeSystem
 
     partial class Script
     {
+        [NarrativeConstructorMethod]
         public static ClearDialogNode ClearDialog() => new ClearDialogNode();
 
+        [NarrativeConstructorMethod]
         public static ShowDialogNode ShowDialog() => new ShowDialogNode();
+
+        [NarrativeConstructorMethod]
         public static HideDialogNode HideDialog() => new HideDialogNode();
     }
 }

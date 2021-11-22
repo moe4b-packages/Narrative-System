@@ -51,12 +51,15 @@ namespace MB.NarrativeSystem
 
     partial class Script
     {
+        [NarrativeConstructorMethod]
         public static StartCoroutineNode StartCoroutine(Func<IEnumerator> function)
         {
             var numerator = function();
 
             return StartCoroutine(numerator);
         }
+
+        [NarrativeConstructorMethod]
         public static StartCoroutineNode StartCoroutine(IEnumerator numerator)
         {
             return new StartCoroutineNode(numerator);

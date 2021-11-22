@@ -27,6 +27,7 @@ namespace MB.NarrativeSystem
         public string ID { get; protected set; }
 
         public float Volume { get; protected set; }
+        [NarrativeConstructorMethod]
         public PlayAudioNode SetVolume(float value)
         {
             Volume = value;
@@ -77,6 +78,7 @@ namespace MB.NarrativeSystem
 
     partial class Script
     {
+        [NarrativeConstructorMethod]
         public static PlayAudioNode PlayAudio(string address) => new PlayAudioNode(address);
     }
 }

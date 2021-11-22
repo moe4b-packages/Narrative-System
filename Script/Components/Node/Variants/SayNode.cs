@@ -33,6 +33,7 @@ namespace MB.NarrativeSystem
         }
 
         public bool AutoSubmit { get; set; }
+        [NarrativeConstructorMethod]
         public SayNode SetAutoSubmit(bool value = true)
         {
             AutoSubmit = value;
@@ -57,7 +58,10 @@ namespace MB.NarrativeSystem
 
     partial class Script
     {
+        [NarrativeConstructorMethod]
         public static SayNode Say(string text) => Say(Speaker, text);
+
+        [NarrativeConstructorMethod]
         public static SayNode Say(Character character, string text) => new SayNode(character, text);
     }
 }

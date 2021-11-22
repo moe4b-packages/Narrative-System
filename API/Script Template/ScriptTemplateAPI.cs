@@ -32,7 +32,7 @@ namespace MB.NarrativeSystem
 				if (template == null)
 					throw new Exception("No Narrative Script Template Found");
 
-				ProjectWindowUtil.CreateScriptAssetFromTemplateFile(template, "New Narrative Script.cs");
+				ProjectWindowUtil.CreateScriptAssetFromTemplateFile(template, "NewNarrativeScript.cs");
 			}
 
 			public static string FindTemplate()

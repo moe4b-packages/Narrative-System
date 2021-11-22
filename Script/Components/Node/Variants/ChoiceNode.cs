@@ -21,7 +21,18 @@ namespace MB.NarrativeSystem
 {
     public class ChoiceNode : Node, ILocalizationTarget
     {
-        public Dictionary<IChoiceData, Branch.Delegate> Entries { get; protected set; }
+        public Dictionary<IChoiceData, Entry> Entries { get; protected set; }
+        public class Entry
+        {
+            public Branch.Delegate Branch { get; }
+            public Action Callback { get; }
+
+            public Entry(Branch.Delegate branch, Action callback)
+            {
+                this.Branch = branch;
+                this.Callback = callback;
+            }
+        }
 
         IEnumerable<string> ILocalizationTarget.TextForLocalization
         {
@@ -32,19 +43,80 @@ namespace MB.NarrativeSystem
             }
         }
 
+        int registerations = 0;
+
+        [NarrativeConstructorMethod]
+        public Builder Register(string text)
+        {
+            registerations += 1;
+
+            var builder = new Builder(this, text);
+            return builder;
+        }
+        [NarrativeConstructorMethod]
+        public Builder Register(Branch.Delegate branch)
+        {
+            registerations += 1;
+
+            var text = Branch.Format.Name(branch);
+
+            var builder = new Builder(this, text);
+            builder.Branch(branch);
+            return builder;
+        }
+        public struct Builder
+        {
+            readonly ChoiceNode node;
+
+            readonly string text;
+            Branch.Delegate branch;
+            Action callback;
+
+            [NarrativeConstructorMethod]
+            public Builder Branch(Branch.Delegate value)
+            {
+                branch = value;
+                return this;
+            }
+            [NarrativeConstructorMethod]
+            public Builder Callback(Action value)
+            {
+                callback = value;
+                return this;
+            }
+
+            [NarrativeConstructorMethod]
+            public ChoiceNode Submit()
+            {
+                node.Add(branch, text, callback);
+                node.registerations -= 1;
+                return node;
+            }
+
+            public Builder(ChoiceNode node, string text)
+            {
+                this.node = node;
+                this.text = text;
+
+                branch = default;
+                callback = default;
+            }
+        }
+
+        [NarrativeConstructorMethod]
         public ChoiceNode Add(Branch.Delegate branch)
         {
             var text = Branch.Format.Name(branch);
             return Add(branch, text);
         }
-        public ChoiceNode Add(Branch.Delegate branch, string text)
+        [NarrativeConstructorMethod]
+        public ChoiceNode Add(Branch.Delegate branch, string text) => Add(branch, text, default);
+        [NarrativeConstructorMethod]
+        public ChoiceNode Add(Branch.Delegate branch, string text, Action callback)
         {
-            var entry = new DefaultChoiceData(text);
-            return Add(branch, entry);
-        }
-        public ChoiceNode Add(Branch.Delegate branch, IChoiceData data)
-        {
-            Entries.Add(data, branch);
+            var data = new DefaultChoiceData(text);
+            var entry = new Entry(branch, callback);
+            Entries.Add(data, entry);
             return this;
         }
 
@@ -52,25 +124,39 @@ namespace MB.NarrativeSystem
         {
             base.Invoke();
 
+            if (Entries.Count == 0)
+                throw new Exception("Choice Node Has 0 Choices Submitted");
+
+            if (registerations > 0)
+                Debug.LogWarning($"{registerations} Un-Submitted Choice Detected on Choice Node");
+
             Narrative.Controls.Choice.Show(Entries.Keys, Submit);
         }
 
         public void Submit(int index, IChoiceData data)
         {
-            var branch = Entries[data];
+            var entry = Entries[data];
 
-            Playback.Goto(branch);
+            entry.Callback?.Invoke();
+
+            if (entry.Branch == null)
+                Playback.Next();
+            else
+                Playback.Goto(entry.Branch);
         }
 
         public ChoiceNode()
         {
-            Entries = new Dictionary<IChoiceData, Branch.Delegate>();
+            Entries = new Dictionary<IChoiceData, Entry>();
         }
     }
 
     partial class Script
     {
+        [NarrativeConstructorMethod]
         public static ChoiceNode Choice() => new ChoiceNode();
+
+        [NarrativeConstructorMethod]
         public static ChoiceNode Choice(params Branch.Delegate[] branches)
         {
             var node = Choice();
