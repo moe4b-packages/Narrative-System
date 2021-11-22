@@ -30,6 +30,8 @@ namespace MB.NarrativeSystem
             yield return Delay(1);
             yield return FadeOut();
 
+            yield return Log($"Hello {Encounter}");
+
             yield return PlayAudio("SFX/Unsheath Sword").Wait.Continue();
         }
 
