@@ -26,8 +26,6 @@ namespace MB.NarrativeSystem
         [Branch]
         Body Intro()
         {
-            yield return SayN("Hello World");
-
             yield return SetFadeState(true);
             yield return Delay(1);
             yield return FadeOut();
@@ -39,23 +37,6 @@ namespace MB.NarrativeSystem
             Debug.Log("This Won't Get Picked Up");
 
             Debug.Log("Hello World");
-        }
-
-        SayNode SayN(NarrativeText text)
-        {
-            return Say(text.Value);
-        }
-
-        public struct NarrativeText
-        {
-            public readonly string Value { get; }
-
-            public NarrativeText(string value)
-            {
-                this.Value = value;
-            }
-
-            public static implicit operator NarrativeText(string text) => new NarrativeText(text);
         }
 
         [Branch]
@@ -72,7 +53,9 @@ namespace MB.NarrativeSystem
             yield return Say("Nevertheless, <b>the crystal</b> cannot be exploited by the means of humans");
             yield return Say("I request that you return it to its righteous place, young hero").SetAutoSubmit();
 
-            yield return Choice(ReturnTheCrystal, KeepTheCrystal);
+            yield return Choice().
+                Add("Keep the Crystal", KeepTheCrystal).
+                Add("Return the Crystal", ReturnTheCrystal);
         }
 
         [Branch]
@@ -102,7 +85,10 @@ namespace MB.NarrativeSystem
             yield return Say("I cannot allow its power to be exploited by those weak of heart");
 
             yield return Say("Are you ready to die for it?").SetAutoSubmit();
-            yield return Choice(ReturnTheCrystal, FightTheGuardian);
+
+            yield return Choice().
+                Add("Return the Crystal", ReturnTheCrystal).
+                Add("Fight the Guardian", FightTheGuardian);
         }
 
         [Branch]
