@@ -25,6 +25,8 @@ namespace MB.NarrativeSystem
 
 		string Text { get; }
 
+		Dictionary<string, string> GetPhrases();
+
 		bool AutoSubmit { get; }
 	}
 

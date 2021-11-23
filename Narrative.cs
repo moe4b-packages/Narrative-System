@@ -169,6 +169,12 @@ namespace MB.NarrativeSystem
 #endif
 	}
 
+	[AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = true)]
+	sealed class NarrativeConstructorMethodAttribute : Attribute
+	{
+
+	}
+
 	[AttributeUsage(AttributeTargets.Parameter)]
 	public class LocalizationParameterAttribute : Attribute
 	{

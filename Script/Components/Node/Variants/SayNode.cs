@@ -21,8 +21,12 @@ namespace MB.NarrativeSystem
 {
     public class SayNode : Node, ISayData
     {
-        public Character Character { get; protected set; }
         public string Text { get; protected set; }
+        public Character Character { get; protected set; }
+
+        public NodeTextFormatProperty<SayNode> Format { get; }
+
+        public Dictionary<string, string> GetPhrases() => Format.Dictionary;
 
         public bool AutoSubmit { get; set; }
         [NarrativeConstructorMethod]
@@ -45,6 +49,8 @@ namespace MB.NarrativeSystem
         {
             this.Character = character;
             this.Text = text;
+
+            Format = new NodeTextFormatProperty<SayNode>(this);
         }
     }
 

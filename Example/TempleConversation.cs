@@ -30,13 +30,13 @@ namespace MB.NarrativeSystem
             yield return Delay(1);
             yield return FadeOut();
 
-            yield return Log($"Hello {Encounter}");
-
             yield return PlayAudio("SFX/Unsheath Sword").Wait.Continue();
 
-            Debug.Log("This Won't Get Picked Up");
+            yield return Say("Hello {player}, How are you doing on this fine day?").
+                Format.Add("player", "Moe4B");
 
-            Debug.Log("Hello World");
+            yield return Say("Im Fine {companion}").
+                Format.Add("companion", "Parvarti");
         }
 
         [Branch]

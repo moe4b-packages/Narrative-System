@@ -34,6 +34,8 @@ namespace MB.NarrativeSystem
             }
         }
 
+        public NodeTextFormatProperty<ChoiceNode> Format { get; }
+
         [NarrativeConstructorMethod]
         public ChoiceNode Add([LocalizationParameter] string text, Branch.Delegate branch) => Add(text, branch, default);
 
@@ -74,6 +76,8 @@ namespace MB.NarrativeSystem
         public ChoiceNode()
         {
             Entries = new Dictionary<IChoiceData, Entry>();
+
+            Format = new NodeTextFormatProperty<ChoiceNode>(this);
         }
     }
 

@@ -18,6 +18,7 @@ using Object = UnityEngine.Object;
 using Random = UnityEngine.Random;
 
 using MB.NarrativeSystem;
+using System.Text;
 
 namespace MB.NarrativeSystem
 {
@@ -46,7 +47,7 @@ namespace MB.NarrativeSystem
     public class NodeWaitProperty<TSelf>
         where TSelf : Node
     {
-        public TSelf Self { get; }
+        TSelf Self { get; }
 
         public bool On { get; private set; }
 
@@ -84,9 +85,24 @@ namespace MB.NarrativeSystem
         }
     }
 
-    [AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = true)]
-    sealed class NarrativeConstructorMethodAttribute : Attribute
+    public class NodeTextFormatProperty<TSelf>
+        where TSelf : Node
     {
+        TSelf Self { get; }
 
+        internal Dictionary<string, string> Dictionary { get; }
+
+        public TSelf Add(string key, [LocalizationParameter] object value)
+        {
+            Dictionary[key] = value.ToString();
+            return Self;
+        }
+
+        public NodeTextFormatProperty(TSelf self)
+        {
+            this.Self = self;
+
+            Dictionary = new Dictionary<string, string>();
+        }
     }
 }
