@@ -19,22 +19,15 @@ using Random = UnityEngine.Random;
 
 namespace MB.NarrativeSystem
 {
+	//TODO add to localization system
 	[CreateAssetMenu(menuName = Path + "Asset")]
-	public class Character : ScriptableObject, ILocalizationTarget
+	public class Character : ScriptableObject
 	{
 		public const string Path = Narrative.Path + "Character/";
 
 		public string ID => name;
 
 		public string DisplayName => name;
-
-		public IEnumerable<string> TextForLocalization
-		{
-			get
-			{
-				yield return name;
-			}
-		}
 
 		public override string ToString() => DisplayName;
 

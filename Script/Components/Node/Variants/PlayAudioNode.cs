@@ -22,7 +22,7 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 
 namespace MB.NarrativeSystem
 {
-    public class PlayAudioNode : Node, IDynamicResourceTarget
+    public class PlayAudioNode : Node
     {
         public string ID { get; protected set; }
 
@@ -35,14 +35,6 @@ namespace MB.NarrativeSystem
         }
 
         public NodeWaitProperty<PlayAudioNode> Wait { get; }
-
-        IEnumerable<string> IDynamicResourceTarget.DynamicResources
-        {
-            get
-            {
-                yield return ID;
-            }
-        }
 
         protected internal override void Invoke()
         {
@@ -79,6 +71,6 @@ namespace MB.NarrativeSystem
     partial class Script
     {
         [NarrativeConstructorMethod]
-        public static PlayAudioNode PlayAudio(string address) => new PlayAudioNode(address);
+        public static PlayAudioNode PlayAudio([DynamicResourceParameter] string address) => new PlayAudioNode(address);
     }
 }

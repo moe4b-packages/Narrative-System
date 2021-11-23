@@ -19,17 +19,9 @@ using Random = UnityEngine.Random;
 
 namespace MB.NarrativeSystem
 {
-    public class PlayScriptNode : Node, INestedScriptTarget
+    public class PlayScriptNode : Node
     {
         public Script Target { get; protected set; }
-
-        IEnumerable<Script> INestedScriptTarget.NestedScripts
-        {
-            get
-            {
-                yield return Target;
-            }
-        }
 
         protected internal override void Invoke()
         {

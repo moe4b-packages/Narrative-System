@@ -19,18 +19,10 @@ using Random = UnityEngine.Random;
 
 namespace MB.NarrativeSystem
 {
-    public class SayNode : Node, ISayData, ILocalizationTarget
+    public class SayNode : Node, ISayData
     {
         public Character Character { get; protected set; }
         public string Text { get; protected set; }
-
-        IEnumerable<string> ILocalizationTarget.TextForLocalization
-        {
-            get
-            {
-                yield return Text;
-            }
-        }
 
         public bool AutoSubmit { get; set; }
         [NarrativeConstructorMethod]
@@ -59,9 +51,9 @@ namespace MB.NarrativeSystem
     partial class Script
     {
         [NarrativeConstructorMethod]
-        public static SayNode Say(string text) => Say(Speaker, text);
+        public static SayNode Say([LocalizationParameter] string text) => Say(text, Speaker);
 
         [NarrativeConstructorMethod]
-        public static SayNode Say(Character character, string text) => new SayNode(character, text);
+        public static SayNode Say([LocalizationParameter] string text, Character character) => new SayNode(character, text);
     }
 }

@@ -169,18 +169,15 @@ namespace MB.NarrativeSystem
 #endif
 	}
 
-	public interface ILocalizationTarget
+	[AttributeUsage(AttributeTargets.Parameter)]
+	public class LocalizationParameterAttribute : Attribute
 	{
-		IEnumerable<string> TextForLocalization { get; }
+
 	}
 
-	public interface IDynamicResourceTarget
+	[AttributeUsage(AttributeTargets.Parameter)]
+	public class DynamicResourceParameterAttribute : Attribute
 	{
-		IEnumerable<string> DynamicResources { get; }
-	}
 
-	public interface INestedScriptTarget
-	{
-		IEnumerable<Script> NestedScripts { get; }
 	}
 }

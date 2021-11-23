@@ -26,6 +26,8 @@ namespace MB.NarrativeSystem
         [Branch]
         Body Intro()
         {
+            yield return SayN("Hello World");
+
             yield return SetFadeState(true);
             yield return Delay(1);
             yield return FadeOut();
@@ -34,7 +36,26 @@ namespace MB.NarrativeSystem
 
             yield return PlayAudio("SFX/Unsheath Sword").Wait.Continue();
 
+            Debug.Log("This Won't Get Picked Up");
+
             Debug.Log("Hello World");
+        }
+
+        SayNode SayN(NarrativeText text)
+        {
+            return Say(text.Value);
+        }
+
+        public struct NarrativeText
+        {
+            public readonly string Value { get; }
+
+            public NarrativeText(string value)
+            {
+                this.Value = value;
+            }
+
+            public static implicit operator NarrativeText(string text) => new NarrativeText(text);
         }
 
         [Branch]

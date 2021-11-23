@@ -19,7 +19,7 @@ using Random = UnityEngine.Random;
 
 namespace MB.NarrativeSystem
 {
-    public class ChoiceNode : Node, ILocalizationTarget
+    public class ChoiceNode : Node
     {
         public Dictionary<IChoiceData, Entry> Entries { get; protected set; }
         public class Entry
@@ -34,19 +34,10 @@ namespace MB.NarrativeSystem
             }
         }
 
-        IEnumerable<string> ILocalizationTarget.TextForLocalization
-        {
-            get
-            {
-                foreach (var entry in Entries.Keys)
-                    yield return entry.Text;
-            }
-        }
-
         int registerations = 0;
 
         [NarrativeConstructorMethod]
-        public Builder Register(string text)
+        public Builder Register([LocalizationParameter] string text)
         {
             registerations += 1;
 
@@ -54,7 +45,7 @@ namespace MB.NarrativeSystem
             return builder;
         }
         [NarrativeConstructorMethod]
-        public Builder Register(Branch.Delegate branch)
+        public Builder Register([LocalizationParameter] Branch.Delegate branch)
         {
             registerations += 1;
 
@@ -104,15 +95,15 @@ namespace MB.NarrativeSystem
         }
 
         [NarrativeConstructorMethod]
-        public ChoiceNode Add(Branch.Delegate branch)
+        public ChoiceNode Add([LocalizationParameter] Branch.Delegate branch)
         {
             var text = Branch.Format.Name(branch);
             return Add(branch, text);
         }
         [NarrativeConstructorMethod]
-        public ChoiceNode Add(Branch.Delegate branch, string text) => Add(branch, text, default);
+        public ChoiceNode Add(Branch.Delegate branch, [LocalizationParameter] string text) => Add(branch, text, default);
         [NarrativeConstructorMethod]
-        public ChoiceNode Add(Branch.Delegate branch, string text, Action callback)
+        public ChoiceNode Add(Branch.Delegate branch, [LocalizationParameter] string text, Action callback)
         {
             var data = new DefaultChoiceData(text);
             var entry = new Entry(branch, callback);
@@ -157,7 +148,7 @@ namespace MB.NarrativeSystem
         public static ChoiceNode Choice() => new ChoiceNode();
 
         [NarrativeConstructorMethod]
-        public static ChoiceNode Choice(params Branch.Delegate[] branches)
+        public static ChoiceNode Choice([LocalizationParameter] params Branch.Delegate[] branches)
         {
             var node = Choice();
 

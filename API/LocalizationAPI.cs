@@ -30,29 +30,9 @@ namespace MB.NarrativeSystem
     {
         public override HashSet<string> RetrieveText()
         {
+            //TODO implement new localization extractor for narrative system
+
             var hashset = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-
-            //Scripts Nodes
-            {
-                foreach (var node in Narrative.Composition.IterateNodes<ILocalizationTarget>())
-                {
-                    foreach (var entry in node.TextForLocalization)
-                    {
-                        hashset.Add(entry);
-                    }
-                }
-            }
-
-            //Assets (Characters, ... etc)
-            {
-                foreach (var asset in AssetCollection.Query<ILocalizationTarget>())
-                {
-                    foreach (var entry in asset.TextForLocalization)
-                    {
-                        hashset.Add(entry);
-                    }
-                }
-            }
 
             return hashset;
         }
