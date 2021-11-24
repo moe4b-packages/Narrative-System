@@ -52,7 +52,7 @@ namespace MB.NarrativeSystem
                         var arguments = MUtility.FormatProcessArguments(solution, Pipe.Name);
 
                         var info = new ProcessStartInfo(target, arguments);
-                        var process = Process.Start(info);
+                        var process = System.Diagnostics.Process.Start(info);
 
                         process.EnableRaisingEvents = true;
 
@@ -70,9 +70,10 @@ namespace MB.NarrativeSystem
 
                     public static NamedPipeServerStream Start()
                     {
-                        if (Server != null) Stop();
+                        if (IsRunning) Stop();
 
                         Server = new NamedPipeServerStream(Name, PipeDirection.InOut);
+                        Debug.Log("Pipe Server Started");
 
                         return Server;
                     }
@@ -80,6 +81,7 @@ namespace MB.NarrativeSystem
                     public static void Stop()
                     {
                         Server.Close();
+                        Debug.Log("Pipe Server Closed");
                         Server = null;
                     }
 
@@ -94,17 +96,19 @@ namespace MB.NarrativeSystem
                     }
                 }
 
-                public static async Task<string> AnalyzeNarrative()
+                public static async Task<string> Process()
                 {
+                    Parser.Start();
+                    return default;
+
                     Pipe.Start();
 
                     try
                     {
-                        Debug.Log("Pipe Server Started");
-
                         var parser = Parser.Start();
 
                         await Pipe.Server.WaitForConnectionAsync();
+                        Debug.Log("Pipe Server Connected");
 
                         var marker = new byte[sizeof(int)];
                         await Pipe.Server.ReadAsync(marker);
@@ -139,22 +143,20 @@ namespace MB.NarrativeSystem
 
                     return file;
                 }
+
+                public class Processor : MB.LocalizationSystem.Localization.Extraction.Processor
+                {
+                    public override async Task<HashSet<string>> RetrieveText()
+                    {
+                        //TODO implement new localization extractor for narrative system
+
+                        var hashset = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+                        return hashset;
+                    }
+                }
             }
 #endif
         }
     }
-
-#if UNITY_EDITOR
-    public class LocalizationExtractor : Localization.Extraction.Processor
-    {
-        public override async Task<HashSet<string>> RetrieveText()
-        {
-            //TODO implement new localization extractor for narrative system
-
-            var hashset = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-
-            return hashset;
-        }
-    }
-#endif
 }
