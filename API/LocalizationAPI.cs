@@ -30,6 +30,7 @@ using Debug = UnityEngine.Debug;
 using System.Text;
 using System.Threading;
 using System.Diagnostics.CodeAnalysis;
+using Newtonsoft.Json.Linq;
 
 namespace MB.NarrativeSystem
 {
@@ -98,9 +99,6 @@ namespace MB.NarrativeSystem
 
                 public static async Task<string> Process()
                 {
-                    Parser.Start();
-                    return default;
-
                     Pipe.Start();
 
                     try
@@ -148,9 +146,9 @@ namespace MB.NarrativeSystem
                 {
                     public override async Task<HashSet<string>> RetrieveText()
                     {
-                        //TODO implement new localization extractor for narrative system
+                        var json = await Process();
 
-                        var hashset = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                        var hashset = JObject.Parse(json)["Text"].ToObject<HashSet<string>>();
 
                         return hashset;
                     }
