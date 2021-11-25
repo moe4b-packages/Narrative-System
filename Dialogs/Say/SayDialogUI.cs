@@ -127,7 +127,6 @@ namespace MB.NarrativeSystem
             }
 
             VisibleCharacters = 99999;
-            label.text = FormatText(data);
 
             if (data.AutoSubmit) Submit();
         }
