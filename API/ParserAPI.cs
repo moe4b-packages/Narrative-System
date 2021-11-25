@@ -36,9 +36,9 @@ namespace MB.NarrativeSystem
 {
     partial class Narrative
     {
+#if UNITY_EDITOR
         public static class Parser
         {
-#if UNITY_EDITOR
             public static class Executable
             {
                 public const string RelativePath = "External/Narrative Parser/MB.Narrative-System.Parser.exe";
@@ -97,8 +97,12 @@ namespace MB.NarrativeSystem
                 }
             }
 
+            static bool IsRunning = false;
             public static async Task<Structure> Process()
             {
+                if (IsRunning) throw new InvalidOperationException("Narrative Parsing Already in Progress");
+                IsRunning = true;
+
                 Pipe.Start();
 
                 try
@@ -138,6 +142,7 @@ namespace MB.NarrativeSystem
                 finally
                 {
                     Pipe.Stop();
+                    IsRunning = false;
                 }
             }
 
@@ -178,7 +183,7 @@ namespace MB.NarrativeSystem
                     content.Text.UnionWith(strucutre.Text);
                 }
             }
-#endif
         }
+#endif
     }
 }
