@@ -51,6 +51,8 @@ namespace MB.NarrativeSystem
                     var arguments = MUtility.FormatProcessArguments(solution, Pipe.Name);
 
                     var info = new ProcessStartInfo(target, arguments);
+                    info.CreateNoWindow = true;
+                    info.UseShellExecute = false;
                     var process = System.Diagnostics.Process.Start(info);
 
                     process.EnableRaisingEvents = true;
