@@ -71,7 +71,7 @@ namespace MB.NarrativeSystem
                 {
                     if (IsRunning) Stop();
 
-                    Server = new NamedPipeServerStream(Name, PipeDirection.InOut);
+                    Server = new NamedPipeServerStream(Name, PipeDirection.InOut, 1, PipeTransmissionMode.Message, PipeOptions.Asynchronous);
                     Debug.Log("Pipe Server Started");
 
                     return Server;
@@ -79,6 +79,8 @@ namespace MB.NarrativeSystem
 
                 public static void Stop()
                 {
+                    if (IsRunning == false) return;
+
                     Server.Close();
                     Debug.Log("Pipe Server Closed");
                     Server = null;
@@ -99,39 +101,45 @@ namespace MB.NarrativeSystem
             {
                 Pipe.Start();
 
-                try
+                using (var parser = Executable.Start())
                 {
-                    using (var parser = Executable.Start())
+                    try
                     {
+                        var cancellation = new CancellationTokenSource();
+
                         parser.Exited += ParserExitCallback;
-                        static void ParserExitCallback(object sender, EventArgs args)
+                        void ParserExitCallback(object sender, EventArgs args)
                         {
-                            Pipe.Stop();
+                            Debug.Log("Parser Process Exited");
+                            cancellation.Cancel();
                         }
 
-                        await Pipe.Server.WaitForConnectionAsync();
+                        await Pipe.Server.WaitForConnectionAsync(cancellationToken: cancellation.Token);
                         Debug.Log("Pipe Server Connected");
 
                         var marker = new byte[sizeof(int)];
-                        await Pipe.Server.ReadAsync(marker);
+                        await Pipe.Server.ReadAsync(marker, cancellationToken: cancellation.Token);
 
                         var length = BitConverter.ToInt32(marker);
 
                         var raw = new byte[length];
-                        await Pipe.Server.ReadAsync(raw);
+                        await Pipe.Server.ReadAsync(raw, cancellationToken: cancellation.Token);
+                        Debug.Log("Pipe Server Recieved Data");
+
+                        parser.Exited -= ParserExitCallback;
 
                         var text = Encoding.UTF8.GetString(raw);
 
                         return text;
                     }
-                }
-                catch
-                {
-                    return default;
-                }
-                finally
-                {
-                    Pipe.Stop();
+                    catch
+                    {
+                        return default;
+                    }
+                    finally
+                    {
+                        Pipe.Stop();
+                    }
                 }
             }
 
@@ -148,8 +156,9 @@ namespace MB.NarrativeSystem
                 {
                     var json = await Process();
 
-                    var hashset = JObject.Parse(json)["Text"].ToObject<HashSet<string>>();
+                    if (json == default) return;
 
+                    var hashset = JObject.Parse(json)["Text"].ToObject<HashSet<string>>();
                     data.Text.UnionWith(hashset);
                 }
             }
