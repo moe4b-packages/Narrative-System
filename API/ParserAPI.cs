@@ -97,49 +97,68 @@ namespace MB.NarrativeSystem
                 }
             }
 
-            public static async Task<string> Process()
+            public static async Task<Structure> Process()
             {
                 Pipe.Start();
 
-                using (var parser = Executable.Start())
+                try
                 {
-                    try
+                    using var parser = Executable.Start();
+
+                    var cancellation = new CancellationTokenSource();
+
+                    parser.Exited += InvokeCancellation;
+                    void InvokeCancellation(object sender, EventArgs args)
                     {
-                        var cancellation = new CancellationTokenSource();
-
-                        parser.Exited += ParserExitCallback;
-                        void ParserExitCallback(object sender, EventArgs args)
-                        {
-                            Debug.Log("Parser Process Exited");
-                            cancellation.Cancel();
-                        }
-
-                        await Pipe.Server.WaitForConnectionAsync(cancellationToken: cancellation.Token);
-                        Debug.Log("Pipe Server Connected");
-
-                        var marker = new byte[sizeof(int)];
-                        await Pipe.Server.ReadAsync(marker, cancellationToken: cancellation.Token);
-
-                        var length = BitConverter.ToInt32(marker);
-
-                        var raw = new byte[length];
-                        await Pipe.Server.ReadAsync(raw, cancellationToken: cancellation.Token);
-                        Debug.Log("Pipe Server Recieved Data");
-
-                        parser.Exited -= ParserExitCallback;
-
-                        var text = Encoding.UTF8.GetString(raw);
-
-                        return text;
+                        Debug.LogError($"Narrative System Parsing Cancelled, Process Halted Early");
+                        cancellation.Cancel();
                     }
-                    catch
-                    {
-                        return default;
-                    }
-                    finally
-                    {
-                        Pipe.Stop();
-                    }
+
+                    await Pipe.Server.WaitForConnectionAsync(cancellationToken: cancellation.Token);
+                    Debug.Log("Pipe Server Connected");
+
+                    var marker = new byte[sizeof(int)];
+                    await Pipe.Server.ReadAsync(marker, cancellationToken: cancellation.Token);
+
+                    var length = BitConverter.ToInt32(marker);
+
+                    var raw = new byte[length];
+                    await Pipe.Server.ReadAsync(raw, cancellationToken: cancellation.Token);
+                    Debug.Log("Pipe Server Recieved Data");
+
+                    parser.Exited -= InvokeCancellation;
+
+                    await Pipe.Server.WriteAsync(new byte[1]);
+
+                    var text = Encoding.UTF8.GetString(raw);
+
+                    var structure = Structure.Parse(text);
+                    return structure;
+                }
+                finally
+                {
+                    Pipe.Stop();
+                }
+            }
+
+            [JsonObject]
+            public class Structure
+            {
+                [JsonProperty]
+                public HashSet<string> Text { get; set; }
+
+                public Structure()
+                {
+
+                }
+
+                public static Structure Parse(string json)
+                {
+                    if (string.IsNullOrEmpty(json))
+                        return null;
+
+                    var structure = JsonConvert.DeserializeObject<Structure>(json);
+                    return structure;
                 }
             }
 
@@ -152,14 +171,11 @@ namespace MB.NarrativeSystem
 
             public class LocalizationProcessor : Localization.Extraction.Processor
             {
-                public override async Task Modify(Localization.Extraction.Data data)
+                public override async Task Modify(Localization.Extraction.Content content)
                 {
-                    var json = await Process();
+                    var strucutre = await Process();
 
-                    if (json == default) return;
-
-                    var hashset = JObject.Parse(json)["Text"].ToObject<HashSet<string>>();
-                    data.Text.UnionWith(hashset);
+                    content.Text.UnionWith(strucutre.Text);
                 }
             }
 #endif

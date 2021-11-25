@@ -37,6 +37,9 @@ namespace MB.NarrativeSystem
 
             yield return Say("Im Fine {companion}").
                 Format.Add("companion", "Parvarti");
+
+            yield return Say("Hello Fellow Humans");
+            yield return Say("Hello Fellow Kids");
         }
 
         [Branch]
