@@ -17,6 +17,8 @@ using UnityEditorInternal;
 using Object = UnityEngine.Object;
 using Random = UnityEngine.Random;
 
+using MB.LocalizationSystem;
+
 namespace MB.NarrativeSystem
 {
     public class SayNode : Node, ISayData
@@ -57,9 +59,9 @@ namespace MB.NarrativeSystem
     partial class Script
     {
         [NarrativeConstructorMethod]
-        public static SayNode Say([LocalizationParameter] string text) => Say(text, Speaker);
+        public static SayNode Say([LocalizationTextParameter] string text) => Say(text, Speaker);
 
         [NarrativeConstructorMethod]
-        public static SayNode Say([LocalizationParameter] string text, Character character) => new SayNode(character, text);
+        public static SayNode Say([LocalizationTextParameter] string text, Character character) => new SayNode(character, text);
     }
 }

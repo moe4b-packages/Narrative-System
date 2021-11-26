@@ -17,6 +17,8 @@ using UnityEditorInternal;
 using Object = UnityEngine.Object;
 using Random = UnityEngine.Random;
 
+using MB.LocalizationSystem;
+
 namespace MB.NarrativeSystem
 {
     public class ChoiceNode : Node
@@ -37,13 +39,13 @@ namespace MB.NarrativeSystem
         public NodeTextFormatProperty<ChoiceNode> Format { get; }
 
         [NarrativeConstructorMethod]
-        public ChoiceNode Add([LocalizationParameter] string text, Branch.Delegate branch) => Add(text, branch, default);
+        public ChoiceNode Add([LocalizationTextParameter] string text, Branch.Delegate branch) => Add(text, branch, default);
 
         [NarrativeConstructorMethod]
-        public ChoiceNode Add([LocalizationParameter] string text, Action callback) => Add(text, default, callback);
+        public ChoiceNode Add([LocalizationTextParameter] string text, Action callback) => Add(text, default, callback);
 
         [NarrativeConstructorMethod]
-        public ChoiceNode Add([LocalizationParameter] string text, Branch.Delegate branch, Action callback)
+        public ChoiceNode Add([LocalizationTextParameter] string text, Branch.Delegate branch, Action callback)
         {
             var data = new DefaultChoiceData(text);
             var entry = new Entry(branch, callback);

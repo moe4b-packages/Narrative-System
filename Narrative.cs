@@ -176,12 +176,6 @@ namespace MB.NarrativeSystem
 	}
 
 	[AttributeUsage(AttributeTargets.Parameter)]
-	public class LocalizationParameterAttribute : Attribute
-	{
-
-	}
-
-	[AttributeUsage(AttributeTargets.Parameter)]
 	public class DynamicResourceParameterAttribute : Attribute
 	{
 

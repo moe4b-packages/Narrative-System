@@ -20,6 +20,8 @@ using Random = UnityEngine.Random;
 using MB.NarrativeSystem;
 using System.Text;
 
+using MB.LocalizationSystem;
+
 namespace MB.NarrativeSystem
 {
     public class Node
@@ -92,7 +94,7 @@ namespace MB.NarrativeSystem
 
         internal Dictionary<string, string> Dictionary { get; }
 
-        public TSelf Add(string key, [LocalizationParameter] object value)
+        public TSelf Add(string key, [LocalizationTextParameter] object value)
         {
             Dictionary[key] = value.ToString();
             return Self;
