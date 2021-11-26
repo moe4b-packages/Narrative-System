@@ -17,27 +17,29 @@ using UnityEditorInternal;
 using Object = UnityEngine.Object;
 using Random = UnityEngine.Random;
 
+using MB.LocalizationSystem;
+
 namespace MB.NarrativeSystem
 {
 	public interface IChoiceData
 	{
+		public IChoiceEntry Retrieve(int index);
+		public int Count { get; }
+
+		ILocalizationFormat Format { get; }
+
+		ChoiceSubmitDelegate Callback { get; }
+	}
+
+	public interface IChoiceEntry
+	{
 		public string Text { get; }
 	}
 
-	public class DefaultChoiceData : IChoiceData
-	{
-		public string Text { get; protected set; }
-
-		public DefaultChoiceData(string text)
-		{
-			this.Text = text;
-		}
-	}
-
-	public delegate void ChoiceSubmitDelegate(int index, IChoiceData data);
+	public delegate void ChoiceSubmitDelegate(int index, IChoiceEntry entry);
 
 	public interface IChoiceDialog : IDialog
 	{
-		void Show<T>(ICollection<T> entries, ChoiceSubmitDelegate submit) where T : IChoiceData;
+		void Show<T>(T data) where T : IChoiceData;
 	}
 }

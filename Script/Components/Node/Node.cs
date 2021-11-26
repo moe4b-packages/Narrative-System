@@ -87,16 +87,16 @@ namespace MB.NarrativeSystem
         }
     }
 
-    public class NodeTextFormatProperty<TSelf>
+    public class NodeTextFormatProperty<TSelf> : ILocalizationFormat
         where TSelf : Node
     {
         TSelf Self { get; }
 
-        internal Dictionary<string, string> Dictionary { get; }
+        public Dictionary<string, string> Phrases { get; }
 
         public TSelf Add(string key, [LocalizationTextParameter] object value)
         {
-            Dictionary[key] = value.ToString();
+            Phrases[key] = value.ToString();
             return Self;
         }
 
@@ -104,7 +104,7 @@ namespace MB.NarrativeSystem
         {
             this.Self = self;
 
-            Dictionary = new Dictionary<string, string>();
+            Phrases = new Dictionary<string, string>();
         }
     }
 }

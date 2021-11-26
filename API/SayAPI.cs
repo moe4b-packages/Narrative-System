@@ -17,6 +17,8 @@ using UnityEditorInternal;
 using Object = UnityEngine.Object;
 using Random = UnityEngine.Random;
 
+using MB.LocalizationSystem;
+
 namespace MB.NarrativeSystem
 {
 	public interface ISayData
@@ -24,15 +26,16 @@ namespace MB.NarrativeSystem
 		Character Character { get; }
 
 		string Text { get; }
-
-		Dictionary<string, string> GetPhrases();
+		ILocalizationFormat Format { get; }
 
 		bool AutoSubmit { get; }
+
+		Action Callback { get; }
 	}
 
 	public interface ISayDialog : IDialog
 	{
-		void Show(ISayData data, Action submit);
+		void Show(ISayData data);
 
 		void Clear();
 	}

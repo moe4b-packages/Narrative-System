@@ -35,28 +35,58 @@ namespace MB.NarrativeSystem
         TextMeshProUGUI label = default;
         public TextMeshProUGUI Label => label;
 
+        [SerializeField]
+        float typeDelay = 0.01f;
+
         public int VisibleCharacters
         {
             get => label.maxVisibleCharacters;
             set => label.maxVisibleCharacters = value;
         }
 
-        [SerializeField]
-        float typeDelay = 0.01f;
+        public ISayData Data { get; private set; }
+        public bool IsActive => Data != null;
 
-        ISayData data;
-        Action submit;
+        public Coroutine Coroutine { get; private set; }
+        bool IsProcessing => Coroutine != null;
 
-        bool IsProcessing => coroutine != null;
-
-        public void Show(ISayData data, Action submit)
+        public void UpdateLocalization()
         {
-            this.data = data;
-            this.submit = submit;
+            //TODO Change Localization method
+            //label.font = Localization.Font;
+            //label.horizontalAlignment = Localization.Alignment;
+            label.text = FormatDisplayText(Data);
+        }
+
+        public void Show(ISayData value)
+        {
+            Data = value;
 
             Show();
 
-            coroutine = StartCoroutine(Procedure());
+            Coroutine = StartCoroutine(Procedure());
+            IEnumerator Procedure()
+            {
+                label.text = FormatDisplayText(value);
+
+                for (int i = 0; i < label.text.Length; i++)
+                {
+                    VisibleCharacters = i;
+                    yield return new WaitForSeconds(typeDelay);
+                }
+
+                Finish();
+            }
+        }
+
+        public void OnPointerClick(PointerEventData eventData)
+        {
+            if (IsActive == false) return;
+
+            if (IsProcessing)
+                Finish();
+            else
+                Submit();
         }
 
         public void Clear()
@@ -64,59 +94,31 @@ namespace MB.NarrativeSystem
             label.text = string.Empty;
         }
 
-        public void UpdateLocalization()
-        {
-            //TODO Change Localization method
-            //label.font = Localization.Font;
-            //label.horizontalAlignment = Localization.Alignment;
-            label.text = FormatText(data);
-        }
-
-        string FormatText(ISayData data)
-        {
-            return Localization.Format(data.Text, data.GetPhrases());
-        }
-
-        Coroutine coroutine;
-        IEnumerator Procedure()
-        {
-            label.text = FormatText(data);
-
-            for (int i = 0; i < label.text.Length; i++)
-            {
-                VisibleCharacters = i;
-                yield return new WaitForSeconds(typeDelay);
-            }
-
-            Finish();
-        }
-
-        public void OnPointerClick(PointerEventData eventData)
+        public void Finish()
         {
             if (IsProcessing)
-                Finish();
-            else
-                Submit();
-        }
-
-        void Finish()
-        {
-            if (coroutine != null)
             {
-                StopCoroutine(coroutine);
-                coroutine = null;
+                StopCoroutine(Coroutine);
+                Coroutine = null;
             }
 
             VisibleCharacters = 99999;
 
-            if (data.AutoSubmit) Submit();
+            if (Data.AutoSubmit) Submit();
         }
 
-        void Submit()
+        public void Submit()
         {
-            var callback = submit;
-            submit = null;
+            var callback = Data.Callback;
+            Data = default;
             callback?.Invoke();
+        }
+
+        //Static Utility
+
+        public static string FormatDisplayText(ISayData data)
+        {
+            return Localization.Format(data.Text, data.Format);
         }
     }
 }

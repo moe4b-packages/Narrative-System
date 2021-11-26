@@ -41,6 +41,11 @@ namespace MB.NarrativeSystem
 	partial class Script
     {
         [NarrativeConstructorMethod]
-        public static LogNode Log(string text) => new LogNode(text);
+        public static LogNode Log<T>(T target)
+        {
+            var text = target.ToString();
+
+            return new LogNode(text);
+        }
     }
 }

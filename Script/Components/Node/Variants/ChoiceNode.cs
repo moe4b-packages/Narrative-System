@@ -21,22 +21,28 @@ using MB.LocalizationSystem;
 
 namespace MB.NarrativeSystem
 {
-    public class ChoiceNode : Node
+    public class ChoiceNode : Node, IChoiceData
     {
-        public Dictionary<IChoiceData, Entry> Entries { get; protected set; }
-        public class Entry
+        public List<Entry> Entries { get; }
+        IChoiceEntry IChoiceData.Retrieve(int index) => Entries[index];
+        int IChoiceData.Count => Entries.Count;
+        public class Entry : IChoiceEntry
         {
+            public string Text { get; }
+
             public Branch.Delegate Branch { get; }
             public Action Callback { get; }
 
-            public Entry(Branch.Delegate branch, Action callback)
+            public Entry(string text, Branch.Delegate branch, Action callback)
             {
+                this.Text = text;
                 this.Branch = branch;
                 this.Callback = callback;
             }
         }
 
         public NodeTextFormatProperty<ChoiceNode> Format { get; }
+        ILocalizationFormat IChoiceData.Format => Format;
 
         [NarrativeConstructorMethod]
         public ChoiceNode Add([LocalizationTextParameter] string text, Branch.Delegate branch) => Add(text, branch, default);
@@ -47,9 +53,8 @@ namespace MB.NarrativeSystem
         [NarrativeConstructorMethod]
         public ChoiceNode Add([LocalizationTextParameter] string text, Branch.Delegate branch, Action callback)
         {
-            var data = new DefaultChoiceData(text);
-            var entry = new Entry(branch, callback);
-            Entries.Add(data, entry);
+            var entry = new Entry(text, branch, callback);
+            Entries.Add(entry);
             return this;
         }
 
@@ -60,24 +65,23 @@ namespace MB.NarrativeSystem
             if (Entries.Count == 0)
                 throw new Exception("Choice Node Has 0 Choices Submitted");
 
-            Narrative.Controls.Choice.Show(Entries.Keys, Submit);
+            Narrative.Controls.Choice.Show(this);
         }
 
-        public void Submit(int index, IChoiceData data)
+        public void Submit(int index, IChoiceEntry entry)
         {
-            var entry = Entries[data];
+            Entries[index].Callback?.Invoke();
 
-            entry.Callback?.Invoke();
-
-            if (entry.Branch == null)
+            if (Entries[index].Branch == null)
                 Playback.Next();
             else
-                Playback.Goto(entry.Branch);
+                Playback.Goto(Entries[index].Branch);
         }
+        ChoiceSubmitDelegate IChoiceData.Callback => Submit;
 
         public ChoiceNode()
         {
-            Entries = new Dictionary<IChoiceData, Entry>();
+            Entries = new List<Entry>();
 
             Format = new NodeTextFormatProperty<ChoiceNode>(this);
         }

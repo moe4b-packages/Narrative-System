@@ -31,48 +31,57 @@ namespace MB.NarrativeSystem
         [SerializeField]
         RectTransform layout;
 
-        List<ChoiceDialogUITemplate> templates;
-        
-        ChoiceSubmitDelegate submit;
+        public List<ChoiceDialogUITemplate> Templates { get; private set; }
+        public IChoiceData Data { get; private set; }
 
-        public void Show<T>(ICollection<T> entries, ChoiceSubmitDelegate submit) where T : IChoiceData
+        public override void Configure()
         {
-            Show();
+            base.Configure();
 
-            templates = ChoiceDialogUITemplate.CreateAll(template, entries, ProcessTemplate);
-
-            this.submit = submit;
+            Templates = new List<ChoiceDialogUITemplate>();
         }
 
         public void UpdateLocalization()
         {
-
+            foreach (var template in Templates)
+                template.UpdateLocalization();
         }
 
-        void ProcessTemplate(ChoiceDialogUITemplate template, int index)
+        public void Show<T>(T item) where T : IChoiceData
         {
-            template.SetParent(layout);
+            Show();
 
-            template.Button.onClick.AddListener(OnClick);
+            Data = item;
 
-            void OnClick() => Action(index);
+            Templates.Clear();
+
+            for (int i = 0; i < Data.Count; i++)
+            {
+                var index = i;
+
+                var entry = ChoiceDialogUITemplate.Create(template, (Data, index));
+                entry.SetParent(layout);
+
+                entry.Button.onClick.AddListener(OnClick);
+                void OnClick() => Invoke(index);
+
+                Templates.Add(entry);
+            }
         }
 
-        void Action(int index)
+        public void Invoke(int index)
         {
             Hide();
 
-            var data = templates[index].Data;
+            var entry = Data.Retrieve(index);
+            var callback = Data.Callback;
 
-            foreach (var item in templates) Destroy(item.gameObject);
+            foreach (var item in Templates) Destroy(item.gameObject);
+            Templates.Clear();
 
-            Invoke(index, data);
-        }
-        void Invoke(int index, IChoiceData data)
-        {
-            var callback = submit;
-            submit = null;
-            callback?.Invoke(index, data);
+            Data = default;
+
+            callback?.Invoke(index, entry);
         }
     }
 }

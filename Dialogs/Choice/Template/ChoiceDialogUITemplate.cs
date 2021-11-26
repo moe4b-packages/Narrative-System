@@ -20,11 +20,12 @@ using Random = UnityEngine.Random;
 using MB.UISystem;
 
 using TMPro;
+using MB.LocalizationSystem;
 
 namespace MB.NarrativeSystem
 {
 	[AddComponentMenu(Narrative.Controls.Path + "Choice Dialog UI Template")]
-	public class ChoiceDialogUITemplate : UITemplate<ChoiceDialogUITemplate, IChoiceData>
+	public class ChoiceDialogUITemplate : UITemplate<ChoiceDialogUITemplate, (IChoiceData Root, int Index)>
 	{
 		[SerializeField]
 		TMP_Text label = default;
@@ -33,13 +34,29 @@ namespace MB.NarrativeSystem
         Button button = default;
         public Button Button => button;
 
+        public IChoiceEntry Entry => Data.Root.Retrieve(Data.Index);
+
+        public override void SetData((IChoiceData Root, int Index) data)
+        {
+            base.SetData(data);
+
+            Rename(Entry.Text);
+        }
+
         public override void UpdateState()
         {
             base.UpdateState();
 
-            Rename(Data.Text);
+            label.text = FormatDisplayText(Data.Root, Entry);
+        }
 
-            label.text = Data.Text;
+        public void UpdateLocalization() => UpdateState();
+
+        //Static Utility
+
+        public static string FormatDisplayText(IChoiceData data, IChoiceEntry entry)
+        {
+            return Localization.Format(entry.Text, data.Format);
         }
     }
 }

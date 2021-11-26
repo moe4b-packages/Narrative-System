@@ -23,14 +23,18 @@ namespace MB.NarrativeSystem
 {
     public class SayNode : Node, ISayData
     {
-        public string Text { get; protected set; }
-        public Character Character { get; protected set; }
+        string Text { get; }
+        string ISayData.Text => Text;
+
+        Character Character { get; }
+        Character ISayData.Character => Character;
 
         public NodeTextFormatProperty<SayNode> Format { get; }
+        ILocalizationFormat ISayData.Format => Format;
 
-        public Dictionary<string, string> GetPhrases() => Format.Dictionary;
+        bool AutoSubmit { get; set; }
+        bool ISayData.AutoSubmit => AutoSubmit;
 
-        public bool AutoSubmit { get; set; }
         [NarrativeConstructorMethod]
         public SayNode SetAutoSubmit(bool value = true)
         {
@@ -42,10 +46,11 @@ namespace MB.NarrativeSystem
         {
             base.Invoke();
 
-            Narrative.Controls.Say.Show(this, Submit);
+            Narrative.Controls.Say.Show(this);
         }
 
         void Submit() => Playback.Next();
+        Action ISayData.Callback => Submit;
 
         public SayNode(Character character, string text)
         {
