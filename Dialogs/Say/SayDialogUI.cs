@@ -74,26 +74,7 @@ namespace MB.NarrativeSystem
 
         string FormatText(ISayData data)
         {
-            return FormatLocalized(data.Text, data.GetPhrases());
-        }
-
-        public string FormatLocalized(string text, IDictionary<string, string> phrases)
-        {
-            text = Localization.Text[text];
-
-            if (phrases.Count == 0) return text;
-
-            using (DisposablePool.StringBuilder.Lease(out var builder))
-            {
-                builder.Append(text);
-
-                foreach (var pair in phrases)
-                {
-                    builder.Replace($"{{{pair.Key}}}", Localization.Text[pair.Value]);
-                }
-
-                return builder.ToString();
-            }
+            return Localization.Format(data.Text, data.GetPhrases());
         }
 
         Coroutine coroutine;
