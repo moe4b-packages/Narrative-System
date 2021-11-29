@@ -31,13 +31,10 @@ namespace MB.NarrativeSystem
 	[CreateAssetMenu]
 	[Global(ScriptableManagerScope.Project)]
 	[SettingsMenu(Toolbox.Paths.Root + "Narrative")]
+	[LoadOrder(Runtime.Defaults.LoadOrder.NarrativeSystem)]
 	public partial class Narrative : ScriptableManager<Narrative>
 	{
 		public const string Path = Toolbox.Paths.Root + "Narrative System/";
-
-		[SerializeField]
-		bool autoInitialize = true;
-		public static bool AutoInitialize => Instance.autoInitialize;
 
 		protected override void OnLoad()
 		{
@@ -48,8 +45,8 @@ namespace MB.NarrativeSystem
 
 #if UNITY_EDITOR
 		protected override void PreProcessBuild()
-        {
-            base.PreProcessBuild();
+		{
+			base.PreProcessBuild();
 
 			Characters.Refresh();
 		}
@@ -57,13 +54,13 @@ namespace MB.NarrativeSystem
 
 		#region Unity Callbacks
 		[RuntimeInitializeOnLoadMethod]
-		static void OnEntetPlayerMode()
+		static void OnRuntimeLoad()
 		{
 #if UNITY_EDITOR
 			Validation.OnEntetPlayerMode();
 #endif
 
-			if (AutoInitialize) Initialize();
+			Initialize();
 		}
 
 #if UNITY_EDITOR
@@ -75,14 +72,8 @@ namespace MB.NarrativeSystem
 #endif
 		#endregion
 
-		public static bool IsInitialized { get; private set; }
-		public static void Initialize()
+		static void Initialize()
 		{
-			if (IsInitialized)
-				throw new InvalidOperationException($"Narrative System Already Initialized");
-
-			IsInitialized = true;
-
 			Progress.Prepare();
 			Story.Prepare();
 		}

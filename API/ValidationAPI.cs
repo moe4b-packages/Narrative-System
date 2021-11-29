@@ -68,20 +68,6 @@ namespace MB.NarrativeSystem
 
 					if (pathes > 1)
 						Validation.Throw("Multiple Branches in Multiple Files for Partial Scripts are not Supported", script);
-
-					for (int i = 0; i < data.Count; i++)
-						Process(script, data[i]);
-				}
-
-				public static void Process(Type script, Script.Composition.BranchesData.Data data)
-				{
-					var method = data.Method;
-
-					if (method.ReturnType != typeof(IEnumerable<Script.Block>))
-						Throw("Invalid Return Type, Branches Must Have a Return Type of Body (Alias for IEnumerable<Script.Block>)", script, data.Method);
-
-					if (method.GetParameters().Length > 0)
-						Throw("Invalid Parameters, Branches Must not take in any Parameters", script, data.Method);
 				}
 
 				public static void Throw(string error, Type script, MethodInfo branch)

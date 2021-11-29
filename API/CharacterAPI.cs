@@ -47,7 +47,7 @@ namespace MB.NarrativeSystem
                 if (MUtility.CheckElementsInclusion(Collection, targets) == false)
                 {
                     Collection = targets;
-                    ScriptableManagerRuntime.Save(Narrative.Instance);
+                    Runtime.Save(Narrative.Instance);
                 }
 #endif
 
