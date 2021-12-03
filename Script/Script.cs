@@ -378,6 +378,8 @@ namespace MB.NarrativeSystem
             public string ID => id;
 
             Type cache;
+
+            [NonSerialized]
             bool cached;
 
             public Type Type

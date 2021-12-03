@@ -21,10 +21,10 @@ using Random = UnityEngine.Random;
 namespace MB.NarrativeSystem
 {
 	partial class Narrative
-    {
+	{
 		public static class ScriptTemplate
 		{
-			[MenuItem("Assets/Create/Narrative Script", priority = 82)]
+			[MenuItem("Assets/Create/Narrative Script", priority = 81)]
 			public static void Create()
 			{
 				var template = FindTemplate();
@@ -39,7 +39,7 @@ namespace MB.NarrativeSystem
 			{
 				var paths = AssetDatabase.FindAssets("Narrative Script Template")
 					.Select(AssetDatabase.GUIDToAssetPath)
-					.Select(x=>x.ToLower())
+					.Select(x => x.ToLower())
 					.OrderBy(x => x.Contains("assets") || x.Contains("override"));
 
 				return paths.FirstOr(null);

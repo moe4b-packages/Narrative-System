@@ -28,8 +28,7 @@ using System.Text.RegularExpressions;
 
 namespace MB.NarrativeSystem
 {
-	[CreateAssetMenu]
-	[Global(ScriptableManagerScope.Project)]
+	[Manager]
 	[SettingsMenu(Toolbox.Paths.Root + "Narrative")]
 	[LoadOrder(Runtime.Defaults.LoadOrder.NarrativeSystem)]
 	public partial class Narrative : ScriptableManager<Narrative>
@@ -42,7 +41,9 @@ namespace MB.NarrativeSystem
 
 			Characters.Refresh();
 
+#if UNITY_EDITOR
 			Validation.Process();
+#endif
 
 			if (IsPlaying) Initialize();
 		}

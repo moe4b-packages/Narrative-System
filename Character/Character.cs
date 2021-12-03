@@ -22,11 +22,9 @@ using MB.LocalizationSystem;
 namespace MB.NarrativeSystem
 {
 	//TODO add to localization system
-	[CreateAssetMenu(menuName = Path + "Asset")]
+	[CreateAssetMenu(menuName = Narrative.Path + "Character")]
 	public class Character : ScriptableObject, ILocalizationTextTarget
 	{
-		public const string Path = Narrative.Path + "Character/";
-
 		public string ID => name;
 		IEnumerable<string> ILocalizationTextTarget.LocalizationText
 		{
@@ -43,7 +41,7 @@ namespace MB.NarrativeSystem
 		//Static Utility
 
 		public static Character Find(string name)
-        {
+		{
 			if (Narrative.Characters.TryFind(name, out var character) == false)
 				throw new Exception($"No Character Named {name} was Found");
 
