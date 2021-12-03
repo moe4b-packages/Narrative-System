@@ -41,6 +41,16 @@ namespace MB.NarrativeSystem
 			base.OnLoad();
 
 			Characters.Refresh();
+
+			Validation.Process();
+
+			if (IsPlaying) Initialize();
+		}
+
+		static void Initialize()
+		{
+			Progress.Prepare();
+			Story.Prepare();
 		}
 
 #if UNITY_EDITOR
@@ -50,35 +60,7 @@ namespace MB.NarrativeSystem
 
 			Characters.Refresh();
 		}
-#endif
 
-		#region Unity Callbacks
-		[RuntimeInitializeOnLoadMethod]
-		static void OnRuntimeLoad()
-		{
-#if UNITY_EDITOR
-			Validation.OnEntetPlayerMode();
-#endif
-
-			Initialize();
-		}
-
-#if UNITY_EDITOR
-		[UnityEditor.Callbacks.DidReloadScripts]
-		static void OnRecompile()
-		{
-			Validation.OnRecompile();
-		}
-#endif
-		#endregion
-
-		static void Initialize()
-		{
-			Progress.Prepare();
-			Story.Prepare();
-		}
-
-#if UNITY_EDITOR
 		public static class Composition
 		{
 			public static List<Script> Scripts { get; }
@@ -86,7 +68,7 @@ namespace MB.NarrativeSystem
 			public static List<Node> Nodes { get; }
 
 			public static IEnumerable<T> IterateNodes<T>()
-            {
+			{
 				foreach (var node in Nodes)
 				{
 					if (node is T target)
@@ -109,12 +91,12 @@ namespace MB.NarrativeSystem
 					}
 				}
 
-                //Branches
-                {
+				//Branches
+				{
 					Branches = new List<Branch>();
 
-                    foreach (var script in Scripts)
-                    {
+					foreach (var script in Scripts)
+					{
 						var composition = Script.Composition.Retrieve(script).Branches;
 
 						for (int i = 0; i < composition.Count; i++)
@@ -124,7 +106,7 @@ namespace MB.NarrativeSystem
 							Branches.Add(instance);
 						}
 					}
-                }
+				}
 
 				//Nodes
 				{
@@ -155,7 +137,6 @@ namespace MB.NarrativeSystem
 					}
 				}
 			}
-
 		}
 #endif
 	}

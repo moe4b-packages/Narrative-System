@@ -26,24 +26,17 @@ namespace MB.NarrativeSystem
 		[Tooltip("Specifies when to validate narrative components, " +
 			"validating will catch the basic composition errors in your scripts, editor only!")]
 		[SerializeField]
-		internal ValidateScriptOptions validationOption = ValidateScriptOptions.All;
-		public static ValidateScriptOptions ValidationOption => Instance.validationOption;
+		internal bool validateScripts = true;
+		public static bool ValidateScripts => Instance.validateScripts;
 
 		public static class Validation
 		{
-			internal static void OnRecompile()
-			{
-				if (EditorApplication.isPlayingOrWillChangePlaymode)
-					return;
+			public static void Initialize()
+            {
+				if (ValidateScripts == false) return;
 
-				if (ValidationOption.HasFlag(ValidateScriptOptions.Recompile))
-					Process();
-			}
-			internal static void OnEntetPlayerMode()
-			{
-				if (ValidationOption.HasFlag(ValidateScriptOptions.EnterPlayMode))
-					Process();
-			}
+				Process();
+            }
 
 			public static void Process()
 			{
@@ -87,15 +80,6 @@ namespace MB.NarrativeSystem
 		}
 	}
 #endif
-
-	[Flags]
-	public enum ValidateScriptOptions
-	{
-		None = 0,
-		Recompile = 1 << 0,
-		EnterPlayMode = 1 << 1,
-		All = ~0,
-	}
 
 	public class ScriptValidationException : Exception
 	{
