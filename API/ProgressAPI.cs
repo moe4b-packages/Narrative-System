@@ -91,6 +91,32 @@ namespace MB.NarrativeSystem
 				}
 			}
 
+			public static class Context
+            {
+				internal static void Load()
+				{
+					var json = IO.Load(FileName);
+
+					Composer.Load(json);
+				}
+
+				public static void Reset()
+				{
+					Composer.Clear();
+
+					Save();
+				}
+
+				public static void Save()
+				{
+					IsDirty = false;
+
+					var json = Composer.Read();
+
+					IO.Save(FileName, json);
+				}
+			}
+
 			public static class SaveLock
 			{
 				public static bool IsOn { get; private set; }
@@ -107,7 +133,7 @@ namespace MB.NarrativeSystem
 				{
 					IsOn = false;
 
-					if (IsDirty) Save();
+					if (IsDirty) Context.Save();
 				}
 			}
 
@@ -133,36 +159,13 @@ namespace MB.NarrativeSystem
 					Converters = CreateConverters(),
 					Formatting = Formatting.Indented,
 				};
+				Composer.Configure(settings);
 
-				Composer = new JObjectComposer(settings);
+				Context.Load();
+
 				Composer.OnChange += InvokeChange;
 
-				Load();
-
 				Application.quitting += QuitCallback;
-			}
-
-			internal static void Load()
-			{
-				var json = IO.Load(FileName);
-
-				Composer.Load(json);
-			}
-
-			public static void Reset()
-			{
-				Composer.Clear();
-
-				Save();
-			}
-
-			public static void Save()
-			{
-				IsDirty = false;
-
-				var json = Composer.Read();
-
-				IO.Save(FileName, json);
 			}
 
 			#region Controls
@@ -179,19 +182,19 @@ namespace MB.NarrativeSystem
 			static void InvokeChange()
 			{
 				if (AutoSave.OnChange)
-					Save();
+					Context.Save();
 				else
 					IsDirty = true;
 			}
 
 			static void QuitCallback()
 			{
-				if (AutoSave.OnExit) if (IsDirty) Save();
+				if (AutoSave.OnExit && IsDirty) Context.Save();
 			}
 
-			static Progress()
+			public Progress()
 			{
-
+				Composer = JObjectComposer.Create<Progress>();
 			}
 		}
 	}
