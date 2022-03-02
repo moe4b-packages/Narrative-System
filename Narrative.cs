@@ -31,7 +31,7 @@ namespace MB.NarrativeSystem
 	[Manager]
 	[SettingsMenu(Toolbox.Paths.Root + "Narrative")]
 	[LoadOrder(Runtime.Defaults.LoadOrder.NarrativeSystem)]
-	public partial class Narrative : ScriptableManager<Narrative>
+	public partial class Narrative : ScriptableManager<Narrative>, IScriptableObjectBuildPreProcess
 	{
 		public const string Path = Toolbox.Paths.Root + "Narrative System/";
 
@@ -55,10 +55,8 @@ namespace MB.NarrativeSystem
 		}
 
 #if UNITY_EDITOR
-		protected override void PreProcessBuild()
+		public void PreProcessBuild()
 		{
-			base.PreProcessBuild();
-
 			Characters.Refresh();
 		}
 
