@@ -8,9 +8,11 @@ using static MB.RichTextMarker;
 
 using MB.NarrativeSystem;
 using System.Collections.Generic;
+using UnityEngine.Scripting;
 
 namespace MB.NarrativeSystem
 {
+    [Preserve]
     [System.Serializable]
     public class TempleConversation : Script
     {
@@ -23,6 +25,7 @@ namespace MB.NarrativeSystem
             FightGuardian
         }
 
+        [Preserve]
         [Branch]
         Body Intro()
         {
@@ -39,6 +42,7 @@ namespace MB.NarrativeSystem
                 Format.Add("companion", "Parvarti");
         }
 
+        [Preserve]
         [Branch]
         Body TalkAboutCrystal()
         {
@@ -58,6 +62,7 @@ namespace MB.NarrativeSystem
                 Add("Return the Crystal", ReturnTheCrystal);
         }
 
+        [Preserve]
         [Branch]
         Body ReturnTheCrystal()
         {
@@ -76,6 +81,7 @@ namespace MB.NarrativeSystem
             yield return GoTo(ContinueStory);
         }
 
+        [Preserve]
         [Branch]
         Body KeepTheCrystal()
         {
@@ -91,6 +97,7 @@ namespace MB.NarrativeSystem
                 Add("Fight the Guardian", FightTheGuardian);
         }
 
+        [Preserve]
         [Branch]
         Body FightTheGuardian()
         {
@@ -105,6 +112,7 @@ namespace MB.NarrativeSystem
             yield return GoTo(ContinueStory);
         }
 
+        [Preserve]
         [Branch]
         Body ContinueStory()
         {

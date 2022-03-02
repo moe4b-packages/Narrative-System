@@ -18,9 +18,11 @@ using Object = UnityEngine.Object;
 using Random = UnityEngine.Random;
 
 using System.Reflection;
+using UnityEngine.Scripting;
 
 namespace MB.NarrativeSystem
 {
+    [Preserve]
     public abstract class Variable
     {
         public VariableInfo Info { get; protected set; }
@@ -67,6 +69,7 @@ namespace MB.NarrativeSystem
         public static Variable<T> Assign<T>(T value) => new Variable<T>(value);
     }
 
+    [Preserve]
     public class Variable<T> : Variable
     {
         T value;
