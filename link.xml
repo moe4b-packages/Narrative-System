@@ -1,0 +1,5 @@
+<linker>
+	<assembly fullname="MB.Narrative-System">
+		<type fullname="MB.Narrative-System.Script" preserve="all"/>
+	</assembly>
+</linker>
