@@ -25,10 +25,10 @@ namespace MB.NarrativeSystem
 	public class AutoRegisterNarrativeControls : MonoBehaviour
 	{
         [SerializeField]
-        InterfaceComponentSelection<ISayDialog> say;
+        SerializedInterface<ISayDialog> say;
 
         [SerializeField]
-        InterfaceComponentSelection<IChoiceDialog> choice;
+        SerializedInterface<IChoiceDialog> choice;
 
         [SerializeField]
         FadeUI fader;
