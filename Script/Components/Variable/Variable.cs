@@ -26,7 +26,12 @@ namespace MB.NarrativeSystem
     public abstract class Variable
     {
         public VariableInfo Info { get; protected set; }
-        internal void Set(VariableInfo info, string segment)
+        public string Name { get; protected set; }
+        public string Path { get; protected set; }
+
+        public Type Type => Info.ValueType;
+
+        internal void Configure(VariableInfo info, string segment)
         {
             this.Info = info;
 
@@ -36,12 +41,7 @@ namespace MB.NarrativeSystem
             Load();
         }
 
-        public string Name { get; protected set; }
-        public string Path { get; protected set; }
-
-        public Type Type => Info.ValueType;
-
-        public bool HasValue { get; protected set; }
+        public bool IsAssigned { get; protected set; }
 
         public abstract void Save();
         public abstract void Load();
@@ -51,7 +51,7 @@ namespace MB.NarrativeSystem
         public static string FormatName(MemberInfo info) => FormatName(info.Name);
         public static string FormatName(string text) => MUtility.PrettifyName(text);
 
-        public static Variable Assimilate(object target, VariableInfo info, string segment)
+        internal static Variable Assimilate(object target, VariableInfo info, string segment)
         {
             var variable = info.Read(target) as Variable;
 
@@ -61,7 +61,7 @@ namespace MB.NarrativeSystem
                 info.Set(target, variable);
             }
 
-            variable.Set(info, segment);
+            variable.Configure(info, segment);
 
             return variable;
         }
@@ -78,6 +78,8 @@ namespace MB.NarrativeSystem
             get => value;
             set
             {
+                IsAssigned = true;
+
                 this.value = value;
 
                 Save();
@@ -92,28 +94,30 @@ namespace MB.NarrativeSystem
         {
             if (Narrative.Progress.Contains(Path) == false)
             {
-                HasValue = false;
+                IsAssigned = false;
                 value = default;
             }
             else
             {
-                HasValue = true;
+                IsAssigned = true;
                 Value = Narrative.Progress.Read<T>(Path);
             }
         }
 
         public override string ToString()
         {
-            if (HasValue == false)
-                return "No Value";
+            if (IsAssigned == false)
+                return $"[ {Name}: No Value ]";
 
-            return value.ToString();
+            return $"[ {Name}: {Value} ]";
         }
 
-        public Variable() : this(default) { }
-        public Variable(T value)
+        public Variable() : this(default, false) { }
+        public Variable(T value) : this(value, true) { }
+        protected Variable(T value, bool isAssigned)
         {
             this.value = value;
+            this.IsAssigned = isAssigned;
         }
 
         //Static Utility

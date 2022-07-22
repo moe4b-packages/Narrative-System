@@ -15,7 +15,7 @@ namespace MB.NarrativeSystem
     [System.Serializable]
     public class TempleConversation : Script
     {
-        public static Variable<EncounterChoice> Encounter { get; set; }
+        public static Variable<EncounterChoice> Encounter { get; set; } = Variable.Assign(EncounterChoice.None);
         [Flags]
         public enum EncounterChoice
         {
@@ -27,6 +27,8 @@ namespace MB.NarrativeSystem
         [Branch]
         Body Intro()
         {
+            yield return Log(Encounter);
+
             yield return SetFadeState(true);
             yield return Delay(1);
             yield return FadeOut();
