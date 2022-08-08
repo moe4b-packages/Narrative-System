@@ -47,8 +47,8 @@ namespace MB.NarrativeSystem
         public ISayData Data { get; private set; }
         public bool IsActive => Data != null;
 
-        public Coroutine Coroutine { get; private set; }
-        bool IsProcessing => Coroutine != null;
+        public MRoutine.Handle Routine { get; private set; }
+        bool IsProcessing => Routine.State != MRoutine.Handle.RuntimeState.Complete;
 
         public void UpdateLocalization()
         {
@@ -64,7 +64,7 @@ namespace MB.NarrativeSystem
 
             Show();
 
-            Coroutine = StartCoroutine(Procedure());
+            Routine = MRoutine.Create(Procedure).Start();
             IEnumerator Procedure()
             {
                 label.text = FormatDisplayText(value);
@@ -72,7 +72,7 @@ namespace MB.NarrativeSystem
                 for (int i = 0; i < label.text.Length; i++)
                 {
                     VisibleCharacters = i;
-                    yield return new WaitForSeconds(typeDelay);
+                    yield return MRoutine.Wait.Seconds(typeDelay);
                 }
 
                 Finish();
@@ -97,10 +97,7 @@ namespace MB.NarrativeSystem
         public void Finish()
         {
             if (IsProcessing)
-            {
-                StopCoroutine(Coroutine);
-                Coroutine = null;
-            }
+                MRoutine.Stop(Routine);
 
             VisibleCharacters = 99999;
 

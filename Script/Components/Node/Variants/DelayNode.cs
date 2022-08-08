@@ -27,12 +27,12 @@ namespace MB.NarrativeSystem
         {
             base.Invoke();
 
-            GlobalCoroutine.Start(Procedure);
+            MRoutine.Create(Procedure).Start();
         }
 
         IEnumerator Procedure()
         {
-            yield return new WaitForSeconds(Duration);
+            yield return MRoutine.Wait.Seconds(Duration);
 
             Playback.Next();
         }

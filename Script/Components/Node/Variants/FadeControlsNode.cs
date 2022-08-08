@@ -29,7 +29,7 @@ namespace MB.NarrativeSystem
         {
             base.Invoke();
 
-            GlobalCoroutine.Start(Procedure);
+            MRoutine.Create(Procedure).Start();
         }
 
         IEnumerator Procedure()
@@ -59,7 +59,7 @@ namespace MB.NarrativeSystem
         {
             base.Invoke();
 
-            GlobalCoroutine.Start(Procedure);
+            MRoutine.Create(Procedure).Start();
         }
 
         IEnumerator Procedure()

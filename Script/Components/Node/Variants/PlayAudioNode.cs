@@ -40,7 +40,7 @@ namespace MB.NarrativeSystem
         {
             base.Invoke();
 
-            GlobalCoroutine.Start(Procedure);
+            MRoutine.Create(Procedure).Start();
         }
 
         IEnumerator Procedure()
@@ -53,7 +53,7 @@ namespace MB.NarrativeSystem
 
             if (Wait.On == false) Playback.Next();
 
-            yield return new WaitForSeconds(clip.length);
+            yield return MRoutine.Wait.Seconds(clip.length);
             Addressables.Release(clip);
 
             if (Wait.On == true) Playback.Next();

@@ -9,6 +9,7 @@ using static MB.RichTextMarker;
 using MB.NarrativeSystem;
 using System.Collections.Generic;
 using UnityEngine.Scripting;
+using System.Collections;
 
 namespace MB.NarrativeSystem
 {
