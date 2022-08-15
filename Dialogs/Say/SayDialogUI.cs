@@ -48,7 +48,7 @@ namespace MB.NarrativeSystem
         public bool IsActive => Data != null;
 
         public MRoutine.Handle Routine { get; private set; }
-        bool IsProcessing => Routine.State != MRoutine.Handle.RuntimeState.Complete;
+        bool IsProcessing => Routine.IsProcessing;
 
         public void UpdateLocalization()
         {
