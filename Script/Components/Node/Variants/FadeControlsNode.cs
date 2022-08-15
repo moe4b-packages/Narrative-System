@@ -21,7 +21,9 @@ namespace MB.NarrativeSystem
 {
     public class FadeInNode : Node
     {
-        public float? Duration { get; protected set; }
+        public const float DefaultDuration = 0.5f;
+
+        public float Duration { get; protected set; }
 
         public NodeWaitProperty<FadeInNode> Wait { get; }
 
@@ -36,12 +38,12 @@ namespace MB.NarrativeSystem
         {
             if (Wait.On == false) Playback.Next();
 
-            yield return Narrative.Controls.Fader.Show(duration: Duration);
+            yield return Narrative.Controls.Fader.Show(Duration);
 
             if (Wait.On == true) Playback.Next();
         }
 
-        public FadeInNode(float? duration)
+        public FadeInNode(float duration)
         {
             this.Duration = duration;
 
@@ -51,7 +53,9 @@ namespace MB.NarrativeSystem
 
     public class FadeOutNode : Node
     {
-        public float? Duration { get; protected set; }
+        public const float DefaultDuration = 0.5f;
+
+        public float Duration { get; protected set; }
 
         public NodeWaitProperty<FadeOutNode> Wait { get; }
 
@@ -66,12 +70,12 @@ namespace MB.NarrativeSystem
         {
             if (Wait.On == false) Playback.Next();
 
-            yield return Narrative.Controls.Fader.Hide(duration: Duration);
+            yield return Narrative.Controls.Fader.Hide(Duration);
 
             if (Wait.On == true) Playback.Next();
         }
 
-        public FadeOutNode(float? duration)
+        public FadeOutNode(float duration)
         {
             this.Duration = duration;
 
@@ -101,10 +105,10 @@ namespace MB.NarrativeSystem
     partial class Script
     {
         [NarrativeConstructorMethod]
-        public static FadeInNode FadeIn(float? duration = null) => new FadeInNode(duration);
+        public static FadeInNode FadeIn(float duration = FadeInNode.DefaultDuration) => new FadeInNode(duration);
 
         [NarrativeConstructorMethod]
-        public static FadeOutNode FadeOut(float? duration = null) => new FadeOutNode(duration);
+        public static FadeOutNode FadeOut(float duration = FadeOutNode.DefaultDuration) => new FadeOutNode(duration);
 
         [NarrativeConstructorMethod]
         public static SetFadeStateNode SetFadeState(bool isOn) => new SetFadeStateNode(isOn);
