@@ -47,10 +47,8 @@ namespace MB.NarrativeSystem
                 template.UpdateLocalization();
         }
 
-        public void Show<T>(T item) where T : IChoiceData
+        public MRoutine.Handle Show<T>(T item) where T : IChoiceData
         {
-            Show();
-
             Data = item;
 
             Templates.Clear();
@@ -61,12 +59,15 @@ namespace MB.NarrativeSystem
 
                 var entry = ChoiceDialogUITemplate.Create(template, (Data, index));
                 entry.SetParent(layout);
+                entry.transform.localScale = Vector3.one;
 
                 entry.Button.onClick.AddListener(OnClick);
                 void OnClick() => Invoke(index);
 
                 Templates.Add(entry);
             }
+
+            return Show();
         }
 
         public void Invoke(int index)

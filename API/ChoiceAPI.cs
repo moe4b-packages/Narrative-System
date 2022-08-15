@@ -40,6 +40,6 @@ namespace MB.NarrativeSystem
 
 	public interface IChoiceDialog : IDialog
 	{
-		void Show<T>(T data) where T : IChoiceData;
+		MRoutine.Handle Show<T>(T data) where T : IChoiceData;
 	}
 }

@@ -38,8 +38,8 @@ namespace MB.NarrativeSystem
 
 	public interface IDialog
 	{
-		void Show();
-		void Hide();
+		MRoutine.Handle Show();
+		MRoutine.Handle Hide();
 
 		void UpdateLocalization();
 	}
