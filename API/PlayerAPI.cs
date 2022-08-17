@@ -53,7 +53,7 @@ namespace MB.NarrativeSystem
 				{
 					Clear();
 
-					List.EnsureCapacity(Composition.Variables.Count);
+					List.EnsureExtraCapacity(Composition.Variables.Count);
 
 					for (int i = 0; i < Composition.Variables.Count; i++)
 					{
@@ -155,7 +155,7 @@ namespace MB.NarrativeSystem
 
 					var functions = Composition.Branches.RetrieveFunctions(Script);
 
-					List.EnsureCapacity(functions.Length);
+					List.EnsureExtraCapacity(functions.Length);
 
 					for (int i = 0; i < functions.Length; i++)
 					{
