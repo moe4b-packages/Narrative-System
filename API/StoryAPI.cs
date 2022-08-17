@@ -88,7 +88,7 @@ namespace MB.NarrativeSystem
 
 				public static string RetrievePath(Type type)
 				{
-					var path = MUtility.IterateTypeNesting(type)
+					var path = MUtility.Type.IterateNesting(type)
 							.Reverse()
 							.Select(Select)
 							.Join(JObjectComposer.Path.Seperator);

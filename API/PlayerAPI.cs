@@ -86,8 +86,8 @@ namespace MB.NarrativeSystem
 					public static int Index { get; internal set; }
 					public static Branch Value => List[Index];
 
-					public static Branch Previous => List.SafeIndexer(Index - 1);
-					public static Branch Next => List.SafeIndexer(Index + 1);
+					public static Branch Previous => List.SafeIndex(Index - 1);
+					public static Branch Next => List.SafeIndex(Index + 1);
 				}
 
 				public static class Nodes

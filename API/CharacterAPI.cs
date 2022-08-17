@@ -44,7 +44,7 @@ namespace MB.NarrativeSystem
 #if UNITY_EDITOR
                 var targets = AssetCollection.FindAll<Character>();
 
-                if (MUtility.CheckElementsInclusion(Collection, targets) == false)
+                if (MUtility.Collections.CheckElementsInclusion(Collection, targets) == false)
                 {
                     Collection = targets;
                     Runtime.Save(Narrative.Instance);

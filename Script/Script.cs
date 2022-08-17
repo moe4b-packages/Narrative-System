@@ -278,7 +278,7 @@ namespace MB.NarrativeSystem
                     ProcessTitle(type, collection);
 
                     for (int i = 0; i < collection.Count; i++)
-                        collection[i] = MUtility.PrettifyName(collection[i]);
+                        collection[i] = MUtility.Text.Prettify(collection[i]);
 
                     return collection;
                 }
@@ -505,14 +505,14 @@ namespace MB.NarrativeSystem
 
                 void DrawField(ref Rect rect, GUIContent label, SerializedProperty file)
                 {
-                    var area = MUtility.GUICoordinates.SliceLine(ref rect);
+                    var area = MUtility.GUI.SliceLine(ref rect);
 
                     EditorGUI.ObjectField(area, file, typeof(MonoScript), label);
                 }
 
                 void DrawHelpBox(ref Rect rect)
                 {
-                    var area = MUtility.GUICoordinates.SliceLine(ref rect);
+                    var area = MUtility.GUI.SliceLine(ref rect);
 
                     EditorGUI.HelpBox(area, "Invalid Script Selection", MessageType.Error);
                 }

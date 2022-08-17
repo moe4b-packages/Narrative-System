@@ -57,7 +57,7 @@ namespace MB.NarrativeSystem
             {
                 var id = ID(method);
 
-                return MUtility.PrettifyName(id);
+                return MUtility.Text.Prettify(id);
             }
 
             public static string FullName(Type script, MethodInfo branch)

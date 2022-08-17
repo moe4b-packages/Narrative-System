@@ -49,7 +49,7 @@ namespace MB.NarrativeSystem
         //Static Utility
 
         public static string FormatName(MemberInfo info) => FormatName(info.Name);
-        public static string FormatName(string text) => MUtility.PrettifyName(text);
+        public static string FormatName(string text) => MUtility.Text.Prettify(text);
 
         internal static Variable Assimilate(object target, VariableInfo info, string segment)
         {
