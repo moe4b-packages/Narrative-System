@@ -54,12 +54,14 @@ namespace MB.NarrativeSystem
 			Story.Prepare();
 		}
 
-#if UNITY_EDITOR
 		public void PreProcessBuild()
 		{
+#if UNITY_EDITOR
 			Characters.Refresh();
+#endif
 		}
 
+#if UNITY_EDITOR
 		public static class Composition
 		{
 			public static List<Script> Scripts { get; }
