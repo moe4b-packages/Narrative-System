@@ -1,6 +1,0 @@
-<linker>
-	<assembly fullname="MB.Narrative-System">
-		<type fullname="MB.NarrativeSystem.Script" preserve="all"/>
-		<type fullname="MB.NarrativeSystem.TempleConversation" preserve="all"/>
-	</assembly>
-</linker>

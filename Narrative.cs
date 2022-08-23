@@ -42,6 +42,7 @@ namespace MB.NarrativeSystem
 			Characters.Refresh();
 
 #if UNITY_EDITOR
+			Linker.Validate();
 			Validation.Process();
 #endif
 
@@ -57,6 +58,7 @@ namespace MB.NarrativeSystem
 		public void PreProcessBuild()
 		{
 #if UNITY_EDITOR
+			Linker.Build();
 			Characters.Refresh();
 #endif
 		}
@@ -138,6 +140,12 @@ namespace MB.NarrativeSystem
 					}
 				}
 			}
+		}
+
+		[MenuItem("Narr/Add")]
+		static void Add()
+        {
+			Instance.Linker.Build();
 		}
 #endif
 	}
