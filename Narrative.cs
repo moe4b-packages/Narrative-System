@@ -141,12 +141,6 @@ namespace MB.NarrativeSystem
 				}
 			}
 		}
-
-		[MenuItem("Narr/Add")]
-		static void Add()
-        {
-			Instance.Linker.Build();
-		}
 #endif
 	}
 
