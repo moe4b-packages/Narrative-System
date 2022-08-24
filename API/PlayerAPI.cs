@@ -12,7 +12,7 @@ namespace MB.NarrativeSystem
     {
 		public const string ScriptSuffixPath = nameof(Script) + "/";
 
-		public static T Play<T>()
+		public T Play<T>()
 			where T : Script, new()
 		{
 			var instance = new T();
@@ -22,8 +22,8 @@ namespace MB.NarrativeSystem
 			return instance;
 		}
 
-		public static Script Play(Script.Asset asset) => Play(asset.Type);
-		public static Script Play(Type type)
+		public Script Play(Script.Asset asset) => Play(asset.Type);
+		public Script Play(Type type)
 		{
 			if (typeof(Script).IsAssignableFrom(type) == false)
 				throw new ArgumentException($"Invalid Type, Type Must Inherit from {typeof(Script)}", nameof(type));
@@ -35,7 +35,7 @@ namespace MB.NarrativeSystem
 			return instance;
 		}
 
-		public static void Play(Script script)
+		public void Play(Script script)
 		{
 			Player.Start(script);
 		}

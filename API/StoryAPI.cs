@@ -22,6 +22,8 @@ namespace MB.NarrativeSystem
 {
 	public static partial class Story
 	{
+		internal static Narrative Narrative => Narrative.Instance;
+
 		public static class Variables
 		{
 			public const BindingFlags Flags = BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;

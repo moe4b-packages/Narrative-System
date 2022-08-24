@@ -26,6 +26,8 @@ namespace MB.NarrativeSystem
 {
     public class Node
     {
+        protected static Narrative Narrative => Narrative.Instance;
+
         protected internal virtual void Invoke()
         {
 

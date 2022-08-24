@@ -21,7 +21,7 @@ using MB.UISystem;
 
 namespace MB.NarrativeSystem
 {
-    [AddComponentMenu(Narrative.Controls.Path + "Choice Dialog UI")]
+    [AddComponentMenu(Narrative.ControlsProperty.Path + "Choice Dialog UI")]
     public class ChoiceDialogUI : UIPanel, IChoiceDialog
     {
         [SerializeField]

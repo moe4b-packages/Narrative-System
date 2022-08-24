@@ -41,31 +41,27 @@ namespace MB.NarrativeSystem
 		{
 			base.OnLoad();
 
-			Characters.Refresh();
+			Characters.Refresh(this);
 
 #if UNITY_EDITOR
 			Linker.Validate();
 			Validation.Process();
 #endif
 
-			if (IsPlaying) Initialize();
+			if (IsPlaying)
+			{
+				Progress.Prepare();
+				Story.Prepare();
+			}
 		}
 
-		static void Initialize()
-		{
-			Progress.Prepare();
-			Story.Prepare();
-		}
-
+#if UNITY_EDITOR
 		public void PreProcessBuild()
 		{
-#if UNITY_EDITOR
 			Linker.Build();
-			Characters.Refresh();
-#endif
+			Characters.Refresh(this);
 		}
 
-#if UNITY_EDITOR
 		public static class Composition
 		{
 			public static List<Script> Scripts { get; }
@@ -147,7 +143,7 @@ namespace MB.NarrativeSystem
 	}
 
 	[AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = true)]
-	sealed class NarrativeConstructorMethodAttribute : Attribute
+	public sealed class NarrativeConstructorMethodAttribute : Attribute
 	{
 
 	}

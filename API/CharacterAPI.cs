@@ -21,25 +21,17 @@ namespace MB.NarrativeSystem
 {
     partial class Narrative
     {
-        [SerializeField]
-        Characters characters = new Characters();
+        [field: SerializeField]
+        public CharactersProperty Characters { get; private set; } = new CharactersProperty();
         [Serializable]
-        public class Characters
+        public class CharactersProperty
         {
-            static Characters Instance => Narrative.Instance.characters;
+            [field: ReadOnly, SerializeField]
+            public List<Character> Collection { get; private set; }
 
-            [ReadOnly]
-            [SerializeField]
-            internal List<Character> collection = new List<Character>();
-            public static List<Character> Collection
-            {
-                get => Instance.collection;
-                set => Instance.collection = value;
-            }
+            public Dictionary<string, Character> Dictionary { get; }
 
-            public static Dictionary<string, Character> Dictionary { get; } = new Dictionary<string, Character>();
-
-            internal static void Refresh()
+            internal void Refresh(Narrative instance)
             {
 #if UNITY_EDITOR
                 var targets = AssetCollection.FindAll<Character>();
@@ -47,7 +39,7 @@ namespace MB.NarrativeSystem
                 if (MUtility.Collections.CheckElementsInclusion(Collection, targets) == false)
                 {
                     Collection = targets;
-                    Runtime.Save(Narrative.Instance);
+                    Runtime.Save(instance);
                 }
 #endif
 
@@ -55,7 +47,13 @@ namespace MB.NarrativeSystem
                 Dictionary.AddAll(Collection, x => x.name);
             }
 
-            public static bool TryFind(string id, out Character asset) => Dictionary.TryGetValue(id, out asset);
+            public bool TryFind(string id, out Character asset) => Dictionary.TryGetValue(id, out asset);
+
+            public CharactersProperty()
+            {
+                Collection = new List<Character>();
+                Dictionary = new Dictionary<string, Character>();
+            }
         }
     }
 }

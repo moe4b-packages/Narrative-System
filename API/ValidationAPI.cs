@@ -23,22 +23,25 @@ namespace MB.NarrativeSystem
 #if UNITY_EDITOR
 	partial class Narrative
 	{
-		[Tooltip("Specifies when to validate narrative components, " +
-			"validating will catch the basic composition errors in your scripts, editor only!")]
-		[SerializeField]
-		internal bool validateScripts = true;
-		public static bool ValidateScripts => Instance.validateScripts;
-
-		public static class Validation
+		[field: SerializeField]
+		public ValidationProperty Validation { get; private set; }
+		[Serializable]
+		public class ValidationProperty
 		{
-			public static void Initialize()
+			[Tooltip("Specifies when to validate narrative components, " +
+			"validating will catch the basic composition errors in your scripts, editor only!")]
+			[SerializeField]
+			[field: SerializeField]
+			public bool Enabled { get; private set; } = true;
+
+			public void Initialize()
             {
-				if (ValidateScripts == false) return;
+				if (Enabled == false) return;
 
 				Process();
             }
 
-			public static void Process()
+			public void Process()
 			{
 				var scripts = TypeQuery.FindAll<Script>();
 
@@ -46,12 +49,12 @@ namespace MB.NarrativeSystem
 					Process(scripts[i]);
 			}
 
-			public static void Process(Type script)
+			public void Process(Type script)
 			{
 				Branches.Process(script);
 			}
 
-			public static class Branches
+			public class Branches
             {
 				public static void Process(Type script)
 				{
@@ -60,14 +63,7 @@ namespace MB.NarrativeSystem
 					var pathes = data.Select(x => x.Attribute.Path).Distinct().Count();
 
 					if (pathes > 1)
-						Validation.Throw("Multiple Branches in Multiple Files for Partial Scripts are not Supported", script);
-				}
-
-				public static void Throw(string error, Type script, MethodInfo branch)
-                {
-					Debug.LogError($"Narrative Validation Error:\n" +
-						$"{error}\n" +
-						$"Branch: '{Branch.Format.FullName(script, branch)}'");
+						Throw("Multiple Branches in Multiple Files for Partial Scripts are not Supported", script);
 				}
 			}
 
@@ -76,6 +72,12 @@ namespace MB.NarrativeSystem
 				Debug.LogError($"Narrative Validation Error:\n" +
 					$"{error}\n" +
 					$"Script: '{Script.Format.Name.Retrieve(script)}'");
+			}
+			public static void Throw(string error, Type script, MethodInfo branch)
+			{
+				Debug.LogError($"Narrative Validation Error:\n" +
+					$"{error}\n" +
+					$"Branch: '{Branch.Format.FullName(script, branch)}'");
 			}
 		}
 	}

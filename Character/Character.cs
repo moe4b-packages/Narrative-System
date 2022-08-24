@@ -42,6 +42,8 @@ namespace MB.NarrativeSystem
 
 		//Static Utility
 
+		protected static Narrative Narrative => Narrative.Instance;
+
 		public static Character Find(string name)
 		{
 			if (Narrative.Characters.TryFind(name, out var character) == false)

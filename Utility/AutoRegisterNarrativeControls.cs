@@ -21,7 +21,7 @@ using MB.UISystem;
 
 namespace MB.NarrativeSystem
 {
-	[AddComponentMenu(Narrative.Controls.Path + "Auto Register Narrative Controls")]
+	[AddComponentMenu(Narrative.ControlsProperty.Path + "Auto Register Narrative Controls")]
 	public class AutoRegisterNarrativeControls : MonoBehaviour
 	{
         [SerializeField]
@@ -35,6 +35,8 @@ namespace MB.NarrativeSystem
 
         [SerializeField]
         AudioSource audioSource;
+
+        static Narrative Narrative => Narrative.Instance;
 
         void Awake()
         {

@@ -14,20 +14,18 @@ namespace MB.NarrativeSystem
 {
 	partial class Narrative
 	{
-		[SerializeField]
-		LinkerAPI linker;
-		public LinkerAPI Linker => linker;
+		[field: SerializeField]
+		public LinkerAPI Linker { get; private set; }
 		[Serializable]
 		public class LinkerAPI
 		{
-			[SerializeField]
-			TextAsset file;
-			public TextAsset File => file;
+			[field: SerializeField]
+			public TextAsset File { get; private set; }
 
 #if UNITY_EDITOR
 			internal void Validate()
 			{
-				if (file == null)
+				if (File == null)
 				{
 					var text = Retrieve();
 
@@ -38,14 +36,14 @@ namespace MB.NarrativeSystem
 
 					AssetDatabase.ImportAsset(Path);
 
-					file = AssetDatabase.LoadAssetAtPath<TextAsset>(Path);
+					File = AssetDatabase.LoadAssetAtPath<TextAsset>(Path);
 				}
 			}
 
 			internal void Build()
 			{
 				var text = Retrieve();
-				file.WriteText(text);
+				File.WriteText(text);
 			}
 
 			internal string Retrieve()

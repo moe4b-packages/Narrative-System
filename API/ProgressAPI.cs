@@ -25,48 +25,43 @@ namespace MB.NarrativeSystem
 {
 	partial class Narrative
 	{
-		[SerializeField]
-		Progress progress = new Progress();
+		[field: SerializeField]
+		public ProgressProperty Progress { get; private set; }
 		[Serializable]
-		public class Progress
+		public class ProgressProperty
 		{
-			static Progress Instance => Narrative.Instance.progress;
+			[field: SerializeField]
+			public string FileName { get; private set; } = "Narrative Progress";
 
-			[SerializeField]
-			internal string fileName = "Narrative Progress";
-			public static string FileName => Instance.fileName;
-
-			[SerializeField]
-			[SerializedType.Selection(typeof(JsonConverter))]
-			internal SerializedType[] converters = new SerializedType[] { SerializedType.From<StringEnumConverter>() };
-			public static SerializedType[] Converters => Instance.converters;
-			static JsonConverter[] CreateConverters()
+			[field: SerializeField, SerializedType.Selection(typeof(JsonConverter))]
+			public SerializedType[] Converters { get; private set; } = new SerializedType[]
 			{
-				var array = new JsonConverter[Converters.Length];
+				SerializedType.From<StringEnumConverter>()
+			};
 
-				for (int i = 0; i < array.Length; i++)
-					array[i] = Activator.CreateInstance(Converters[i]) as JsonConverter;
+			public JObjectComposer Composer { get; private set; }
+			public bool IsLoaded => Composer.IsLoaded;
 
-				return array;
-			}
+			public bool IsDirty { get; private set; }
 
-			public static JObjectComposer Composer { get; private set; }
-			public static bool IsLoaded => Composer.IsLoaded;
-
-			public static bool IsDirty { get; private set; }
-
-			public static class IO
+			public IOProperty IO { get; } = new IOProperty();
+			public class IOProperty
 			{
-				public static string Directory { get; private set; }
+				public string Directory { get; private set; }
 
-				static string FormatPath(string file)
+				internal void Prepare()
+                {
+					Directory = Application.isEditor ? Application.dataPath : Application.persistentDataPath;
+				}
+
+				string FormatPath(string file)
 				{
 					file += ".json";
 
 					return System.IO.Path.Combine(Directory, file);
 				}
 
-				public static string Load(string file)
+				public string Load(string file)
 				{
 					var target = FormatPath(file);
 
@@ -78,71 +73,45 @@ namespace MB.NarrativeSystem
 					return content;
 				}
 
-				public static void Save(string file, string content)
+				public void Save(string file, string content)
 				{
 					var target = FormatPath(file);
 
 					File.WriteAllText(target, content);
 				}
-
-				static IO()
-				{
-					Directory = Application.isEditor ? Application.dataPath : Application.persistentDataPath;
-				}
 			}
 
-			public static class Context
-            {
-				internal static void Load()
-				{
-					var json = IO.Load(FileName);
-
-					Composer.Load(json);
-				}
-
-				public static void Reset()
-				{
-					Composer.Clear();
-
-					Save();
-				}
-
-				public static void Save()
-				{
-					IsDirty = false;
-
-					var json = Composer.Read();
-
-					IO.Save(FileName, json);
-				}
-			}
-
-			public static class SaveLock
+			public SaveLockProperty SaveLock { get; } = new SaveLockProperty();
+			public class SaveLockProperty
 			{
-				public static bool IsOn { get; private set; }
+				int Count;
+				public bool IsOn => Count != 0;
 
-				public static void Start()
+				internal ProgressProperty Progress;
+
+				public void Start()
 				{
+					Count += 1;
+
 					if (IsOn)
 						Debug.LogWarning("Narrative Progress Save Lock Already On, Did you Forget to Unlock it");
-
-					IsOn = true;
 				}
 
-				public static void End()
+				public void End()
 				{
-					IsOn = false;
+					Count += 1;
 
-					if (IsDirty) Context.Save();
+					if (Progress.IsDirty) Progress.Save();
 				}
 			}
 
-			public static class AutoSave
+			public AutoSaveProperty AutoSave { get; } = new AutoSaveProperty();
+			public class AutoSaveProperty
 			{
-				public static bool OnChange { get; set; } = true;
-				public static bool OnExit { get; set; } = true;
+				public bool OnChange { get; set; } = true;
+				public bool OnExit { get; set; } = true;
 
-				public static bool All
+				public bool All
 				{
 					set
 					{
@@ -152,8 +121,12 @@ namespace MB.NarrativeSystem
 				}
 			}
 
-			internal static void Prepare()
+			internal void Prepare()
 			{
+				IO.Prepare();
+				SaveLock.Progress = this;
+
+				Composer = JObjectComposer.Create<ProgressProperty>();
 				var settings = new JsonSerializerSettings()
 				{
 					Converters = CreateConverters(),
@@ -161,41 +134,64 @@ namespace MB.NarrativeSystem
 				};
 				Composer.Configure(settings);
 
-				Context.Load();
+				var json = IO.Load(FileName);
+				Composer.Load(json);
 
 				Composer.OnChange += InvokeChange;
 
 				Application.quitting += QuitCallback;
+
+				JsonConverter[] CreateConverters()
+				{
+					var array = new JsonConverter[Converters.Length];
+
+					for (int i = 0; i < array.Length; i++)
+						array[i] = Activator.CreateInstance(Converters[i]) as JsonConverter;
+
+					return array;
+				}
+			}
+
+			public void Clear()
+			{
+				Composer.Clear();
+
+				Save();
+			}
+			public void Save()
+			{
+				IsDirty = false;
+
+				var json = Composer.Read();
+
+				IO.Save(FileName, json);
 			}
 
 			#region Controls
-			public static T Read<T>(string id, T fallback = default) => Composer.Read<T>(id, fallback: fallback);
-			public static object Read(string id, Type type, object fallback = default) => Composer.Read(id, type, fallback: fallback);
+			public T Read<T>(string id, T fallback = default) => Composer.Read<T>(id, fallback: fallback);
+			public object Read(string id, Type type, object fallback = default) => Composer.Read(id, type, fallback: fallback);
 
-			public static bool Contains(string id) => Composer.Contains(id);
+			public bool Contains(string id) => Composer.Contains(id);
 
-			public static bool Remove(string id) => Composer.Remove(id);
+			public bool Remove(string id) => Composer.Remove(id);
 
-			public static void Set(string id, object value) => Composer.Set(id, value);
-			#endregion
+			public void Set(string id, object value) => Composer.Set(id, value);
+            #endregion
 
-			static void InvokeChange()
+            #region Callbacks
+            void InvokeChange()
 			{
 				if (AutoSave.OnChange)
-					Context.Save();
+					Save();
 				else
 					IsDirty = true;
 			}
 
-			static void QuitCallback()
+			void QuitCallback()
 			{
-				if (AutoSave.OnExit && IsDirty) Context.Save();
+				if (AutoSave.OnExit && IsDirty) Save();
 			}
-
-			public Progress()
-			{
-				Composer = JObjectComposer.Create<Progress>();
-			}
-		}
-	}
+            #endregion
+        }
+    }
 }

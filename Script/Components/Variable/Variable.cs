@@ -31,6 +31,8 @@ namespace MB.NarrativeSystem
 
         public Type Type => Info.ValueType;
 
+        protected static Narrative Narrative => Narrative.Instance;
+
         internal void Configure(VariableInfo info, string segment)
         {
             this.Info = info;

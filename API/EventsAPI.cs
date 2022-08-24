@@ -21,9 +21,10 @@ namespace MB.NarrativeSystem
 {
 	partial class Narrative
     {
-        public static class Events
+        public EventsProperty Events { get; private set; } = new EventsProperty();
+        public class EventsProperty
         {
-            public static List<Handler> Handlers { get; private set; }
+            public List<Handler> Handlers { get; private set; }
             public class Handler
             {
                 public string Key { get; protected set; }
@@ -39,8 +40,8 @@ namespace MB.NarrativeSystem
             }
 
             public delegate void RaiseDelegate(string key);
-            public static event RaiseDelegate OnRaise;
-            public static void Raise(string key)
+            public event RaiseDelegate OnRaise;
+            public void Raise(string key)
             {
                 if (InvokeHandlers(key) == false)
                     Debug.LogWarning($"Narrative Event '{key}' Has no Registerd Handlers");
@@ -48,7 +49,7 @@ namespace MB.NarrativeSystem
                 OnRaise?.Invoke(key);
             }
 
-            static bool InvokeHandlers(string key)
+            bool InvokeHandlers(string key)
             {
                 bool invoked = false;
 
@@ -64,14 +65,14 @@ namespace MB.NarrativeSystem
                 return invoked;
             }
 
-            public static void Register(string key, Action callback)
+            public void Register(string key, Action callback)
             {
                 var handler = new Handler(key, callback);
 
                 Handlers.Add(handler);
             }
 
-            public static bool Unregister(string key, Action callback)
+            public bool Unregister(string key, Action callback)
             {
                 for (int i = Handlers.Count; i-- > 0;)
                 {
@@ -85,7 +86,7 @@ namespace MB.NarrativeSystem
                 return false;
             }
 
-            static Events()
+            public EventsProperty()
             {
                 Handlers = new List<Handler>();
             }

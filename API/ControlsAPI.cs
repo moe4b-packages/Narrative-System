@@ -23,16 +23,18 @@ namespace MB.NarrativeSystem
 {
 	partial class Narrative
 	{
-		public static class Controls
+		public ControlsProperty Controls { get; private set; } = new ControlsProperty();
+		[Serializable]
+		public class ControlsProperty
 		{
 			public const string Path = Narrative.Path + "Controls/";
 			
-			public static ISayDialog Say { get; set; }
-			public static IChoiceDialog Choice { get; set; }
+			public ISayDialog Say { get; set; }
+			public IChoiceDialog Choice { get; set; }
 
-			public static FadeUI Fader { get; set; }
+			public FadeUI Fader { get; set; }
 
-			public static AudioSource AudioSource { get; set; }
+			public AudioSource AudioSource { get; set; }
 		}
 	}
 

@@ -24,7 +24,7 @@ using MB.LocalizationSystem;
 
 namespace MB.NarrativeSystem
 {
-	[AddComponentMenu(Narrative.Controls.Path + "Choice Dialog UI Template")]
+	[AddComponentMenu(Narrative.ControlsProperty.Path + "Choice Dialog UI Template")]
 	public class ChoiceDialogUITemplate : UITemplate<ChoiceDialogUITemplate, (IChoiceData Root, int Index)>
 	{
 		[SerializeField]
