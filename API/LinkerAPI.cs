@@ -23,7 +23,7 @@ namespace MB.NarrativeSystem
 			public TextAsset File { get; private set; }
 
 #if UNITY_EDITOR
-			internal void Validate()
+			internal void Validate(Narrative narrative)
 			{
 				if (File == null)
 				{
@@ -37,6 +37,8 @@ namespace MB.NarrativeSystem
 					AssetDatabase.ImportAsset(Path);
 
 					File = AssetDatabase.LoadAssetAtPath<TextAsset>(Path);
+
+					Runtime.Save(narrative);
 				}
 			}
 

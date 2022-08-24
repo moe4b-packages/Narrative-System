@@ -44,7 +44,7 @@ namespace MB.NarrativeSystem
 			Characters.Refresh(this);
 
 #if UNITY_EDITOR
-			Linker.Validate();
+			Linker.Validate(this);
 			Validation.Process();
 #endif
 
