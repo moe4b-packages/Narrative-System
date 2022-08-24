@@ -26,6 +26,8 @@ using Newtonsoft.Json.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
+[assembly: AssemblySymbolDefine("MB_NARRATIVE")]
+
 namespace MB.NarrativeSystem
 {
 	[Manager]
