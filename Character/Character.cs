@@ -25,6 +25,8 @@ namespace MB.NarrativeSystem
 	[CreateAssetMenu(menuName = Narrative.Path + "Character")]
 	public class Character : ScriptableObject, ILocalizationTextTarget
 	{
+		static Localization Localization => Localization.Instance;
+
 		public string ID => name;
 		IEnumerable<string> ILocalizationTextTarget.LocalizationText
 		{

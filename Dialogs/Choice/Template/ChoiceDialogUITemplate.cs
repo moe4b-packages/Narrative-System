@@ -54,6 +54,8 @@ namespace MB.NarrativeSystem
 
         //Static Utility
 
+        static Localization Localization => Localization.Instance;
+
         public static string FormatDisplayText(IChoiceData data, IChoiceEntry entry)
         {
             return Localization.Format(entry.Text, data.Format);
