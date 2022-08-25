@@ -31,7 +31,7 @@ namespace MB.NarrativeSystem
 
 					var Path = Toolbox.IO.GenerateRuntimePath("Narrative/link.xml");
 
-					MUtility.IO.EnsureFileDirectory(Path);
+					MUtility.IO.EnsureDirectory(Path);
 					System.IO.File.WriteAllText(Path, text);
 
 					AssetDatabase.ImportAsset(Path);
